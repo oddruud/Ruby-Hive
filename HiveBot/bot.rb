@@ -1,7 +1,7 @@
 class Bot
   require 'communication'   
-  require '../Common/Insects/ant'  
-  require '../Common/boardstate'
+  require 'Insects/ant'  
+  require 'boardstate'
   attr_reader :com 
   attr_reader :piece
   attr_reader :boardState

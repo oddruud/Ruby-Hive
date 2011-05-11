@@ -1,3 +1,6 @@
+$LOAD_PATH.unshift( File.join( File.dirname(__FILE__), 'Common' ) )
+$LOAD_PATH.unshift( File.join( File.dirname(__FILE__), 'HiveServer' ) )
+
 require "socket"  
 dts = TCPServer.new('localhost', 3333)  
 puts "start server"
