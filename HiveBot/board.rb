@@ -1,2 +1,0 @@
-class Board
-end
