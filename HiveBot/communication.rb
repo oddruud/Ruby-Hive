@@ -4,26 +4,18 @@ attr_reader :host
 attr_reader :socket
 attr_reader :active
 
-require 'socket'      # Sockets are in standard library
-    
+require 'drb'
+ 
 def initialize(host, port)
   @active= true
   @host= host
   @port= port
-  @socket = TCPSocket.new(@host, @port)
-  @socket.print("hello server\n")
-  startListener()
+  uri= "druby://#{host}:#{port}"  
+  gameHandler = DRbObject.new nil, uri
+  gameHandler.hello() 
+  puts ("initing communication object (DRb): #{uri}")
 end
 
-def startListener    
-     Thread.start do  
-     while  !( @socket.closed?) && (serverMessage =  @socket.gets)
-        puts serverMessage
-        @socket.print("thanks server\n")
-      end  
-  end
-  
-end
 
 def retrieveMessage(message)
   

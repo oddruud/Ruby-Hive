@@ -4,7 +4,7 @@ require 'bot'
 require 'naivebot'
 require 'smartbot'
 
-bot= NaiveBot.new()
+bot= NaiveBot.new("localhost","3333")
 
 
 #TEST

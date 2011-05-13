@@ -1,7 +1,7 @@
 class NaiveBot < Bot
 
-  def initialize()
-    super() 
+  def initialize(host, port)
+    super(host,port) 
   end
   
 

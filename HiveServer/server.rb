@@ -1,28 +1,28 @@
 require "socket"  
-require "boardstate"  
+require "drb"
+require "gamehandler"  
 
 class Server
   
   attr_reader :dts
-  attr_reader :boardState
+  attr_reader :gameHandler
   
-  def initialize
-    @boardState= BoardState.new()
-    @dts = TCPServer.new('localhost', 3333)  
-    puts "start server"
-    puts "localhost:3333" 
-    listen() 
+  def initialize(url, port)
+    @gameHandler= GameHandler.new()
+    @url = url
+    @port= port  
+    DRb.start_service "druby://"+url+":"+ port, @gameHandler    
+    puts "Server running at #{DRb.uri}"
+    DRb.thread.join
   end
-  
-  
- 
+    
 def listen  
-  loop do  
-    Thread.start(@dts.accept) do |s|  
-      print(s, " is accepted\n")  
-      s.write(Time.now)    
-    end   
-  end  
+  #loop do  
+  #  Thread.start(@dts.accept) do |s|  
+  #    print(s, " is accepted\n")  
+  #    s.write(Time.now)    
+  #  end   
+  #end  
 end
 
 def handleMessage(message)
