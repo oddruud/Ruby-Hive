@@ -1,7 +1,8 @@
 require 'Insects/piece'
-class Ant < Piece
+class GrassHopper < Piece
 
 def initialize() 
+  
 end
   
 end

@@ -19,6 +19,7 @@ def startListener
      Thread.start do  
      while  !( @socket.closed?) && (serverMessage =  @socket.gets)
         puts serverMessage
+        @socket.print("thanks server\n")
       end  
   end
   

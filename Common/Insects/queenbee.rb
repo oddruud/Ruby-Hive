@@ -1,5 +1,5 @@
 require 'Insects/piece'
-class Ant < Piece
+class QueenBee < Piece
 
 def initialize() 
 end
