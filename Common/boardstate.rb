@@ -5,7 +5,7 @@ require 'Insects/grasshopper'
 require 'Insects/spider'  
 
 class BoardState
-
+ include DRbUndumped
 attr_accessor :pieces
 
 def initialize()

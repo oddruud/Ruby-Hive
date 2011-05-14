@@ -4,10 +4,11 @@ require 'drb'
 require 'bot'   
 require 'naivebot'
 require 'smartbot'
-DRb.start_service
 
-
-bot= NaiveBot.new("localhost","3333", "Jimmy")
+url ="localhost"
+port= "3333"
+DRb.start_service 
+bot= NaiveBot.new(url,port, "Jimmy")
 
 
 #TEST

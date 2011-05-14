@@ -1,12 +1,15 @@
+require 'boardstate'
 class Player
-  require 'boardstate'
-  attr_reader :boardState
-  attr_writer :name
-  
   include DRbUndumped
+  attr_accessor :name
   
   def initialize(name)
    @name = name
+  end
+    
+  def submitMove(boardState)
+    puts "Submitting move..."
+    return "this is my move!"
   end
 
 end

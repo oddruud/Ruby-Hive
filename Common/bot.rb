@@ -1,12 +1,20 @@
-class Bot
-  require 'communication'   
+require 'player'
+require 'gamehandler'
+class Bot < Player  
+    include DRbUndumped
+   
   require 'boardstate'
   attr_reader :com 
   
   def initialize(host, port, name)
-     super(name)
-    
-      @com = Communication.new(host, port)
+    super(name) 
+    uri= "druby://#{host}:#{port}"  
+    gameHandler = DRbObject.new nil, uri
+    gameHandler.addPlayer(self)
+    gameHandler.hello()
   end
+  
+  
+  
 
 end

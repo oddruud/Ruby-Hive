@@ -1,5 +1,8 @@
 require "boardstate"
+require "player"
+
 class GameHandler
+   include DRbUndumped
   attr_reader :value
   attr_reader :boardState 
   attr_reader :players
@@ -17,6 +20,8 @@ class GameHandler
   def addPlayer(player)
     @players.push(player)
     puts "#{player.name} added..."
+    move = player.submitMove(@boardState)
+    puts "response #{move}" 
   end
   
 end
