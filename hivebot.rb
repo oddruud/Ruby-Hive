@@ -7,6 +7,7 @@ require 'smartbot'
 
 url ="localhost"
 port= "3333"
+system("mkfifo  hivepipe"); 
 DRb.start_service 
 bot= NaiveBot.new(url,port, "Jimmy")
 DRb.thread.join
