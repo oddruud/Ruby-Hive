@@ -9,7 +9,7 @@ url ="localhost"
 port= "3333"
 DRb.start_service 
 bot= NaiveBot.new(url,port, "Jimmy")
-
+DRb.thread.join
 
 #TEST
 
