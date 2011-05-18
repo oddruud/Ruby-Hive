@@ -12,12 +12,11 @@ class Bot < Player
     @gameHandler = DRbObject.new nil, uri
     @gameHandler.addPlayer(self)
   end
-  
-  
+    
   def makeMove()
     puts "Bot's makemove called"
-   thread = Thread.new{ calculateNextMove();}
-   thread.join 
+    thread = Thread.new{ calculateNextMove();}
+    thread.join 
   end  
   
   def calculateNextMove
@@ -26,9 +25,4 @@ class Bot < Player
     #emit move
     @gameHandler.moveMade(self, move)
   end
-    
-  
-  
-  
-
 end

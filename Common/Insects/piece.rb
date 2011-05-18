@@ -1,5 +1,4 @@
 class Piece
-
 #PIECE CONSTANTS: CORRESPOND TO INDICES IN BOARDSTATE ARRAY
 WHITE_QUEEN_BEE = 0
 WHITE_BEETLE1 = 1
@@ -27,8 +26,9 @@ BLACK_ANT3 = 21
 #properties
 attr_accessor :sides
 attr_reader :id
+attr_accessor :boardState
 
-def initialize(id)
+def initialize(id, boardState)
   @id = id
   @sides= Hash.new()
   @sides[0]= nil #TOP SIDE 
@@ -38,7 +38,14 @@ def initialize(id)
   @sides[4]= nil
   @sides[5]= nil
   @sides[6]= nil #UPPER SIDE
+  @boardState= boardState
 end
+
+def copy
+  newPiece = self.dup 
+  return newPiece
+end
+
 
 def detachAll()
 
@@ -46,6 +53,10 @@ end
 
 def detachPiece(piece)
 
+end
+
+def availableMoves()
+  
 end
 
 def isConnectedTo(piece)

@@ -6,10 +6,16 @@ require 'Insects/spider'
 
 class BoardState
  include DRbUndumped
-attr_accessor :pieces
+ 
+attr_reader :pieces
 
 def initialize()
  puts "Creating new Board State"
+end
+
+
+def start
+ puts "Creating pieces for Board State"
  @pieces =  Hash.new()
  
  #WHITE PIECES
@@ -37,17 +43,37 @@ def initialize()
  @pieces[Piece::BLACK_ANT1]= Ant.new()
  @pieces[Piece::BLACK_ANT2]= Ant.new()
  @pieces[Piece::BLACK_ANT3]= Ant.new()
- 
 end
 
  #returns BoardState
   def moveVirtual(piece_id, destination_piece_id, destination_side)
-    boardState= self.dup 
-    boardState.move(piece, destination_piece_id, destination_side) 
-    return boardState
+    nextState = self.copy 
+    nextState.move(piece, destination_piece_id, destination_side) 
+    return nextState
   end
 
-  def availableMoves(piece_id)
+  def copy
+    newState= self.dup  # shallow copy
+    newState.pieces= nil 
+    newState.pieces= Hash.new()
+    
+    #copy all deeper objects
+    @piece.each do |p|
+      newPiece = p.copy
+      newPiece.boardState = newState 
+      newState.pieces << newPiece
+    end  
+  
+    return newState
+  end
+
+
+
+  def availableMovesByPiece(piece_id)
+
+  end
+
+  def availableMovesByColor(color)
 
   end
 
