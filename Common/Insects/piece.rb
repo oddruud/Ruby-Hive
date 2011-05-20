@@ -23,22 +23,37 @@ BLACK_ANT1 = 19
 BLACK_ANT2 = 20
 BLACK_ANT3 = 21
 
+
+#SIDE ENUMS
+=begin
+  [2][3]
+  [7][1][4]
+    [6][5]
+=end 
+UPPER_SIDE = 0
+TOP_SIDE = 1
+TOP_RIGHT_SIDE = 2
+BOTTOM_RIGHT_SIDE = 3
+BOTTOM_SIDE = 4
+BOTTOM_LEFT_SIDE = 5
+TOP_LEFT_SIDE = 6
+
 #properties
 attr_accessor :sides
 attr_reader :id
-attr_accessor :boardState
+attr_accesor :x
+attr_accesor :y
 
-def initialize(id, boardState)
+def initialize(id)
   @id = id
-  @sides= Hash.new()
-  @sides[0]= nil #TOP SIDE 
-  @sides[1]= nil #RIGHT TO TOP SIDE
-  @sides[2]= nil
-  @sides[3]= nil
-  @sides[4]= nil
-  @sides[5]= nil
-  @sides[6]= nil #UPPER SIDE
-  @boardState= boardState
+  @sides= Array.new()
+  @sides[UPPER_SIDE]= nil 
+  @sides[TOP_SIDE]= nil 
+  @sides[TOP_RIGHT_SIDE]= nil
+  @sides[BOTTOM_RIGHT_SIDE]= nil
+  @sides[BOTTOM_SIDE ]= nil
+  @sides[BOTTOM_LEFT_SIDE ]= nil
+  @sides[TOP_LEFT_SIDE ]= nil 
 end
 
 def copy
@@ -46,12 +61,15 @@ def copy
   return newPiece
 end
 
+def boardPosition
+  return [x,y]
+end
 
 def detachAll()
 
 end
 
-def detachPiece(piece)
+def detachPiece(piece_id)
 
 end
 
@@ -59,18 +77,18 @@ def availableMoves()
   
 end
 
-def isConnectedTo(piece)
+def isConnectedTo(piece_id)
   @sides.each do |s|
-    if piece == s
+    if piece_id == s
       return true 
     end
   end
   return false
 end
 
-def attachPiece(piece, side)
-  if @sides[side].nil? 
-    @sides[side]= piece
+def attachPiece(piece_id, side_id)
+  if @sides[side_id].nil? 
+    @sides[side_id]= piece_id
     return true
   else
     return false

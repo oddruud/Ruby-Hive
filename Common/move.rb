@@ -1,14 +1,15 @@
 require 'Insects/piece'
+require 'moveexception'
 class Move
   include DRbUndumped
-  attr_accessor :moving_piece
-  attr_accessor :dest_piece
-  attr_accessor :side
+  attr_reader :moving_piece_id
+  attr_reader :dest_piece_id
+  attr_reader :side_id
   
-  def initialize(moving_piece, dest_piece, side)
-   @moving_piece = moving_piece
-   @dest_piece = dest_piece
-   @side = side 
+  def initialize(moving_piece_id, dest_piece_id, side)
+   @moving_piece_id = moving_piece
+   @dest_piece_id = dest_piece
+   @side_id = side 
   end
   
   def toString
