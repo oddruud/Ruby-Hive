@@ -81,16 +81,16 @@ end
          raise  MoveException, "invalid move: you must play the queen bee"
        else
            x,y = getBoardPos(move)
+           #TODO is valid check:
+           @board[x][y] = move.moving_piece_id 
        end
     else
-       
-          
-          
-           
+          x,y = getBoardPos(move)
+           #TODO is valid check:
+           @board[x][y] = move.moving_piece_id 
     end
   end
-
-
+  
   def print
     @board.each do |r|
       print "\n"
