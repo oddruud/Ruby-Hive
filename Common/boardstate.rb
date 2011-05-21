@@ -9,8 +9,8 @@ class BoardState
  include DRbUndumped
  
 attr_reader :pieces   #1D array [piece_id] -> Piece
-atr_reader :board     #2D array [x][y] -> piece_id     
-atr_reader :moves     #1D array [i] -> Move
+attr_reader :board     #2D array [x][y] -> piece_id     
+attr_reader :moves     #1D array [i] -> Move
 
 BOARD_SIZE = 50
 EMPTY_SLOT_WHITE = -2
@@ -80,14 +80,10 @@ end
       if move.moving_piece_id !=  Piece::QUEEN_BEE  
          raise  MoveException, "invalid move: you must play the queen bee"
        else
-           x,y = getBoardPos(move)
-           #TODO is valid check:
-           @board[x][y] = move.moving_piece_id 
+          place(move)
        end
     else
-          x,y = getBoardPos(move)
-           #TODO is valid check:
-           @board[x][y] = move.moving_piece_id 
+      place(move)
     end
   end
   
@@ -140,25 +136,21 @@ end
  private
  
  def place(move)
-
+    x,y = getBoardPos(move)
+    #TODO is valid check:
+    @board[x][y] = move.moving_piece_id 
  end
 
+ def setPieceTo(piece_id, x ,y)
+  
+ end
+ 
  def getBoardPos(move)
     xdif = 0 
     ydif = 0 
     x = @pieces[move.destination_piece_id].x 
     y = @pieces[move.destination_piece_id].y    
     side = move.side_id
-
-=begin
-UPPER_SIDE = 0
-TOP_SIDE = 1
-TOP_RIGHT_SIDE = 2
-BOTTOM_RIGHT_SIDE = 3
-BOTTOM_SIDE = 4
-BOTTOM_LEFT_SIDE = 5
-TOP_LEFT_SIDE = 6
-=end
   
 #SIDE ENUMS
 =begin
