@@ -9,10 +9,11 @@ class BoardState
  include DRbUndumped
  
 attr_reader :pieces   #1D array [piece_id] -> Piece
-attr_reader :board     #2D array [x][y] -> piece_id     
+attr_reader :board     #2D array [x][y] -> piece_id          
 attr_reader :moves     #1D array [i] -> Move
 
 BOARD_SIZE = 50
+UNCONNECTED = -1
 EMPTY_SLOT_WHITE = -2
 EMPTY_SLOT_BLACK = -3
 EMPTY_SLOT_MIXED = -4
@@ -50,6 +51,10 @@ def start
   @pieces[Piece::BLACK_ANT2]= Ant.new()
   @pieces[Piece::BLACK_ANT3]= Ant.new() 
   
+  (0..21).each do |i|
+    @pieces[i].id = i 
+  end
+  
   @board = Array.new(BOARD_SIZE, Array.new(BOARD_SIZE, -1))   #THE BOARD
   @moves = Array.new()                                        #WHITE
   
@@ -70,9 +75,7 @@ end
   def makeMove(move)
     if @moves.length == 0 #First move, place it in the center of the board:
        if move.moving_piece_id !=  Piece::QUEEN_BEE  
-         @board[BOARD_SIZE/2][BOARD_SIZE/2] = move.moving_piece_id 
-          @pieces[move.moving_piece_id].x = BOARD_SIZE/2
-          @pieces[move.moving_piece_id].y = BOARD_SIZE/2
+          setPieceTo(move.moving_piece_id, BOARD_SIZE/2 ,BOARD_SIZE/2)
        else
          raise  MoveException, "invalid move: you can only add the QUEEN BEE in the Fourth Move"
        end
@@ -114,8 +117,6 @@ end
     return newState
   end
 
-
-
   def availableMovesByPiece(piece_id)
 
   end
@@ -133,57 +134,124 @@ end
   
  end
  
+ 
  private
  
  def place(move)
     x,y = getBoardPos(move)
-    #TODO is valid check:
-    @board[x][y] = move.moving_piece_id 
+    
+##EMPTY_SLOT_WHITE = -2
+##EMPTY_SLOT_BLACK = -3
+##EMPTY_SLOT_MIXED = -4
+    
+    if @board[x][y] == EMPTY_SLOT_MIXED &&  @pieces[move.moving_piece_id].used==false
+       raise  MoveException, "invalid move: cannot place new #{Piece::PIECE_NAME[move.moving_piece_id]} next to opposite side"
+    end
+    
+    setPieceTo(move.moving_piece_id, x, y) 
  end
 
  def setPieceTo(piece_id, x ,y)
-  
+  removePieceFromBoard(piece_id) 
+  @board[x][y]= piece_id 
+  @pieces[piece_id].setBoardPosition(x,y)     
+  (0..6).each do |i| 
+    nx,ny =@pieces[move.destination_piece_id].neighbour[i] 
+    case @board[nx][ny]
+      when UNCONNECTED then 
+        if Piece.color(piece_id)== PieceColor::WHITE   
+          @board[nx][ny] = EMPTY_SLOT_WHITE 
+        elsif Piece.color(piece_id)== PieceColor::BLACK   
+          @board[nx][ny] = EMPTY_SLOT_BLACK 
+        end  
+      when EMPTY_SLOT_BLACK then
+        if Piece.color(piece_id)== PieceColor::WHITE   
+          @board[nx][ny] = EMPTY_SLOT_MIXED
+        end 
+      when EMPTY_SLOT_WHITE then
+        if Piece.color(piece_id)== PieceColor::BLACK   
+          @board[nx][ny] = EMPTY_SLOT_MIXED
+        end  
+    end
+  end   
  end
- 
- def getBoardPos(move)
-    xdif = 0 
-    ydif = 0 
-    x = @pieces[move.destination_piece_id].x 
-    y = @pieces[move.destination_piece_id].y    
-    side = move.side_id
   
-#SIDE ENUMS
-=begin
-    2
-7     3
-   1   
-6     4
-   5
-   
-  [2][3]
-  [7][1][4]
-    [6][5]
-=end 
- case side 
-      when UPPER_SIDE then 
-        xdif, ydif= 0, 0 
-      when TOP_SIDE then 
-        xdif, ydif= -1, -1 
-      when TOP_RIGHT_SIDE then 
-        xdif, ydif= 0, -1  
-      when BOTTOM_RIGHT_SIDE then 
-        xdif, ydif= 1, 0  
-      when BOTTOM_SIDE then 
-        xdif, ydif= 1, 1  
-      when BOTTOM_LEFT_SIDE then 
-        xdif, ydif= 0, 1  
-      when TOP_LEFT_SIDE then 
-        xdif, ydif= -1, 0 
-      else
-        raise MoveException, "non excisting side #{side}"
+ def removePieceFromBoard(piece_id)
+  white = 0
+  black = 0 
+  if @pieces[piece_id].used==true
+     (0..6).each do |i| 
+        nx,ny =@pieces[piece_id].neighbour[i] 
+        case @board[nx][ny]
+          when EMPTY_SLOT_BLACK then 
+          when EMPTY_SLOT_WHITE then
+          when EMPTY_SLOT_MIXED then   
+              @board[nx][ny] = slotStateAfterRemoval(piece_id, nx,ny)       #changes the states of surrounding slots after the removal    
+          else    
+              if @pieces[@board[nx][ny]].color ==PieceColor::WHITE
+                white = 1
+              end         
+              if @pieces[@board[nx][ny]].color ==PieceColor::BLACK
+                black = 1
+              end       
+        end
+     end   
+     
+     rx,ry= @pieces[piece_id].boardPosition                                   #the slot's new state after removal of the piece 
+     if white == 1 && black == 1 
+       @board[rx][ry] = EMPTY_SLOT_MIXED
+     elsif white == 1 && black == 0 
+       @board[rx][ry] = EMPTY_SLOT_WHITE
+     elsif white == 0 && black == 1
+       @board[rx][ry] = EMPTY_SLOT_BLACK
+     end
+      
+  end
+ end 
+  
+ def slotStateAfterRemoval(removed_piece, slotx,sloty)
+       state=-1
+       white=0 
+       black=0
+       
+       rx,ry = @board[removed_piece] 
+       (0..6).each do |i| 
+         nx, ny = Slot.neighbour(slotx,sloty,i)
+         case @board[nx][ny]
+          when UNCONNECTED then 
+          when EMPTY_SLOT_BLACK then 
+          when EMPTY_SLOT_WHITE then
+          when EMPTY_SLOT_MIXED then
+          
+          else
+            if @pieces[@board[nx][ny]].color ==PieceColor::WHITE
+                white = 1
+            end         
+            if @pieces[@board[nx][ny]].color ==PieceColor::BLACK
+                black = 1
+            end         
+        end      
+       end  
+       
+     if white == 1 && black == 1 
+      state = EMPTY_SLOT_MIXED
+     elsif white == 1 && black == 0 
+      state = EMPTY_SLOT_WHITE
+     elsif white == 0 && black == 1
+      state = EMPTY_SLOT_BLACK
+     elsif white == 0 && black == 0
+      state = UNCONNECTED
+     end
+     
+     return state 
+ end 
+
+
+  
+  
+  
+ def getBoardPos(move) 
+   return @pieces[move.destination_piece_id].neighbour[move.side_id]
  end
- 
-  return x+xdif,y+ydif
-end
 
 end

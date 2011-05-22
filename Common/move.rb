@@ -13,7 +13,7 @@ class Move
   end
   
   def toString
-    return "#{Piece::PIECE_NAME[@moving_piece_id]}  moves to #{Piece::PIECE_NAME[@dest_piece_id]} on side #{Piece::PIECE_SIDE_NAME[@side_id]}"
+    return "#{Piece::NAME[@moving_piece_id]}  moves to #{Piece::NAME[@dest_piece_id]} on side #{HexagonSide::NAME[@side_id]}"
   end
   
 end

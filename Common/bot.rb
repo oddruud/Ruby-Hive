@@ -21,7 +21,7 @@ class Bot < Player
   
   def calculateNextMove
     puts "calculating move.."
-    move= Move.new(Piece::WHITE_QUEEN_BEE, Piece::WHITE_BEETLE1, Piece::UPPER_SIDE);  
+    move= Move.new(Piece::WHITE_QUEEN_BEE, Piece::WHITE_BEETLE1, HexagonSide::UPPER_SIDE);  
     #emit move
     @gameHandler.moveMade(self, move)
   end

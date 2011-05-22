@@ -1,3 +1,12 @@
+require 'slot'
+
+class PieceColor
+  BLACK=0
+  WHITE=1
+end
+
+
+
 class Piece
 #PIECE CONSTANTS: CORRESPOND TO INDICES IN BOARDSTATE ARRAY
 WHITE_QUEEN_BEE = 0
@@ -23,33 +32,29 @@ BLACK_ANT1 = 19
 BLACK_ANT2 = 20
 BLACK_ANT3 = 21
 
-PIECE_NAME= Array.new()
- 
-PIECE_NAME << "WHITE_QUEEN_BEE"
-PIECE_NAME << "WHITE_BEETLE1"
-PIECE_NAME << "WHITE_BEETLE2"
-PIECE_NAME << "WHITE_SPIDER1" 
-PIECE_NAME << "WHITE_SPIDER2"
-PIECE_NAME << "WHITE_GRASSHOPPER1" 
-PIECE_NAME << "WHITE_GRASSHOPPER2" 
-PIECE_NAME << "WHITE_GRASSHOPPER3" 
-PIECE_NAME << "WHITE_ANT1"  
-PIECE_NAME << "WHITE_ANT2"  
-PIECE_NAME << "WHITE_ANT3" 
-PIECE_NAME << "BLACK_QUEEN_BEE"
-PIECE_NAME << "BLACK_BEETLE1" 
-PIECE_NAME << "BLACK_BEETLE2"
-PIECE_NAME << "BLACK_SPIDER1"
-PIECE_NAME << "BLACK_SPIDER2"
-PIECE_NAME << "BLACK_GRASSHOPPER1" 
-PIECE_NAME << "BLACK_GRASSHOPPER2"
-PIECE_NAME << "BLACK_GRASSHOPPER3"
-PIECE_NAME << "BLACK_ANT1"
-PIECE_NAME << "BLACK_ANT2"
-PIECE_NAME << "BLACK_ANT3"
-
-
-
+NAME= Array.new() 
+NAME << "WHITE_QUEEN_BEE"
+NAME << "WHITE_BEETLE1"
+NAME << "WHITE_BEETLE2"
+NAME << "WHITE_SPIDER1" 
+NAME << "WHITE_SPIDER2"
+NAME << "WHITE_GRASSHOPPER1" 
+NAME << "WHITE_GRASSHOPPER2" 
+NAME << "WHITE_GRASSHOPPER3" 
+NAME << "WHITE_ANT1"  
+NAME << "WHITE_ANT2"  
+NAME << "WHITE_ANT3" 
+NAME << "BLACK_QUEEN_BEE"
+NAME << "BLACK_BEETLE1" 
+NAME << "BLACK_BEETLE2"
+NAME << "BLACK_SPIDER1"
+NAME << "BLACK_SPIDER2"
+NAME << "BLACK_GRASSHOPPER1" 
+NAME << "BLACK_GRASSHOPPER2"
+NAME << "BLACK_GRASSHOPPER3"
+NAME << "BLACK_ANT1"
+NAME << "BLACK_ANT2"
+NAME << "BLACK_ANT3"
 
 #SIDE ENUMS
 =begin
@@ -57,44 +62,62 @@ PIECE_NAME << "BLACK_ANT3"
   [7][1][4]
     [6][5]
 =end 
-UPPER_SIDE = 0
-TOP_SIDE = 1
-TOP_RIGHT_SIDE = 2
-BOTTOM_RIGHT_SIDE = 3
-BOTTOM_SIDE = 4
-BOTTOM_LEFT_SIDE = 5
-TOP_LEFT_SIDE = 6
 
-PIECE_SIDE_NAME= Array.new() 
-PIECE_SIDE_NAME << "UPPER SIDE"
 
 #properties
-attr_accessor :sides
-attr_reader :id
+#attr_accessor :sides
+attr_accessor :id
 attr_accessor :x
 attr_accessor :y
+attr_reader :used
 
-def initialize(id)
-  @id = id
-  @sides= Array.new()
-  @sides[UPPER_SIDE]= nil 
-  @sides[TOP_SIDE]= nil 
-  @sides[TOP_RIGHT_SIDE]= nil
-  @sides[BOTTOM_RIGHT_SIDE]= nil
-  @sides[BOTTOM_SIDE ]= nil
-  @sides[BOTTOM_LEFT_SIDE ]= nil
-  @sides[TOP_LEFT_SIDE ]= nil 
+def initialize()
+  @used = false 
 end
+
+def self.color(id) 
+  if id <  11
+    return PieceColor::WHITE
+  else
+    return PieceColor::BLACK
+  end
+ end
+
 
 def copy
   newPiece = self.dup 
   return newPiece
 end
 
-def boardPosition
-  return [x,y]
+def setBoardPosition(x, y) 
+  @used= true
+  @x,@y = x, y 
 end
 
+def boardPosition
+  return @x, @y
+end
+
+#SIDE ENUMS
+=begin
+    2
+7     3
+   1   
+6     4
+   5
+   
+  [2][3]
+  [7][1][4]
+    [6][5]
+=end 
+
+def neighbour(side)
+  return Slot.neighbour(@x,@y,side)
+end
+
+
+
+=begin
 def detachAll()
 
 end
@@ -106,7 +129,9 @@ end
 def availableMoves()
   
 end
+=end
 
+=begin
 def isConnectedTo(piece_id)
   @sides.each do |s|
     if piece_id == s
@@ -115,7 +140,9 @@ def isConnectedTo(piece_id)
   end
   return false
 end
+=end
 
+=begin
 def attachPiece(piece_id, side_id)
   if @sides[side_id].nil? 
     @sides[side_id]= piece_id
@@ -124,5 +151,6 @@ def attachPiece(piece_id, side_id)
     return false
   end
 end
+=end
 
 end
