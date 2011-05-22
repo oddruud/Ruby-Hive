@@ -116,6 +116,11 @@ def neighbour(side)
 end
 
 
+def availableMoves(boardState)
+ return nil
+end
+
+
 
 =begin
 def detachAll()
@@ -126,9 +131,6 @@ def detachPiece(piece_id)
 
 end
 
-def availableMoves()
-  
-end
 =end
 
 =begin

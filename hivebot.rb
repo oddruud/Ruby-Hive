@@ -15,16 +15,21 @@ require 'lib_trollop'
 if ARGV[0]!=nil
   name = ARGV[0]
 else
-  name = "supergosse!"
+  name = "BILLY"
 end
 
 
 url ="localhost"
 port= "3333"
+uri= "druby://#{url}:#{port}"  
 system("mkfifo  hivepipe"); 
 
 DRb.start_service 
-bot= NaiveBot.new(url,port, name)
+bot= NaiveBot.new(name)
+bot.gameHandler = DRbObject.new nil, uri
+bot.gameHandler.addPlayer(bot)
+
+
 DRb.thread.join
 
 

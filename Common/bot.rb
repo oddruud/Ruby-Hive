@@ -6,11 +6,8 @@ class Bot < Player
   require 'boardstate'
   attr_reader :com 
   
-  def initialize(host, port, name)
+  def initialize(name)
     super(name) 
-    uri= "druby://#{host}:#{port}"  
-    @gameHandler = DRbObject.new nil, uri
-    @gameHandler.addPlayer(self)
   end
     
   def makeMove()
