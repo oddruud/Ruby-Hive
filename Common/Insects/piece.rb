@@ -115,7 +115,6 @@ def neighbour(side)
   return Slot.neighbour(@x,@y,side)
 end
 
-
 def availableMoves(boardState)
  return nil
 end
