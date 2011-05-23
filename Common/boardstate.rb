@@ -73,33 +73,41 @@ end
   end
   
   def makeMove(move)
-    if @moves.length == 0 #First move, place it in the center of the board:
-       if move.moving_piece_id !=  Piece::QUEEN_BEE  
+    if @moves.length == 0 #First move, place it in the center of the board:  
           setPieceTo(move.moving_piece_id, BOARD_SIZE/2 ,BOARD_SIZE/2)
-       else
-         raise  MoveException, "invalid move: you can only add the QUEEN BEE in the Fourth Move"
-       end
     elsif @moves.length == 6 || @moves.length == 7 #only the Queen Bee may be placed  
-      if move.moving_piece_id !=  Piece::QUEEN_BEE  
-         raise  MoveException, "invalid move: you must play the queen bee"
+      queen = nil 
+      if Piece.color(move.moving_piece_id) == PieceColor::WHITE
+        queen= @pieces[WHITE_QUEEN_BEE]
+      else
+        queen= @pieces[BLACK_QUEEN_BEE]
+      end         
+      if move.moving_piece_id !=  Piece::QUEEN_BEE && queen.used==false  
+         raise  MoveException, "invalid move: you must play the queen bee within the first 4 moves"
        else
           place(move)
        end
     else
       place(move)
     end
+    
+    @moves << move
   end
   
   def print
-    @board.each do |r|
-      print "\n"
-      r.each do |c|
-        if c!=-1
-          print c.to_s   
-        else
-          print " "
-        end 
+    count=0
+    @board.each do |y|
+      line= ""
+      y.each do |c|
+       # if c >= 0
+          line= line + c.to_s   
+       # else
+        #  line= line + "0"
+        #end 
+        #puts line
       end
+      puts line
+      #puts "-"+ count2.to_s
     end
   end
 
@@ -149,6 +157,7 @@ end
     end
     
     setPieceTo(move.moving_piece_id, x, y) 
+    
  end
 
  def setPieceTo(piece_id, x ,y)
@@ -156,7 +165,7 @@ end
   @board[x][y]= piece_id 
   @pieces[piece_id].setBoardPosition(x,y)     
   (0..6).each do |i| 
-    nx,ny =@pieces[move.destination_piece_id].neighbour[i] 
+    nx,ny = @pieces[piece_id].neighbour(i)
     case @board[nx][ny]
       when UNCONNECTED then 
         if Piece.color(piece_id)== PieceColor::WHITE   
@@ -181,7 +190,7 @@ end
   black = 0 
   if @pieces[piece_id].used==true
      (0..6).each do |i| 
-        nx,ny =@pieces[piece_id].neighbour[i] 
+        nx,ny =@pieces[piece_id].neighbour(i)
         case @board[nx][ny]
           when EMPTY_SLOT_BLACK then 
           when EMPTY_SLOT_WHITE then
@@ -248,10 +257,8 @@ end
 
 
   
-  
-  
  def getBoardPos(move) 
-   return @pieces[move.destination_piece_id].neighbour[move.side_id]
+   return @pieces[move.dest_piece_id].neighbour(move.side_id)
  end
 
 end

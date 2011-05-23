@@ -13,7 +13,11 @@ class Move
   end
   
   def toString
-    return "#{Piece::NAME[@moving_piece_id]}  moves to #{Piece::NAME[@dest_piece_id]} on side #{HexagonSide::NAME[@side_id]}"
+    if @dest_piece_id !=-1
+        return "#{Piece::NAME[@moving_piece_id]}  moves to #{Piece::NAME[@dest_piece_id]} on side #{HexagonSide::NAME[@side_id]}"
+    else
+       return "first piece #{Piece::NAME[@moving_piece_id]} placed on board"
+     end
   end
   
 end

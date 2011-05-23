@@ -5,7 +5,7 @@ class GameHandler
    include DRbUndumped
   
   attr_reader :value
-  attr_reader :boardState 
+  attr_accessor :boardState 
   attr_reader :players
   attr_reader :turn
   
