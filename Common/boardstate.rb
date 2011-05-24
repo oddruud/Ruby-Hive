@@ -55,7 +55,7 @@ def start
     @pieces[i].id = i 
   end
   
-  @board = Array.new(BOARD_SIZE, Array.new(BOARD_SIZE, -1))   #THE BOARD
+  @board = Array.new(BOARD_SIZE).map!{Array.new(BOARD_SIZE, -1)}   #THE BOARD
   @moves = Array.new()                                        #WHITE
   
 =begin
@@ -99,15 +99,9 @@ end
     @board.each do |y|
       line= ""
       y.each do |c|
-       # if c >= 0
           line= line + c.to_s   
-       # else
-        #  line= line + "0"
-        #end 
-        #puts line
       end
       puts line
-      #puts "-"+ count2.to_s
     end
   end
 
@@ -142,7 +136,10 @@ end
   
  end
  
- 
+ def position(piece_id, x ,y)
+  @board[x][y]= piece_id 
+end
+
  private
  
  def place(move)
@@ -159,6 +156,8 @@ end
     setPieceTo(move.moving_piece_id, x, y) 
     
  end
+
+
 
  def setPieceTo(piece_id, x ,y)
   removePieceFromBoard(piece_id) 

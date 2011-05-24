@@ -20,6 +20,7 @@ class Server
     @gameHandler.boardState.start()
     @gameHandler.boardState.makeMove(move)
     @gameHandler.boardState.makeMove(move2)
+   # @gameHandler.boardState.position(4,25,25)
     @gameHandler.boardState.print()
     DRb.thread.join
   end
