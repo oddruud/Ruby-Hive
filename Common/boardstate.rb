@@ -127,6 +127,12 @@ end
 
   end
 
+  def getSide(origin, neighbour)
+
+  end
+  
+  
+
  #return Boolean 
  def isValidMove(piece_id, destination_piece_id, destination_side) 
    return piece.isValidMove(destination_piece_id, destination_side)
@@ -136,9 +142,11 @@ end
   
  end
  
- def position(piece_id, x ,y)
+def position(piece_id, x ,y)
   @board[x][y]= piece_id 
 end
+
+
 
  private
  
@@ -254,7 +262,16 @@ end
      return state 
  end 
 
-
+def getAttachedPieces(piece_id)
+  attached = Array.new()
+  (0..6).each do |i| 
+    id = @piece[piece_id].neighbour(i) 
+    if id > -1
+      attached << id
+    end
+  end
+  return attached
+end
   
  def getBoardPos(move) 
    return @pieces[move.dest_piece_id].neighbour(move.side_id)

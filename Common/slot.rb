@@ -16,6 +16,28 @@ NAME << "BOTTOM SIDE"
 NAME << "BOTTOM LEFT SIDE"
 NAME << "TOP LEFT SIDE"
 
+def self.getOpposite(side)
+   case side 
+      when HexagonSide::UPPER_SIDE then 
+        return -1
+      when HexagonSide::TOP_SIDE then 
+        return HexagonSide::BOTTOM_SIDE
+      when HexagonSide::TOP_RIGHT_SIDE then 
+        return HexagonSide::BOTTOM_LEFT_SIDE
+      when HexagonSide::BOTTOM_RIGHT_SIDE then 
+         return HexagonSide::TOP_LEFT_SIDE
+      when HexagonSide::BOTTOM_SIDE then 
+        return HexagonSide::TOP_SIDE
+      when HexagonSide::BOTTOM_LEFT_SIDE then 
+        return HexagonSide::TOP_RIGHT_SIDE
+      when HexagonSide::TOP_LEFT_SIDE then 
+         return HexagonSide::BOTTOM_RIGHT_SIDE
+      else
+        return -1
+ end
+end
+
+
 end
 
 class Slot
