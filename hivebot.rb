@@ -1,5 +1,7 @@
 $LOAD_PATH.unshift( File.join( File.dirname(__FILE__), 'Common' ) )
 $LOAD_PATH.unshift( File.join( File.dirname(__FILE__), 'HiveBot' ) )
+require 'socket'
+require 'timeout'
 require 'drb'
 require 'bot'   
 require 'naivebot'
@@ -29,6 +31,15 @@ bot= NaiveBot.new(name)
 bot.gameHandler = DRbObject.new nil, uri
 bot.gameHandler.addPlayer(bot)
 
+#begin
+#    timeout(1) do #the server has one second to answer
+    client = TCPSocket.new("127.0.0.1", 8899)
+#    client.send( "Hello\n" )  
+#    str = client.recv( 100 )  
+#    end
+#rescue
+#    puts "error: #{$!}"
+#end
 
 DRb.thread.join
 
