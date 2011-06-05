@@ -56,7 +56,7 @@ def start
   end
   
   @board = Array.new(BOARD_SIZE).map!{Array.new(BOARD_SIZE, -1)}   #THE BOARD
-  @moves = Array.new()                                        #WHITE
+  @moves = Array.new()                                        #MOVE HISTORY
   
 =begin
   [2][3]
@@ -161,7 +161,6 @@ def moveMessage(move)
 ##EMPTY_SLOT_WHITE = -2
 ##EMPTY_SLOT_BLACK = -3
 ##EMPTY_SLOT_MIXED = -4
-    
     if @board[x][y] == EMPTY_SLOT_MIXED &&  @pieces[move.moving_piece_id].used==false
        raise  MoveException, "invalid move: cannot place new #{Piece::PIECE_NAME[move.moving_piece_id]} next to opposite side"
     end
