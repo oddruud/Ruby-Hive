@@ -17,8 +17,15 @@ class GameHandler
 
   def setUpdateCallback(&block)
      @updateCallback = block 
-     test= Move.new(Piece::BLACK_SPIDER1, Piece::WHITE_SPIDER1,HexagonSide::TOP_LEFT_SIDE)
-     @updateCallback.call(test)
+     test()
+  end
+
+  def test
+      move= Move.new(Piece::BLACK_SPIDER1, Piece::WHITE_SPIDER1,HexagonSide::TOP_LEFT_SIDE)
+     @boardState.start()
+     @boardState.makeMove(move)
+     moveMessage= @boardState.moveMessage(move) 
+     @updateCallback.call(moveMessage)
   end
 
   def addPlayer(player)

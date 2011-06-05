@@ -67,7 +67,11 @@ def self.neighbour(x,y,side)
       else
         raise MoveException, "non excisting side #{side}"
  end
-  return x + xdif,y + ydif
+  if x != nil
+    return x + xdif,y + ydif
+  else
+    return 0,0
+  end
 end
   
   

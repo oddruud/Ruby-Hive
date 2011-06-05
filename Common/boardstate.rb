@@ -146,7 +146,12 @@ def position(piece_id, x ,y)
   @board[x][y]= piece_id 
 end
 
-
+def moveMessage(move)
+  originX, originY  = getOriginBoardPos(move)
+  destX, destY  = getDestBoardPos(move)
+   return "MV.#{originX}.#{originY}.#{destX}.#{destY}"
+ end
+ 
 
  private
  
@@ -273,8 +278,15 @@ def getAttachedPieces(piece_id)
   return attached
 end
   
- def getBoardPos(move) 
-   return @pieces[move.dest_piece_id].neighbour(move.side_id)
+ def getDestBoardPos(move) 
+   return @pieces[move.dest_piece_id].neighbour(move.side_id);
  end
+ 
+ def getOriginBoardPos(move) 
+   return @pieces[move.moving_piece_id].boardPosition;
+ end
+ 
+ 
+ 
 
 end

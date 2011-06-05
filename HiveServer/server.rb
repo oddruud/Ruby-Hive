@@ -14,7 +14,7 @@ class Server
     @running = true
     @sockets = Array.new() 
     @gameHandler= GameHandler.new()
-    @gameHandler.setUpdateCallback() {|move| updateViewers(move)}
+    @gameHandler.setUpdateCallback() {|message| updateViewers(message)}
     @url = url
     @port = port  
    
@@ -49,10 +49,10 @@ def tests
 end
 
 
-def updateViewers(move)
-  puts "updating all game viewers with move #{move.toString}"
+def updateViewers(gameMessage)
+  puts "updating all game viewers with move #{gameMessage}"
   @sockets.each do |socket|
-    socket.puts move.toMessage
+    socket.puts gameMessage
   end
 end
 
