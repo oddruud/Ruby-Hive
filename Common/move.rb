@@ -20,4 +20,8 @@ class Move
      end
   end
   
+  def toMessage  #TODO change to old boards coordinates to new coordinates
+    return "MV.#{Piece::NAME[@moving_piece_id]}.#{Piece::NAME[@dest_piece_id]}.#{HexagonSide::NAME[@side_id]}"
+  end
+  
 end

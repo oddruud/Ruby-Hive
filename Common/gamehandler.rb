@@ -4,15 +4,21 @@ require "player"
 class GameHandler
    include DRbUndumped
   
-  attr_reader :value
   attr_accessor :boardState 
   attr_reader :players
   attr_reader :turn
+  attr_reader :updateCallback
   
-  def initialize
+  
+  def initialize()
     @players= Array.new()
     @boardState= BoardState.new()
-    @value = 0 
+  end
+
+  def setUpdateCallback(&block)
+     @updateCallback = block 
+     test= Move.new(Piece::BLACK_SPIDER1, Piece::WHITE_SPIDER1,HexagonSide::TOP_LEFT_SIDE)
+     @updateCallback.call(test)
   end
 
   def addPlayer(player)
@@ -28,8 +34,11 @@ class GameHandler
   end
   
   def moveMade(player, move)
-     puts "#{player.name} made move #{move.toString}"
-     nextTurn()  
+     puts "#{player.name} tries move: #{move.toString}"
+    # if @boardState.makeMove(move) == true 
+          @updateCallback.call()
+          nextTurn()  
+    # end
   end
   
   private 

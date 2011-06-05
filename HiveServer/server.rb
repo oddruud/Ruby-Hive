@@ -6,24 +6,35 @@ class Server
   
   attr_reader :dts
   attr_reader :server
+  attr_reader :sockets
   attr_reader :running
   attr_reader :gameHandler
   
   def initialize(url, port)
     @running = true
+    @sockets = Array.new() 
     @gameHandler= GameHandler.new()
+    @gameHandler.setUpdateCallback() {|move| updateViewers(move)}
     @url = url
-    @port= port  
-    DRb.start_service "druby://"+url+":"+ port, @gameHandler    
+    @port = port  
+   
+    
+    #Distributed Ruby server for connection with game player client------- 
+    DRb.start_service "druby://"+url+":"+ port, @gameHandler  
     puts "Distrbuted Ruby Server running at #{DRb.uri}"  
+    #---------------------------------------------------------------------
+   
+    #TCP server for communication with game viewer client------------- 
     tcpport= 8899
-    @server = TCPServer.open(tcpport)  # Socket to listen on port 2000
+    @server = TCPServer.open(tcpport)
     puts "TCP Server running at port #{tcpport.to_s}"
     serverThread = Thread.new{ listen();}
+    #-----------------------------------------------------------------
     
-    DRb.thread.join
-    serverThread.join 
+    #serverThread.join 
+    # puts "DRB"
     
+    DRb.thread.join   
   end
     
     
@@ -36,28 +47,36 @@ def tests
     @gameHandler.boardState.makeMove(move2)
     @gameHandler.boardState.print()
 end
-      
-    
-def listen2  
-  #loop do  
-  #  Thread.start(@dts.accept) do |s|  
-  #    print(s, " is accepted\n")  
-  #    s.write(Time.now)    
-  #  end   
-  #end  
+
+
+def updateViewers(move)
+  puts "updating all game viewers with move #{move.toString}"
+  @sockets.each do |socket|
+    socket.puts move.toMessage
+  end
 end
 
+
+#hive game viewer clients listen thread
 def listen  
     puts "tcp server is listening..."
     while @running do                        # Servers run forever
       while session = @server.accept do 
+        sockets << session
         Thread.start do
           session.puts(Time.now.ctime)  # Send the time to the client
-          session.puts "Hi there"
+          session.puts("Hello hive game viewer\n")
+          #session.puts "Hi there"
           puts "someone connected"
-          input = session.gets
-          puts input
-          client.close                 # Disconnect from the client
+          Thread.start do
+           while true do
+              input = session.gets
+              puts input
+            end
+          end 
+          #userinput = gets 
+          #puts "sending #{userinput}"
+          #session.puts("#{userinput}\n")
         end
       end
     end
