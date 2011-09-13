@@ -1,4 +1,5 @@
-#!/usr/bin/ruby
+#!/usr/bin/env ruby
+
 $LOAD_PATH.unshift( File.join( File.dirname(__FILE__), 'Common' ) )
 $LOAD_PATH.unshift( File.join( File.dirname(__FILE__), 'HiveServer' ) )
 

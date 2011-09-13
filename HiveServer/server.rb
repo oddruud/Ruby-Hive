@@ -50,7 +50,7 @@ end
 
 
 def updateViewers(gameMessage)
-  puts "updating all game viewers with move #{gameMessage}"
+  puts "updating all game viewers with message #{gameMessage}"
   @sockets.each do |socket|
     socket.puts gameMessage
   end
@@ -72,6 +72,7 @@ def listen
            while true do
               input = session.gets
               puts input
+              session.puts "you said #{input}"
             end
           end 
           #userinput = gets 
