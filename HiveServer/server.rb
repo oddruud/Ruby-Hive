@@ -10,17 +10,16 @@ class Server
   attr_reader :running
   attr_reader :gameHandler
   
-  def initialize(url, port)
+  def initialize(port)
     @running = true
     @sockets = Array.new() 
     @gameHandler= GameHandler.new()
     @gameHandler.setUpdateCallback() {|message| updateViewers(message)}
-    @url = url
     @port = port  
    
     
     #Distributed Ruby server for connection with game player client------- 
-    DRb.start_service "druby://"+url+":"+ port, @gameHandler  
+    DRb.start_service "druby://localhost:#{port}", @gameHandler  
     puts "Distrbuted Ruby Server running at #{DRb.uri}"  
     #---------------------------------------------------------------------
    

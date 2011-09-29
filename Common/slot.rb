@@ -42,8 +42,6 @@ end
 
 class Slot
 
-
-
 def initialize() 
 end
   
@@ -65,7 +63,7 @@ def self.neighbour(x,y,side)
       when HexagonSide::TOP_LEFT_SIDE then 
         xdif, ydif= -1, 0 
       else
-        raise MoveException, "non excisting side #{side}"
+        raise MoveException, "non existing hexagon side #{side}"
  end
   if x != nil
     return x + xdif,y + ydif

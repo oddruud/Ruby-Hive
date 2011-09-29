@@ -72,25 +72,42 @@ end
     return nextState
   end
   
-  def makeMove(move)
-    if @moves.length == 0 #First move, place it in the center of the board:  
-          setPieceTo(move.moving_piece_id, BOARD_SIZE/2 ,BOARD_SIZE/2)
-    elsif @moves.length == 6 || @moves.length == 7 #only the Queen Bee may be placed  
-      queen = nil 
-      if Piece.color(move.moving_piece_id) == PieceColor::WHITE
-        queen= @pieces[WHITE_QUEEN_BEE]
+  
+  def startPosX
+     BOARD_SIZE/2
+  end
+  
+  def startPosY
+    BOARD_SIZE/2
+  end
+  
+  def movesMade?
+    @moves.length != 0
+  end
+  
+  def fourthPieceToBePlaced?  #RULE condition its a rule that the queen need to be placed within 4 moves
+     @moves.length == 6 || @moves.length == 7 
+  end
+  
+  def getQueenFromPieceId(id)
+      if Piece.color(id) == PieceColor::WHITE
+        queen = @pieces[WHITE_QUEEN_BEE]
       else
-        queen= @pieces[BLACK_QUEEN_BEE]
-      end         
-      if move.moving_piece_id !=  Piece::QUEEN_BEE && queen.used==false  
-         raise  MoveException, "invalid move: you must play the queen bee within the first 4 moves"
-       else
-          place(move)
-       end
+        queen = @pieces[BLACK_QUEEN_BEE]
+      end
+      return queen          
+  end
+  
+  
+  def makeMove(move)
+    queen = getQueenFromPieceId(move.moving_piece_id)
+    if not movesMade? 
+      setPieceTo(move.moving_piece_id, startPosX , startPosY)   #FIRST MOVE 
+    elsif fourthPieceToBePlaced?  && queen.used == false && move.moving_piece_id !=  Piece::QUEEN_BEE         
+      raise  MoveException, "invalid move: you must play the queen bee within the first 4 moves"      
     else
       place(move)
-    end
-    
+    end 
     @moves << move
   end
   
@@ -157,19 +174,11 @@ def moveMessage(move)
  
  def place(move)
     x,y = getBoardPos(move)
-    
-##EMPTY_SLOT_WHITE = -2
-##EMPTY_SLOT_BLACK = -3
-##EMPTY_SLOT_MIXED = -4
     if @board[x][y] == EMPTY_SLOT_MIXED &&  @pieces[move.moving_piece_id].used==false
        raise  MoveException, "invalid move: cannot place new #{Piece::PIECE_NAME[move.moving_piece_id]} next to opposite side"
     end
-    
     setPieceTo(move.moving_piece_id, x, y) 
-    
  end
-
-
 
  def setPieceTo(piece_id, x ,y)
   removePieceFromBoard(piece_id) 
@@ -200,18 +209,18 @@ def moveMessage(move)
   white = 0
   black = 0 
   if @pieces[piece_id].used==true
-     (0..6).each do |i| 
-        nx,ny =@pieces[piece_id].neighbour(i)
+     (0..6).each do |i|                                               
+        nx,ny = @pieces[piece_id].neighbour(i)                        #get the absolute position of the neighbour on the board
         case @board[nx][ny]
           when EMPTY_SLOT_BLACK then 
           when EMPTY_SLOT_WHITE then
           when EMPTY_SLOT_MIXED then   
               @board[nx][ny] = slotStateAfterRemoval(piece_id, nx,ny)       #changes the states of surrounding slots after the removal    
           else    
-              if @pieces[@board[nx][ny]].color ==PieceColor::WHITE
+              if @pieces[@board[nx][ny]].color == PieceColor::WHITE       #WHITE PIECE NEIGHBOUR 
                 white = 1
               end         
-              if @pieces[@board[nx][ny]].color ==PieceColor::BLACK
+              if @pieces[@board[nx][ny]].color == PieceColor::BLACK       #BLACK PIECE NEIGHBOUR
                 black = 1
               end       
         end
@@ -229,12 +238,13 @@ def moveMessage(move)
   end
  end 
   
- def slotStateAfterRemoval(removed_piece, slotx,sloty)
+ def slotStateAfterRemoval(removed_piece, slotx, sloty)
        state=-1
        white=0 
        black=0
        
        rx,ry = @board[removed_piece] 
+       
        (0..6).each do |i| 
          nx, ny = Slot.neighbour(slotx,sloty,i)
          case @board[nx][ny]
@@ -244,10 +254,10 @@ def moveMessage(move)
           when EMPTY_SLOT_MIXED then
           
           else
-            if @pieces[@board[nx][ny]].color ==PieceColor::WHITE
+            if @pieces[@board[nx][ny]].color == PieceColor::WHITE
                 white = 1
             end         
-            if @pieces[@board[nx][ny]].color ==PieceColor::BLACK
+            if @pieces[@board[nx][ny]].color == PieceColor::BLACK
                 black = 1
             end         
         end      
@@ -284,8 +294,6 @@ end
  def getOriginBoardPos(move) 
    return @pieces[move.moving_piece_id].boardPosition;
  end
- 
- 
- 
+
 
 end
