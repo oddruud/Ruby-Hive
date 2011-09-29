@@ -3,6 +3,10 @@ require 'Insects/beetle'
 require 'Insects/ant'  
 require 'Insects/grasshopper'  
 require 'Insects/spider'  
+
+require 'MoveValidators/PlacedToSameColorValidator'
+require 'MoveValidators/QueenInFourMovesValidator'
+  
 require 'move'  
 
 class BoardState
@@ -17,6 +21,7 @@ UNCONNECTED = -1
 EMPTY_SLOT_WHITE = -2
 EMPTY_SLOT_BLACK = -3
 EMPTY_SLOT_MIXED = -4
+
 
 def initialize()
  puts "Creating new Board State"
@@ -51,11 +56,14 @@ def start
   @pieces[Piece::BLACK_ANT2]= Ant.new()
   @pieces[Piece::BLACK_ANT3]= Ant.new() 
   
-  (0..21).each do |i|
+  (0..@pieces.length).each do |i|
     @pieces[i].id = i 
   end
   
   @board = Array.new(BOARD_SIZE).map!{Array.new(BOARD_SIZE, -1)}   #THE BOARD
+  @validators = [ QueenInFourMovesValidator, 
+                  PlacedToSameColorValidator 
+                ]
   @moves = Array.new()                                        #MOVE HISTORY
   
 =begin
@@ -66,12 +74,11 @@ def start
 end
 
  #returns BoardState
-  def tryMove(move)
-    nextState = self.copy 
-    nextState.makeMove(move) 
-    return nextState
+  def nextState(move)
+    nextBoardState = self.copy 
+    nextBoardState.makeMove(move) 
+    return nextBoardState
   end
-  
   
   def startPosX
      BOARD_SIZE/2
@@ -85,30 +92,24 @@ end
     @moves.length != 0
   end
   
-  def fourthPieceToBePlaced?  #RULE condition its a rule that the queen need to be placed within 4 moves
-     @moves.length == 6 || @moves.length == 7 
-  end
-  
-  def getQueenFromPieceId(id)
-      if Piece.color(id) == PieceColor::WHITE
-        queen = @pieces[WHITE_QUEEN_BEE]
-      else
-        queen = @pieces[BLACK_QUEEN_BEE]
+  def validMove?(move)
+    piece = @piece[move.moving_piece_id]   
+    @validators.each do |validator|                 #common board validation-rules 
+      if not validator.validate(self, move) 
+        return false 
       end
-      return queen          
+     end  
+     return piece.validator.validate(self, move)    #piece specific validation    
   end
   
-  
+
   def makeMove(move)
     queen = getQueenFromPieceId(move.moving_piece_id)
     if not movesMade? 
       setPieceTo(move.moving_piece_id, startPosX , startPosY)   #FIRST MOVE 
-    elsif fourthPieceToBePlaced?  && queen.used == false && move.moving_piece_id !=  Piece::QUEEN_BEE         
-      raise  MoveException, "invalid move: you must play the queen bee within the first 4 moves"      
-    else
+    else if validMove? move
       place(move)
     end 
-    @moves << move
   end
   
   def print
@@ -136,24 +137,17 @@ end
     return newState
   end
 
+  #TODO
   def availableMovesByPiece(piece_id)
-
   end
-
+  
+  #TODO
   def availableMovesByColor(color)
-
   end
 
+  #TODO
   def getSide(origin, neighbour)
-
   end
-  
-  
-
- #return Boolean 
- def isValidMove(piece_id, destination_piece_id, destination_side) 
-   return piece.isValidMove(destination_piece_id, destination_side)
- end
 
  def unusedPieces(color)
   
@@ -161,6 +155,7 @@ end
  
 def position(piece_id, x ,y)
   @board[x][y]= piece_id 
+  @pieces[piece_id].setBoardPosition(x, y) 
 end
 
 def moveMessage(move)
@@ -172,12 +167,13 @@ def moveMessage(move)
 
  private
  
+
+ 
  def place(move)
-    x,y = getBoardPos(move)
-    if @board[x][y] == EMPTY_SLOT_MIXED &&  @pieces[move.moving_piece_id].used==false
-       raise  MoveException, "invalid move: cannot place new #{Piece::PIECE_NAME[move.moving_piece_id]} next to opposite side"
-    end
+    moving_piece = @pieces[move.moving_piece_id]
+    x,y = moving_piece.boardPosition 
     setPieceTo(move.moving_piece_id, x, y) 
+    @moves << move
  end
 
  def setPieceTo(piece_id, x ,y)

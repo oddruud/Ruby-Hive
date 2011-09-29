@@ -2,6 +2,7 @@ require 'Insects/piece'
 class QueenBee < Piece
 
 def initialize() 
+  @validator = QueenBeeMoveValidator  
 end
   
 def availableMoves(boardState)

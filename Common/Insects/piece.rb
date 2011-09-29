@@ -69,6 +69,7 @@ NAME << "BLACK_ANT3"
 attr_accessor :id
 attr_accessor :x
 attr_accessor :y
+attr_accessor :validator
 attr_reader :used
 
 def initialize()
