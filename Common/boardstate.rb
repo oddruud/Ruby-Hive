@@ -3,25 +3,18 @@ require 'Insects/beetle'
 require 'Insects/ant'  
 require 'Insects/grasshopper'  
 require 'Insects/spider'  
-
 require 'MoveValidators/PlacedToSameColorValidator'
 require 'MoveValidators/QueenInFourMovesValidator'
-  
 require 'move'  
 
 class BoardState
  include DRbUndumped
  
-attr_reader :pieces   #1D array [piece_id] -> Piece
+attr_reader :pieces    #1D array [piece_id] -> Piece
 attr_reader :board     #2D array [x][y] -> piece_id          
 attr_reader :moves     #1D array [i] -> Move
 
 BOARD_SIZE = 50
-UNCONNECTED = -1
-EMPTY_SLOT_WHITE = -2
-EMPTY_SLOT_BLACK = -3
-EMPTY_SLOT_MIXED = -4
-
 
 def initialize()
  puts "Creating new Board State"
@@ -64,13 +57,8 @@ def start
   @validators = [ QueenInFourMovesValidator, 
                   PlacedToSameColorValidator 
                 ]
+                
   @moves = Array.new()                                        #MOVE HISTORY
-  
-=begin
-  [2][3]
-  [7][1][4]
-    [6][5]
-=end 
 end
 
  #returns BoardState
@@ -101,17 +89,17 @@ end
      end  
      return piece.validator.validate(self, move)    #piece specific validation    
   end
-  
 
   def makeMove(move)
-    queen = getQueenFromPieceId(move.moving_piece_id)
-    if not movesMade? 
+    move.providePieceInstances(self)
+     
+    unless movesMade? 
       setPieceTo(move.moving_piece_id, startPosX , startPosY)   #FIRST MOVE 
-    else if validMove? move
-      place(move)
-    end 
+    else 
+      place(move) if validMove?(move) 
+    end
   end
-  
+ 
   def print
     count=0
     @board.each do |y|
@@ -168,10 +156,8 @@ def moveMessage(move)
  private
  
 
- 
  def place(move)
-    moving_piece = @pieces[move.moving_piece_id]
-    x,y = moving_piece.boardPosition 
+    x,y = move.moving_piece.boardPosition 
     setPieceTo(move.moving_piece_id, x, y) 
     @moves << move
  end
@@ -180,101 +166,77 @@ def moveMessage(move)
   removePieceFromBoard(piece_id) 
   @board[x][y]= piece_id 
   @pieces[piece_id].setBoardPosition(x,y)     
-  (0..6).each do |i| 
+  (0..HexagonSide::SIDES-1).each do |i|               #Hier miss block voor gebruiken?
     nx,ny = @pieces[piece_id].neighbour(i)
     case @board[nx][ny]
-      when UNCONNECTED then 
+      when Slot::UNCONNECTED then 
         if Piece.color(piece_id)== PieceColor::WHITE   
-          @board[nx][ny] = EMPTY_SLOT_WHITE 
+          @board[nx][ny] = Slot::EMPTY_SLOT_WHITE 
         elsif Piece.color(piece_id)== PieceColor::BLACK   
-          @board[nx][ny] = EMPTY_SLOT_BLACK 
+          @board[nx][ny] = Slot::EMPTY_SLOT_BLACK 
         end  
-      when EMPTY_SLOT_BLACK then
+      when Slot::EMPTY_SLOT_BLACK then
         if Piece.color(piece_id)== PieceColor::WHITE   
-          @board[nx][ny] = EMPTY_SLOT_MIXED
+          @board[nx][ny] = Slot::EMPTY_SLOT_MIXED
         end 
-      when EMPTY_SLOT_WHITE then
+      when Slot::EMPTY_SLOT_WHITE then
         if Piece.color(piece_id)== PieceColor::BLACK   
-          @board[nx][ny] = EMPTY_SLOT_MIXED
+          @board[nx][ny] = Slot::EMPTY_SLOT_MIXED
         end  
     end
   end   
  end
   
  def removePieceFromBoard(piece_id)
-  white = 0
-  black = 0 
-  if @pieces[piece_id].used==true
-     (0..6).each do |i|                                               
+  white = :NotANeighbour
+  black = :NotANeighbour 
+  if @pieces[piece_id].used == true
+    #TODO: replace with piece.eachSide do |side|
+     (0..HexagonSide::SIDES-1).each do |i|                                               
         nx,ny = @pieces[piece_id].neighbour(i)                        #get the absolute position of the neighbour on the board
         case @board[nx][ny]
-          when EMPTY_SLOT_BLACK then 
-          when EMPTY_SLOT_WHITE then
-          when EMPTY_SLOT_MIXED then   
+          when Slot::EMPTY_SLOT_BLACK then 
+          when Slot::EMPTY_SLOT_WHITE then
+          when Slot::EMPTY_SLOT_MIXED then   
               @board[nx][ny] = slotStateAfterRemoval(piece_id, nx,ny)       #changes the states of surrounding slots after the removal    
           else    
-              if @pieces[@board[nx][ny]].color == PieceColor::WHITE       #WHITE PIECE NEIGHBOUR 
-                white = 1
-              end         
-              if @pieces[@board[nx][ny]].color == PieceColor::BLACK       #BLACK PIECE NEIGHBOUR
-                black = 1
-              end       
+              white = :Neighbour if @pieces[@board[nx][ny]].color == PieceColor::WHITE      
+              black = :Neighbour if @pieces[@board[nx][ny]].color == PieceColor::BLACK     
         end
-     end   
-     
+     end    
      rx,ry= @pieces[piece_id].boardPosition                                   #the slot's new state after removal of the piece 
-     if white == 1 && black == 1 
-       @board[rx][ry] = EMPTY_SLOT_MIXED
-     elsif white == 1 && black == 0 
-       @board[rx][ry] = EMPTY_SLOT_WHITE
-     elsif white == 0 && black == 1
-       @board[rx][ry] = EMPTY_SLOT_BLACK
-     end
-      
+     @board[rx][ry] = Slot::slotState?(white, black)
   end
  end 
   
+ 
  def slotStateAfterRemoval(removed_piece, slotx, sloty)
-       state=-1
-       white=0 
-       black=0
+       white= :NotANeighbour
+       black= :NotANeighbour
        
        rx,ry = @board[removed_piece] 
        
-       (0..6).each do |i| 
+       #TODO: replace with piece.eachSide do |side|
+       (0..HexagonSide::SIDES-1).each do |i| 
          nx, ny = Slot.neighbour(slotx,sloty,i)
          case @board[nx][ny]
-          when UNCONNECTED then 
-          when EMPTY_SLOT_BLACK then 
-          when EMPTY_SLOT_WHITE then
-          when EMPTY_SLOT_MIXED then
-          
+          when Slot::UNCONNECTED then 
+          when Slot::EMPTY_SLOT_BLACK then 
+          when Slot::EMPTY_SLOT_WHITE then
+          when Slot::EMPTY_SLOT_MIXED then
           else
-            if @pieces[@board[nx][ny]].color == PieceColor::WHITE
-                white = 1
-            end         
-            if @pieces[@board[nx][ny]].color == PieceColor::BLACK
-                black = 1
-            end         
+            white = :Neighbour if @pieces[@board[nx][ny]].color == PieceColor::WHITE
+            black = :Neighbour if @pieces[@board[nx][ny]].color == PieceColor::BLACK    
         end      
-       end  
-       
-     if white == 1 && black == 1 
-      state = EMPTY_SLOT_MIXED
-     elsif white == 1 && black == 0 
-      state = EMPTY_SLOT_WHITE
-     elsif white == 0 && black == 1
-      state = EMPTY_SLOT_BLACK
-     elsif white == 0 && black == 0
-      state = UNCONNECTED
-     end
-     
-     return state 
+       end   
+     return Slot::slotState?(white, black) 
  end 
 
 def getAttachedPieces(piece_id)
   attached = Array.new()
-  (0..6).each do |i| 
+  
+  #TODO: replace with piece.eachSide do |side|
+  (0..HexagonSide::SIDES-1).each do |i| 
     id = @piece[piece_id].neighbour(i) 
     if id > -1
       attached << id
@@ -284,12 +246,11 @@ def getAttachedPieces(piece_id)
 end
   
  def getDestBoardPos(move) 
-   return @pieces[move.dest_piece_id].neighbour(move.side_id);
+   return move.dest_piece.neighbour(move.side_id);
  end
  
  def getOriginBoardPos(move) 
-   return @pieces[move.moving_piece_id].boardPosition;
+    return move.moving_piece.boardPosition;
  end
-
 
 end

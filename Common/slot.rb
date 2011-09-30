@@ -6,6 +6,7 @@ class HexagonSide
   BOTTOM_SIDE = 4
   BOTTOM_LEFT_SIDE = 5
   TOP_LEFT_SIDE = 6
+  SIDES = 7
 
 NAME= Array.new() 
 NAME << "UPPER SIDE"
@@ -44,7 +45,33 @@ class Slot
 
 def initialize() 
 end
+ 
+UNCONNECTED = -1
+EMPTY_SLOT_WHITE = -2
+EMPTY_SLOT_BLACK = -3
+EMPTY_SLOT_MIXED = -4
+ 
+ def self.slotState?(white, black) 
+     if white == :Neighbour && black == :Neighbour 
+       state = EMPTY_SLOT_MIXED
+     elsif white == :Neighbour && black == :NotANeighbour 
+      state = EMPTY_SLOT_WHITE
+     elsif white == :NotANeighbour  && black == :Neighbour
+      state = EMPTY_SLOT_BLACK
+     elsif white == :NotANeighbour  && black == :NotANeighbour 
+      state = UNCONNECTED
+     end 
+     
+     return state
+end  
   
+  
+  
+=begin
+  [2][3]
+  [7][1][4]
+    [6][5]
+=end  
 def self.neighbour(x,y,side)  
  xdif,ydif=0,0
  case side 
