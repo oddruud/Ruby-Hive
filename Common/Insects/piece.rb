@@ -7,7 +7,7 @@ end
 
 
 
-class Piece
+class Piece < Slot
 #PIECE CONSTANTS: CORRESPOND TO INDICES IN BOARDSTATE ARRAY
 WHITE_QUEEN_BEE = 0
 WHITE_BEETLE1 = 1
@@ -67,16 +67,15 @@ NAME << "BLACK_ANT3"
 #properties
 #attr_accessor :sides
 attr_accessor :id
-attr_accessor :x
-attr_accessor :y
 attr_accessor :validator
 attr_reader :used
 
 def initialize()
+  super -1,-1
   @used = false 
 end
 
-def self.color(id) 
+def self.colorById(id) 
   if id <  11
     return PieceColor::WHITE
   else
@@ -99,6 +98,10 @@ def boardPosition
   return @x, @y
 end
 
+def color
+  return Piece.colorById(@id)
+end
+
 #SIDE ENUMS
 =begin
     2
@@ -112,9 +115,13 @@ end
     [6][5]
 =end 
 
-def neighbour(side)
-  return Slot.neighbour(@x,@y,side)
-end
+#def neighbour(side)
+#  return Slot.neighbour(@x,@y,side)
+#end
+
+#def forEachNeighbour
+#  Slot.forEachNeighbour @x,@y
+#end
 
 def availableMoves(boardState)
  return nil

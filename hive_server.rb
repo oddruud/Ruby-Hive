@@ -7,7 +7,8 @@ require "server"
 require 'optparse'
 
 options = {}
- options[:port]=3333
+ options[:port] = 3333
+ options[:debug] = false
 
 opt_parser = OptionParser.new do |opt|
   opt.banner = "Usage: HiveServer COMMAND [OPTIONS]"
@@ -18,6 +19,10 @@ opt_parser = OptionParser.new do |opt|
 
   opt.on("-p","--port", Integer ,"the portnumber") do |port|
     options[:port] = port || 3333
+  end
+  
+   opt.on("-d","--debug", "debug") do |debug|
+    options[:debug] = true
   end
 
   opt.on("-h","--help","help") do
@@ -33,6 +38,8 @@ case ARGV[0]
 when "start"
   puts "port: #{options[:port]}"
   server= Server.new(options[:port])
+ 
+  
 end
 
 

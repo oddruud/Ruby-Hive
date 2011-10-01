@@ -1,6 +1,6 @@
-require 'MoveValidator'  
+require 'MoveValidators/MoveValidator'  
 
-class PlacedInFourMovesValidator < MoveValidator
+class QueenInFourMovesValidator < MoveValidator
 
   def self.validate(boardState, move)
     queen =  getQueenFromPieceId(boardState.pieces,move.moving_piece_id)

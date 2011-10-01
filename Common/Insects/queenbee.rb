@@ -1,4 +1,5 @@
 require 'Insects/piece'
+require 'MoveValidators/QueenBeeMoveValidator'
 class QueenBee < Piece
 
 def initialize() 

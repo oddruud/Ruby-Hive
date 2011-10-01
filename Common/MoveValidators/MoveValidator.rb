@@ -1,11 +1,11 @@
 require 'move'
 require 'boardstate'
-require 'piece'
+require 'Insects/piece'
 
 class MoveValidator
 
 def self.validate(boardState, move)
-  return false
+  return true
 end
 
 end 

@@ -1,9 +1,9 @@
-require 'MoveValidator'  
+require 'MoveValidators/MoveValidator'  
 
 class PlacedToSameColorValidator < MoveValidator
 
 def self.validate(boardState, move)
-  return false
+  return true
   
   #TODO
   #x,y = moving_piece.boardPosition 

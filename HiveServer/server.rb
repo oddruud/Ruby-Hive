@@ -32,12 +32,14 @@ class Server
     
     #serverThread.join 
     # puts "DRB"
+    tests 
     
     DRb.thread.join   
   end
     
     
 def tests
+    puts "running tests"
     move = Move.new(Piece::WHITE_SPIDER1, -1,-1)
     move2= Move.new(Piece::BLACK_SPIDER1, Piece::WHITE_SPIDER1,HexagonSide::TOP_LEFT_SIDE)
     puts move.toString()

@@ -43,13 +43,29 @@ end
 
 class Slot
 
-def initialize() 
-end
- 
+attr_accessor :x
+attr_accessor :y
 UNCONNECTED = -1
 EMPTY_SLOT_WHITE = -2
 EMPTY_SLOT_BLACK = -3
 EMPTY_SLOT_MIXED = -4
+TRAPPED_SLOT = -5
+ 
+
+def initialize(x,y)
+  @x,@y = x, y 
+end
+
+
+def neighbour(side)
+  return Slot.neighbourCoordinates(@x,@y,side)
+end
+
+def forEachNeighbour 
+    (0..HexagonSide::SIDES-1).each do |i|               
+      yield neighbour(i) #returns x,y position of the neighbour
+    end   
+end
  
  def self.slotState?(white, black) 
      if white == :Neighbour && black == :Neighbour 
@@ -61,18 +77,15 @@ EMPTY_SLOT_MIXED = -4
      elsif white == :NotANeighbour  && black == :NotANeighbour 
       state = UNCONNECTED
      end 
-     
      return state
 end  
-  
-  
-  
+   
 =begin
   [2][3]
   [7][1][4]
     [6][5]
 =end  
-def self.neighbour(x,y,side)  
+def self.neighbourCoordinates(x,y,side)  
  xdif,ydif=0,0
  case side 
       when HexagonSide::UPPER_SIDE then 

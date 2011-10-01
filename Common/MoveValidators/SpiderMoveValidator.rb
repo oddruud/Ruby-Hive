@@ -1,4 +1,4 @@
-require 'MoveValidator'
+require 'MoveValidators/MoveValidator'
 
 class SpiderMoveValidator < MoveValidator
   
@@ -8,7 +8,7 @@ class SpiderMoveValidator < MoveValidator
     
   #TODO
   def self.validate(boardState, move)
-    return false
+    return true
   end
 
   
