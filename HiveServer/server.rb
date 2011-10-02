@@ -18,23 +18,24 @@ class Server
     @port = port  
    
     
-    #Distributed Ruby server for connection with game player client------- 
-    DRb.start_service "druby://localhost:#{port}", @gameHandler  
-    puts "Distrbuted Ruby Server running at #{DRb.uri}"  
+
     #---------------------------------------------------------------------
    
     #TCP server for communication with game viewer client------------- 
-    tcpport= 8899
-    @server = TCPServer.open(tcpport)
-    puts "TCP Server running at port #{tcpport.to_s}"
-    serverThread = Thread.new{ listen();}
+    #tcpport= 8899
+   # @server = TCPServer.open(tcpport)
+    #puts "TCP Server running at port #{tcpport.to_s}"
+    #serverThread = Thread.new{ listen();}
     #-----------------------------------------------------------------
     
     #serverThread.join 
     # puts "DRB"
     tests 
     
-    DRb.thread.join   
+    #Distributed Ruby server for connection with game player client------- 
+    #DRb.start_service "druby://localhost:#{port}", @gameHandler  
+    #puts "Distrbuted Ruby Server running at #{DRb.uri}"  
+    #DRb.thread.join   
   end
     
     
@@ -42,11 +43,16 @@ def tests
     puts "running tests"
     move = Move.new(Piece::WHITE_SPIDER1, -1,-1)
     move2= Move.new(Piece::BLACK_SPIDER1, Piece::WHITE_SPIDER1,HexagonSide::TOP_LEFT_SIDE)
+    move3= Move.new(Piece::WHITE_SPIDER2, Piece::WHITE_SPIDER1,HexagonSide::BOTTOM_RIGHT_SIDE)
     puts move.toString()
     @gameHandler.boardState.start()
     @gameHandler.boardState.makeMove(move)
+    @gameHandler.boardState.print()
     @gameHandler.boardState.makeMove(move2)
     @gameHandler.boardState.print()
+    @gameHandler.boardState.makeMove(move3)
+    @gameHandler.boardState.print()
+    
 end
 
 

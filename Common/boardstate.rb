@@ -14,7 +14,7 @@ attr_reader :pieces    #1D array [piece_id] -> Piece
 attr_reader :board     #2D array [x][y] -> piece_id          
 attr_reader :moves     #1D array [i] -> Move
 
-BOARD_SIZE = 50
+BOARD_SIZE = 10
 
 def initialize()
  puts "Creating new Board State"
@@ -92,6 +92,7 @@ end
 
   def makeMove(move)
     begin 
+      puts "playing #{move.toString}"
       move.providePieceInstances(self)
       unless movesMade? 
         setPieceTo(move.moving_piece_id, startPosX , startPosY)   #FIRST MOVE 
@@ -164,6 +165,7 @@ def moveMessage(move)
  
 
  def place(move)
+    puts "PLACED: #{move.toString}"
     x,y = move.moving_piece.boardPosition 
     setPieceTo(move.moving_piece_id, x, y) 
     @moves << move
