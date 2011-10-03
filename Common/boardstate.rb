@@ -170,7 +170,7 @@ def moveMessage(move)
  private
  
  def place(move) 
-   move.overwriteDestinationSlot!(Slot.new(startPosX,startPosY)) unless movesMade?    
+   move.overwriteDestination!(startPosX, startPosY) unless movesMade?    
    x,y = move.destination
    setPieceTo(move.moving_piece_id, x, y) 
    @moves << move

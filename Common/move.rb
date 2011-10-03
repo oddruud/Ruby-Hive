@@ -24,6 +24,7 @@ class Move
        
     @moving_piece = boardState.pieces[@moving_piece_id]
     @dest_piece = boardState.pieces[@dest_piece_id]
+    
     if not @dest_piece_id == -1
       x,y = @dest_piece.neighbour(@side_id)  
       @dest_slot= Slot.new(x, y)
@@ -45,7 +46,7 @@ class Move
   end 
    
   def toString
-    if @dest_piece_id !=-1
+    if @dest_piece_id > 0
         return "#{Piece::NAME[@moving_piece_id]}  moves to #{Piece::NAME[@dest_piece_id]} on side #{HexagonSide::NAME[@side_id]}"
     else
        return "first piece #{Piece::NAME[@moving_piece_id]} placed on board"
