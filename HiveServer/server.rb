@@ -2,6 +2,8 @@ require "socket"
 require "drb"
 require "gamehandler"  
 require "move"
+require "LoggerCreator"
+
 class Server
   
   attr_reader :dts
@@ -9,8 +11,9 @@ class Server
   attr_reader :sockets
   attr_reader :running
   attr_reader :gameHandler
-  
+  attr_reader :logger
   def initialize(port)
+    @logger = LoggerCreator.createLoggerForClass(Server) 
     @running = true
     @sockets = Array.new() 
     @gameHandler= GameHandler.new()
@@ -40,11 +43,10 @@ class Server
     
     
 def tests
-    puts "running tests"
+    @logger.info "running tests"
     move = Move.new(Piece::WHITE_SPIDER1, -1,-1)
     move2= Move.new(Piece::BLACK_SPIDER1, Piece::WHITE_SPIDER1,HexagonSide::TOP_LEFT_SIDE)
     move3= Move.new(Piece::WHITE_SPIDER2, Piece::WHITE_SPIDER1,HexagonSide::BOTTOM_RIGHT_SIDE)
-    puts move.toString()
     @gameHandler.boardState.start()
     @gameHandler.boardState.makeMove(move)
     @gameHandler.boardState.print()
@@ -57,7 +59,7 @@ end
 
 
 def updateViewers(gameMessage)
-  puts "updating all game viewers with message #{gameMessage}"
+  @logger.info "updating all game viewers with message #{gameMessage}"
   @sockets.each do |socket|
     socket.puts gameMessage
   end
@@ -66,7 +68,7 @@ end
 
 #hive game viewer clients listen thread
 def listen  
-    puts "tcp server is listening..."
+    @logger.info "tcp server is listening..."
     while @running do                        # Servers run forever
       while session = @server.accept do 
         sockets << session
@@ -74,11 +76,11 @@ def listen
           session.puts(Time.now.ctime)  # Send the time to the client
           session.puts("Hello hive game viewer\n")
           #session.puts "Hi there"
-          puts "someone connected"
+          @logger.info "someone connected"
           Thread.start do
            while true do
               input = session.gets
-              puts input
+              @logger.info input
               session.puts "you said #{input}"
             end
           end 

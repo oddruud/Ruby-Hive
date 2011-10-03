@@ -6,6 +6,7 @@ require 'Insects/spider'
 require 'MoveValidators/PlacedToSameColorValidator'
 require 'MoveValidators/QueenInFourMovesValidator'
 require 'move'  
+require 'LoggerCreator'
 
 class BoardState
  include DRbUndumped
@@ -13,15 +14,17 @@ class BoardState
 attr_reader :pieces    #1D array [piece_id] -> Piece
 attr_reader :board     #2D array [x][y] -> piece_id          
 attr_reader :moves     #1D array [i] -> Move
+attr_reader :logger   
 
 BOARD_SIZE = 10
 
-def initialize()
- puts "Creating new Board State"
+def initialize(name = nil)
+  @logger = LoggerCreator.createLoggerForClassObject(BoardState,name,nil)
+  @logger.info "initializing new boardstate: #{name}"
 end
 
 def start
-  puts "Creating pieces for Board State"
+  @logger.info  "Creating pieces for Board State"
   @pieces =  Hash.new()                                       #THE PIECES
   #WHITE PIECES
   @pieces[Piece::WHITE_QUEEN_BEE]= QueenBee.new()
@@ -81,10 +84,16 @@ end
   end
   
   def validMove?(move)
-    piece = @piece[move.moving_piece_id]   
+    
+    return true if not movesMade?
+    
+    piece = @pieces[move.moving_piece_id]   
     @validators.each do |validator|                 #common board validation-rules 
       if not validator.validate(self, move) 
+        @logger.info  "validator #{validator.name} FAILED"
         return false 
+      else
+        @logger.info  "validator #{validator.name} SUCCESS"
       end
      end  
      return piece.validator.validate(self, move)    #piece specific validation    
@@ -92,19 +101,16 @@ end
 
   def makeMove(move)
     begin 
-      puts "playing #{move.toString}"
-      move.providePieceInstances(self)
-      unless movesMade? 
-        setPieceTo(move.moving_piece_id, startPosX , startPosY)   #FIRST MOVE 
-      else 
-        if validMove?(move) 
-         place(move) 
-        else
-          puts "INVALID MOVE"  
-        end
+      @logger.info  "playing #{move.toString}"
+      move.providePieceInstances(self) 
+      if validMove?(move) 
+        place(move) 
+      else
+        @logger.info  "INVALID MOVE: #{move}"  
       end
+      #end
     rescue MoveException => message
-      puts "Move exception:#{message}"
+      @logger.info "Move exception:#{message}"
     end
   end
  
@@ -165,13 +171,20 @@ def moveMessage(move)
  
 
  def place(move)
-    puts "PLACED: #{move.toString}"
-    x,y = move.moving_piece.boardPosition 
+    @logger.info  "PLACED: #{move.toString}"
+    
+    if movesMade? 
+      x,y = move.moving_piece.boardPosition 
+    else
+      x,y = startPosX, startPosY
+    end
+    
     setPieceTo(move.moving_piece_id, x, y) 
     @moves << move
  end
 
  def setPieceTo(piece_id, x ,y)
+  @logger.info "Placing #{@pieces[piece_id].class.name} at #{x},#{y}" 
   removePieceFromBoard(piece_id) 
   piece = @pieces[piece_id];
   @board[x][y]= piece_id 

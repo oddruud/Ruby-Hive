@@ -5,7 +5,9 @@ $LOAD_PATH.unshift( File.join( File.dirname(__FILE__), 'HiveServer' ) )
 
 require "server" 
 require 'optparse'
+require 'LoggerCreator' 
 
+logger = LoggerCreator.createLoggerWithName("server_main")
 options = {}
  options[:port] = 3333
  options[:debug] = false
@@ -36,7 +38,7 @@ opt_parser.parse!
 
 case ARGV[0]
 when "start"
-  puts "port: #{options[:port]}"
+  logger.info "starting hive game server on port #{options[:port]}"
   server= Server.new(options[:port])
  
   

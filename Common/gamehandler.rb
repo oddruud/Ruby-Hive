@@ -1,5 +1,6 @@
 require "boardstate"
 require "player"
+require 'LoggerCreator'
 
 class GameHandler
    include DRbUndumped
@@ -8,18 +9,18 @@ class GameHandler
   attr_reader :players
   attr_reader :turn
   attr_reader :updateCallback
-  
+  attr_reader :logger
   
   def initialize()
+    @logger = LoggerCreator.createLoggerForClass(GameHandler)
     @players= Array.new()
-    @boardState= BoardState.new()
+    @boardState= BoardState.new("MAINBOARD")
   end
 
   def setUpdateCallback(&block)
      @updateCallback = block 
-     test()
   end
-
+=begin
   def test
       move= Move.new(Piece::BLACK_SPIDER1, Piece::WHITE_SPIDER1,HexagonSide::TOP_LEFT_SIDE)
      @boardState.start()
@@ -27,12 +28,12 @@ class GameHandler
      moveMessage= @boardState.moveMessage(move) 
      @updateCallback.call(moveMessage)
   end
-
+=end
   def addPlayer(player)
     
     if (@players.length < 2)
       @players << player
-      puts "PLAYER #{@players.length}: #{player.name} added..." 
+      @logger.info "PLAYER #{@players.length}: #{player.name} added..." 
       player.welcome("the server welcomes you..wait for start signal...");
       if (@players.length == 2)
         start();  
@@ -41,7 +42,7 @@ class GameHandler
   end
   
   def moveMade(player, move)
-     puts "#{player.name} tries move: #{move.toString}"
+      @logger.info "#{player.name} tries move: #{move.toString}"
     # if @boardState.makeMove(move) == true 
           @updateCallback.call()
           nextTurn()  
