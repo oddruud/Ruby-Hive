@@ -34,8 +34,8 @@ class Move
     @logger.info "destination piece #{@dest_piece_id} #{@dest_piece}" unless @dest_piece_id == -1
   end
   
-  def overwriteDestinationSlot!(slot)
-      @dest_slot = slot
+  def overwriteDestination!(x,y)
+      @dest_slot = Slot.new(x,y)
   end
   
   def destination 
