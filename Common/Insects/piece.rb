@@ -89,19 +89,15 @@ def copy
   return newPiece
 end
 
-def setBoardPosition(x, y) 
-  @used= true
-  @x,@y = x, y 
-end
 
-def boardPosition
-  return @x, @y
-end
 
 def color
   return Piece.colorById(@id)
 end
 
+def toString
+  return self.name[id]
+end
 #SIDE ENUMS
 =begin
     2

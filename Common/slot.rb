@@ -56,6 +56,16 @@ def initialize(x,y)
   @x,@y = x, y 
 end
 
+def setBoardPosition(x, y) 
+  @used= true
+  @x,@y = x, y 
+end
+
+
+def boardPosition
+  return @x, @y
+end
+
 
 def neighbour(side)
   return Slot.neighbourCoordinates(@x,@y,side)

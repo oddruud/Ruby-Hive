@@ -1,4 +1,5 @@
 require 'MoveValidators/MoveValidator'  
+require 'Insects/piece'
 
 class QueenInFourMovesValidator < MoveValidator
 
@@ -13,10 +14,10 @@ def self.fourthPieceToBePlaced?(moves)  #RULE condition its a rule that the quee
 end
 
 def self.getQueenFromPieceId(pieces, id)
-      if Piece.color(id) == PieceColor::WHITE
-        queen = pieces[WHITE_QUEEN_BEE]
+      if pieces[id].color == PieceColor::WHITE
+        queen = pieces[Piece::WHITE_QUEEN_BEE]
       else
-        queen = pieces[BLACK_QUEEN_BEE]
+        queen = pieces[Piece::BLACK_QUEEN_BEE]
       end
       return queen          
 end

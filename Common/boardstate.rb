@@ -102,7 +102,7 @@ end
   def makeMove(move)
     begin 
       @logger.info  "playing #{move.toString}"
-      move.providePieceInstances(self) 
+      move.providePieceInstances!(self) 
       if validMove?(move) 
         place(move) 
       else
@@ -169,18 +169,12 @@ def moveMessage(move)
 
  private
  
-
- def place(move)
-    @logger.info  "PLACED: #{move.toString}"
-    
-    if movesMade? 
-      x,y = move.moving_piece.boardPosition 
-    else
-      x,y = startPosX, startPosY
-    end
-    
-    setPieceTo(move.moving_piece_id, x, y) 
-    @moves << move
+ def place(move) 
+   move.overwriteDestinationSlot!(Slot.new(startPosX,startPosY)) unless movesMade?    
+   x,y = move.destination
+   setPieceTo(move.moving_piece_id, x, y) 
+   @moves << move
+   @logger.info  "PLACED: #{move.toString}" 
  end
 
  def setPieceTo(piece_id, x ,y)
@@ -250,10 +244,6 @@ def moveMessage(move)
        end   
      return Slot::slotState?(white, black) 
  end 
-  
- def getDestBoardPos(move) 
-   return move.dest_piece.neighbour(move.side_id);
- end
  
  def getOriginBoardPos(move) 
     return move.moving_piece.boardPosition;
