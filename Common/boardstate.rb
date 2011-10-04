@@ -21,9 +21,10 @@ BOARD_SIZE = 10
 def initialize(name = nil)
   @logger = LoggerCreator.createLoggerForClassObject(BoardState,name,nil)
   @logger.info "initializing new boardstate: #{name}"
+  reset
 end
 
-def start
+def reset
   @logger.info  "Creating pieces for Board State"
   @pieces =  Hash.new()                                       #THE PIECES
   #WHITE PIECES
