@@ -11,7 +11,6 @@ class GameHandler
   attr_reader :turn
   attr_reader :updateCallback
   attr_reader :logger
-
   
   def initialize()
     @logger = LoggerCreator.createLoggerForClass(GameHandler)
@@ -24,17 +23,14 @@ class GameHandler
   end
 
   def addPlayer(player)
-    
-    if (@players.length < 2)
+    if @players.length < 2
       @players << player
       @logger.info "PLAYER #{@players.length}: #{player.name} added..." 
-      player.setID(@players.length.to_s)
-      player.receiverFunction = lambda {|id, move| moveMade(id, move)} 
-      
-      player.welcome("the server welcomes you..wait for start signal...");
-      if (@players.length == 2)
-        start();  
-      end
+      player.setID(@players.length.to_s) 
+      player.setColor(PieceColor::COLORS[player.length])
+      player.submitMoveTo= lambda{|id, move| moveMade(id, move)}  
+      player.welcome("the server welcomes you..wait for start signal..."); 
+      start() if @players.length == 2 
     end
   end
   

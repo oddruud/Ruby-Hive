@@ -10,7 +10,7 @@ class Player
   attr_accessor :id 
   attr_reader :color
   attr_reader :logger
-  attr_accessor :receiverFunction
+  attr_accessor :submitMoveTo
    
   def initialize(name)
    @name = name
@@ -21,8 +21,8 @@ class Player
     @id= id
   end
   
-  def setMoveReceiverFunction(&receiverFunction)
-    @receiverFunction = receiverFunction  
+  def setColor(color)
+    @color = color
   end
     
   def gameStarts(message)
@@ -36,11 +36,24 @@ class Player
    
   def makeMove(boardState)
     @logger.info "player's makemove called"
+    submitMove(Move.new(0,0,0)) 
   end  
   
   def submitMove(move) 
-      receiverFunction.call(@id, move)
+      submitMoveTo.call(@id, move)
   end  
   
+  def myPieces(boardState)
+     return boardState.getPiecesByColor(@color)
+  end
 
+  def opponentPieces(boardState)
+    pieces = []  
+    PieceColor::COLORS.each do |color|
+      unless color == @color 
+        pieces = pieces + boardState.getPiecesByColor(color)
+      end
+    end
+    return pieces
+  end
 end
