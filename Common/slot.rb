@@ -96,10 +96,10 @@ end
     [6][5]
 =end  
 def self.neighbourCoordinates(x,y,side)  
- xdif,ydif=0,0
+ xdif,ydif,z  =0,0,0
  case side 
       when HexagonSide::UPPER_SIDE then 
-        xdif, ydif= 0, 0 
+        xdif, ydif, z = 0, 0, 1 
       when HexagonSide::TOP_SIDE then 
         xdif, ydif= -1, -1 
       when HexagonSide::TOP_RIGHT_SIDE then 
@@ -116,9 +116,9 @@ def self.neighbourCoordinates(x,y,side)
         raise MoveException, "non existing hexagon side #{side}"
  end
   if x != nil
-    return x + xdif,y + ydif
+    return x + xdif, y + ydif, z  
   else
-    return 0,0
+    return 0, 0, 0
   end
 end
   
