@@ -1,6 +1,7 @@
 require "boardstate"
 require "player"
 require 'LoggerCreator'
+require 'move'
 
 class GameHandler
    include DRbUndumped
@@ -20,35 +21,20 @@ class GameHandler
   def setUpdateCallback(&block)
      @updateCallback = block 
   end
-=begin
-  def test
-      move= Move.new(Piece::BLACK_SPIDER1, Piece::WHITE_SPIDER1,HexagonSide::TOP_LEFT_SIDE)
-     @boardState.start()
-     @boardState.makeMove(move)
-     moveMessage= @boardState.moveMessage(move) 
-     @updateCallback.call(moveMessage)
-  end
-=end
+
   def addPlayer(player)
-    
-    if (@players.length < 2)
+    if @players.length < 2
       @players << player
       @logger.info "PLAYER #{@players.length}: #{player.name} added..." 
-      player.welcome("the server welcomes you..wait for start signal...");
-      if (@players.length == 2)
-        start();  
-      end
+      player.setID(@players.length.to_s) 
+      player.setColor(PieceColor::COLORS[player.length])
+      player.submitMoveTo= lambda{|id, move| moveMade(id, move)}  
+      player.welcome("the server welcomes you..wait for start signal..."); 
+      start() if @players.length == 2 
     end
   end
   
-  def moveMade(player, move)
-      @logger.info "#{player.name} tries move: #{move.toString}"
-    # if @boardState.makeMove(move) == true 
-          @updateCallback.call()
-          nextTurn()  
-    # end
-  end
-  
+
   private 
   
   def start()
@@ -62,13 +48,27 @@ class GameHandler
   end  
   
   def nextTurn()
-    if @turn != 0 
-      @turn = 0 
-    else 
-      @turn = 1 
-    end
-    @players[@turn].makeMove(); 
+    @turn = @turn == 1 ? 0: 1 
+    @players[@turn].makeMove(boardState); 
   end 
+  
+  def moveMade(playerID, move)
+      @logger.info "#{playerID} tries move: #{move.toString}"
+       
+      begin  
+        boardState.makeMove(move)
+      rescue MoveException  
+        @logger.fatal "PLAYER #{playerID} MOVE #{move.toString} INVALID"
+        stop("invalid move") 
+      end  
+       boardState.print
+      nextTurn()  
+  end
+  
+  def stop(message)
+       @logger.info "game stopped: #{message}"
+  end
+
   
   
 end

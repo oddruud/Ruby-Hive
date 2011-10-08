@@ -17,13 +17,15 @@ attr_reader :moves     #1D array [i] -> Move
 attr_reader :logger   
 
 BOARD_SIZE = 10
+PIECES_PER_PLAYER = 11
 
 def initialize(name = nil)
   @logger = LoggerCreator.createLoggerForClassObject(BoardState,name,nil)
   @logger.info "initializing new boardstate: #{name}"
+  reset
 end
 
-def start
+def reset
   @logger.info  "Creating pieces for Board State"
   @pieces =  Hash.new()                                       #THE PIECES
   #WHITE PIECES
@@ -125,7 +127,6 @@ end
     end
   end
 
-
   def copy
     newState= self.dup  # shallow copy
     newState.pieces= nil 
@@ -140,19 +141,24 @@ end
   end
 
   #TODO
-  def availableMovesByPiece(piece_id)
-  end
+  #def availableMovesByPiece(piece_id)
+  #end
   
   #TODO
-  def availableMovesByColor(color)
-  end
+  #def availableMovesByColor(color)
+  #end
 
   #TODO
-  def getSide(origin, neighbour)
-  end
+  #def getSide(origin, neighbour)
+  #end
 
- def unusedPieces(color)
+ #def unusedPieces(color)
   
+ #end
+ 
+ def getPiecesByColor(color)
+  return @pieces[0..PIECES_PER_PLAYER-1] if color == PiceColor::WHITE
+  return @pieces[PIECES_PER_PLAYER..(PIECES_PER_PLAYER*2-1)] if color == PiceColor::BLACK
  end
  
 #def position(piece_id, x ,y)

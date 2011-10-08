@@ -39,7 +39,7 @@ opt_parser.parse!
 case ARGV[0]
 when "start"
   logger.info "starting hive game server on port #{options[:port]}"
-  server= Server.new(options[:port])
+  server= Server.new(options[:port], options[:debug])
  
   
 end

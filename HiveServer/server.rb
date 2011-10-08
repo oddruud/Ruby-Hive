@@ -3,6 +3,7 @@ require "drb"
 require "gamehandler"  
 require "move"
 require "LoggerCreator"
+require "HiveBot/naivebot"
 
 class Server
   
@@ -12,7 +13,8 @@ class Server
   attr_reader :running
   attr_reader :gameHandler
   attr_reader :logger
-  def initialize(port)
+  
+  def initialize(port, testMode)
     @logger = LoggerCreator.createLoggerForClass(Server) 
     @running = true
     @sockets = Array.new() 
@@ -20,8 +22,7 @@ class Server
     @gameHandler.setUpdateCallback() {|message| updateViewers(message)}
     @port = port  
    
-    
-
+ 
     #---------------------------------------------------------------------
    
     #TCP server for communication with game viewer client------------- 
@@ -29,35 +30,23 @@ class Server
    # @server = TCPServer.open(tcpport)
     #puts "TCP Server running at port #{tcpport.to_s}"
     #serverThread = Thread.new{ listen();}
-    #-----------------------------------------------------------------
-    
+    #-----------------------------------------------------------------  
     #serverThread.join 
-    # puts "DRB"
-    tests 
     
+    
+    if testMode
+      @gameHandler.addPlayer NaiveBot.new("testbot1")
+      @gameHandler.addPlayer NaiveBot.new("testbot2")
+    end
+ 
+ 
     #Distributed Ruby server for connection with game player client------- 
-    #DRb.start_service "druby://localhost:#{port}", @gameHandler  
-    #puts "Distrbuted Ruby Server running at #{DRb.uri}"  
-    #DRb.thread.join   
+    DRb.start_service "druby://localhost:#{port}", @gameHandler  
+    @logger.info "Distrbuted Ruby Server running at #{DRb.uri}"  
+    DRb.thread.join   
   end
     
-    
-def tests
-    @logger.info "running tests"
-    move = Move.new(Piece::WHITE_SPIDER1, -1,-1)
-    move2= Move.new(Piece::BLACK_SPIDER1, Piece::WHITE_SPIDER1,HexagonSide::TOP_LEFT_SIDE)
-    move3= Move.new(Piece::WHITE_SPIDER2, Piece::WHITE_SPIDER1,HexagonSide::BOTTOM_RIGHT_SIDE)
-    @gameHandler.boardState.start()
-    @gameHandler.boardState.makeMove(move)
-    @gameHandler.boardState.print()
-    @gameHandler.boardState.makeMove(move2)
-    @gameHandler.boardState.print()
-    @gameHandler.boardState.makeMove(move3)
-    @gameHandler.boardState.print()
-    
-end
-
-
+   
 def updateViewers(gameMessage)
   @logger.info "updating all game viewers with message #{gameMessage}"
   @sockets.each do |socket|
