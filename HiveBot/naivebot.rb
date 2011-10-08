@@ -10,9 +10,18 @@ class NaiveBot < Bot
     super("Naive Bot:#{name}") 
   end
  
-  def calculateNextMove(boardState)
-    @logger.info "Naive calculating move.."
-    move = Move.new(Piece::WHITE_QUEEN_BEE, Piece::WHITE_BEETLE1, HexagonSide::UPPER_SIDE);  
+  def determineNextMove(boardState)
+    @logger.info "calculating move for #{@color}.."
+    
+    pieces = boardState.getPiecesByColor(@color)
+    possibleMoves = Array.new()
+    
+    pieces.each do |piece|
+       possibleMoves = possibleMoves + piece.availableMoves(boardState)
+    end
+    
+    #pick a random move: 
+    move = possibleMoves[rand(possibleMoves.length)]  
     submitMove(move) 
   end
   

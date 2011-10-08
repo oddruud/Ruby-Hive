@@ -72,7 +72,7 @@ attr_accessor :validator
 attr_reader :used
 
 def initialize()
-  super -1,-1
+  super -1,-1,-1
   @used = false 
 end
 
@@ -90,7 +90,14 @@ def copy
   return newPiece
 end
 
-
+def movable?(boardstate) 
+  return true if @used == false
+  
+  
+  # a piece is not movable when
+  #- removing the piece results in disconnecting the string of pieces. 
+ 
+end
 
 def color
   return Piece.colorById(@id)
@@ -121,10 +128,25 @@ end
 #end
 
 def availableMoves(boardState)
- return nil
+ moves = Array.new ()
+ if @used == false
+    emptySlotType =  newPiecesUseSlotType(color)
+    openSameColorSlots =  boardState.getSlotsWithTypeCode(emptySlotType)  
+ end
+ 
+ openSameColorSlots.each do |slot|
+  #moves = moves + Move.new(id, ) 
+ end
+ 
+ 
+ return moves
 end
 
-
+def self.newPiecesUseSlotType(color)
+    whiteN = color == PieceColor.WHITE ? :Neighbour : :NotANeighbour
+    blackN = color == PieceColor.BLACK ? :Neighbour : :NotANeighbour
+    return Slot.slotState(whiteN, blackN) 
+end 
 
 =begin
 def detachAll()

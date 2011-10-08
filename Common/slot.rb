@@ -6,7 +6,8 @@ class HexagonSide
   BOTTOM_SIDE = 4
   BOTTOM_LEFT_SIDE = 5
   TOP_LEFT_SIDE = 6
-  SIDES = 7
+  BOTTOM_SIDE = 7 
+  SIDES = 8
 
 NAME= Array.new() 
 NAME << "UPPER SIDE"
@@ -16,11 +17,12 @@ NAME << "BOTTOM RIGHT SIDE"
 NAME << "BOTTOM SIDE"
 NAME << "BOTTOM LEFT SIDE"
 NAME << "TOP LEFT SIDE"
+NAME << "BOTTOM SIDE"
 
 def self.getOpposite(side)
    case side 
       when HexagonSide::UPPER_SIDE then 
-        return -1
+        return HexagonSide::BOTTOM_SIDE
       when HexagonSide::TOP_SIDE then 
         return HexagonSide::BOTTOM_SIDE
       when HexagonSide::TOP_RIGHT_SIDE then 
@@ -33,6 +35,8 @@ def self.getOpposite(side)
         return HexagonSide::TOP_RIGHT_SIDE
       when HexagonSide::TOP_LEFT_SIDE then 
          return HexagonSide::BOTTOM_RIGHT_SIDE
+      when HexagonSide::BOTTOM_SIDE then 
+         return HexagonSide::UPPER_SIDE
       else
         return -1
  end
@@ -45,39 +49,45 @@ class Slot
 
 attr_accessor :x
 attr_accessor :y
+attr_accessor :z
+attr_accessor :state
+
 UNCONNECTED = -1
 EMPTY_SLOT_WHITE = -2
 EMPTY_SLOT_BLACK = -3
 EMPTY_SLOT_MIXED = -4
 TRAPPED_SLOT = -5
  
-
-def initialize(x,y)
-  @x,@y = x, y 
+def initialize(x,y,z)
+  @x,@y,@z = x, y, z  
+  yield self
 end
 
-def setBoardPosition(x, y) 
+def setBoardPosition(x, y,z) 
   @used= true
-  @x,@y = x, y 
+  @x,@y,@z = x, y,z 
 end
 
 
 def boardPosition
-  return @x, @y
+  return @x, @y,@z
 end
 
 
 def neighbour(side)
-  return Slot.neighbourCoordinates(@x,@y,side)
+  return Slot.neighbourCoordinates(@x,@y,@z,side)
 end
 
 def forEachNeighbour 
-    (0..HexagonSide::SIDES-1).each do |i|               
-      yield neighbour(i) #returns x,y position of the neighbour
+    (0..HexagonSide::SIDES-1).each do |i|
+      x, y, z = neighbour(i) 
+      if z ==0 || z == 1   #the z index of a piece can only be 0 or 1                    
+        yield x, y, z
+      end
     end   
 end
  
- def self.slotState?(white, black) 
+ def self.slotState(white, black) 
      if white == :Neighbour && black == :Neighbour 
        state = EMPTY_SLOT_MIXED
      elsif white == :Neighbour && black == :NotANeighbour 
@@ -89,34 +99,37 @@ end
      end 
      return state
 end  
+
    
 =begin
   [2][3]
   [7][1][4]
     [6][5]
 =end  
-def self.neighbourCoordinates(x,y,side)  
- xdif,ydif,z  =0,0,0
+def self.neighbourCoordinates(x,y,z, side)  
+ xdif,ydif, zdif = 0,0,0
  case side 
       when HexagonSide::UPPER_SIDE then 
-        xdif, ydif, z = 0, 0, 1 
+        xdif, ydif, zdif = 0, 0, 1 
       when HexagonSide::TOP_SIDE then 
-        xdif, ydif= -1, -1 
+        xdif, ydif = -1, -1 
       when HexagonSide::TOP_RIGHT_SIDE then 
-        xdif, ydif= 0, -1  
+        xdif, ydif = 0, -1  
       when HexagonSide::BOTTOM_RIGHT_SIDE then 
-        xdif, ydif= 1, 0  
+        xdif, ydif = 1, 0  
       when HexagonSide::BOTTOM_SIDE then 
-        xdif, ydif= 1, 1  
+        xdif, ydif = 1, 1  
       when HexagonSide::BOTTOM_LEFT_SIDE then 
-        xdif, ydif= 0, 1  
+        xdif, ydif = 0, 1  
       when HexagonSide::TOP_LEFT_SIDE then 
-        xdif, ydif= -1, 0 
+        xdif, ydif = -1, 0 
+      when HexagonSide::BOTTOM_SIDE then 
+        xdif, ydif, zdif = -1, 0, -1
       else
         raise MoveException, "non existing hexagon side #{side}"
  end
   if x != nil
-    return x + xdif, y + ydif, z  
+    return x + xdif, y + ydif, z + zdif  
   else
     return 0, 0, 0
   end

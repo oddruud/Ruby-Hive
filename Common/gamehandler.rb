@@ -14,7 +14,7 @@ class GameHandler
   
   def initialize()
     @logger = LoggerCreator.createLoggerForClass(GameHandler)
-    @players= Array.new()
+    @players = Array.new()
     @boardState= BoardState.new("MAINBOARD")
   end
 
@@ -27,11 +27,15 @@ class GameHandler
       @players << player
       @logger.info "PLAYER #{@players.length}: #{player.name} added..." 
       player.setID(@players.length.to_s) 
-      player.setColor(PieceColor::COLORS[player.length])
+      player.setColor(PieceColor::COLORS[@players.length-1])
       player.submitMoveTo= lambda{|id, move| moveMade(id, move)}  
       player.welcome("the server welcomes you..wait for start signal..."); 
       start() if @players.length == 2 
     end
+  end
+  
+  def removePlayerWithId(id)
+    @player.delete_if {|player| player.id == id} 
   end
   
 

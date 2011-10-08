@@ -27,7 +27,7 @@ end
 
 def reset
   @logger.info  "Creating pieces for Board State"
-  @pieces =  Hash.new()                                       #THE PIECES
+  @pieces =  Array.new()                                       #THE PIECES
   #WHITE PIECES
   @pieces[Piece::WHITE_QUEEN_BEE]= QueenBee.new()
   @pieces[Piece::WHITE_BEETLE1]= Beetle.new()
@@ -58,7 +58,11 @@ def reset
     @pieces[i].id = i 
   end
   
-  @board = Array.new(BOARD_SIZE).map!{Array.new(BOARD_SIZE, [-1])}   #THE BOARD
+  @board = Array.new(BOARD_SIZE).map!{Array.new(BOARD_SIZE, [-1,-1])}   #THE BOARD
+  
+  @logger.info "#{BOARD_SIZE}* #{BOARD_SIZE} board grid created:"
+  print 
+  
   @validators = [ QueenInFourMovesValidator, 
                   PlacedToSameColorValidator 
                 ]
@@ -157,10 +161,53 @@ end
  #end
  
  def getPiecesByColor(color)
-  return @pieces[0..PIECES_PER_PLAYER-1] if color == PiceColor::WHITE
-  return @pieces[PIECES_PER_PLAYER..(PIECES_PER_PLAYER*2-1)] if color == PiceColor::BLACK
+  pieces = []
+  @logger.info "getPiecesByColor: #{color}"
+  
+  if color == PieceColor::WHITE
+    pieces = @pieces[0, 11] 
+    @logger.info "white pieces: #{pieces}"
+  elsif color == PieceColor::BLACK
+    pieces = @pieces[11, 11] 
+    @logger.info "black pieces: #{pieces}"
+  end
+  
+    return pieces
  end
  
+ #    emptySlotType =  Slot.colorsToEmptySlotType([color()])
+
+def eachBoardPosition
+yI,cI, zI = 0,0,0     
+    @board.each do |y|
+      yI+=1
+      y.each do |c|
+        zI+=1
+        c.each do |z|
+          zI+=1
+          yield yI, cI, zI, z
+        end  
+      end 
+    end
+end   
+
+
+def getSlotsWithTypeCode(slotType)   
+  slots = []
+  
+  if slotType > -1
+    raise "a slot with an id higher than -1 is not a slot but a piece, use getPiece(piece_id)"
+  end 
+  
+  self.eachBoardPosition do |x,y,z, value|
+    if value == slotType && value < 0  
+      slots = slots + Slot.new(x,y,z){|s| s.state = value} #add a slot 
+    end    
+  end
+  return slots 
+end
+
+  
 #def position(piece_id, x ,y)
 #  @board[x][y]= piece_id 
 #  @pieces[piece_id].setBoardPosition(x, y) 
@@ -189,8 +236,8 @@ def moveMessage(move)
   piece = @pieces[piece_id];
   
   if (@board[x][y][0] < 0)
-    slotType = piece.color == PieceColor::WHITE ? Slot::EMPTY_SLOT_WHITE : Slot::EMPTY_SLOT_BLACK 
-    @board[x][y]= [piece_id, slotType] 
+    emptySlotCode = piece.color == PieceColor::WHITE ? Slot::EMPTY_SLOT_WHITE : Slot::EMPTY_SLOT_BLACK 
+    @board[x][y]= [piece_id, emptySlotCode] 
   else
     @board[x][y]= [@board[x][y], piece_id] 
   end

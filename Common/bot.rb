@@ -16,14 +16,13 @@ class Bot < Player
     
   def makeMove(boardState)
     @logger.info "#{name} makemove called"
-    thread = Thread.new{ calculateNextMove(boardState) }
+    thread = Thread.new{ determineNextMove(boardState) }
     thread.join 
   end  
   
-  def calculateNextMove(boardState)
-    @logger.info "calculating move.."
-    move = Move.new(Piece::WHITE_QUEEN_BEE, Piece::WHITE_BEETLE1, HexagonSide::UPPER_SIDE);  
-    
+  def determineNextMove(boardState)
+    @logger.info "you nee to override determineNextMove"
+    #move = Move.new(Piece::WHITE_QUEEN_BEE, Piece::WHITE_BEETLE1, HexagonSide::UPPER_SIDE);  
   end
   
   
