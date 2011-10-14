@@ -18,6 +18,7 @@ class Move
     @side_id = side
     @dest_slot = nil
     @logger = LoggerCreator.createLoggerForClass(Move)
+    yield self 
   end
   
   def providePieceInstances!(boardState)
@@ -26,16 +27,20 @@ class Move
     @dest_piece = boardState.pieces[@dest_piece_id]
     
     if not @dest_piece_id == -1
-      x,y = @dest_piece.neighbour(@side_id)  
-      @dest_slot= Slot.new(x, y)
+      x,y,z = @dest_piece.neighbour(@side_id)  
+      @dest_slot= Slot.new(x, y, z)
     end
     
     @logger.info "moving piece #{@moving_piece_id} #{@moving_piece}"
     @logger.info "destination piece #{@dest_piece_id} #{@dest_piece}" unless @dest_piece_id == -1
   end
   
-  def overwriteDestination!(x,y)
-      @dest_slot = Slot.new(x,y)
+  def setDestinationCoordinates(x,y, z) 
+      @dest_slot = Slot.new(x,y,z)
+  end
+  
+  def setDestinationSlot(slot) 
+    @dest_slot = slot 
   end
   
   def destination 
@@ -44,12 +49,12 @@ class Move
     end
     return @dest_slot.boardPosition
   end 
-   
+  
   def toString
     if @dest_piece_id > 0
         return "#{Piece::NAME[@moving_piece_id]}  moves to #{Piece::NAME[@dest_piece_id]} on side #{HexagonSide::NAME[@side_id]}"
     else
-       return "first piece #{Piece::NAME[@moving_piece_id]} placed on board"
+       return "Absolute Move #{Piece::NAME[@moving_piece_id]} to #{@dest_slot.boardPosition}"
      end
   end
   

@@ -2,6 +2,7 @@ require "boardstate"
 require "player"
 require 'LoggerCreator'
 require 'move'
+require 'moveexception'
 
 class GameHandler
    include DRbUndumped
@@ -57,16 +58,19 @@ class GameHandler
   end 
   
   def moveMade(playerID, move)
-      @logger.info "#{playerID} tries move: #{move.toString}"
        
       begin  
+        raise "move is null" if move.nil?
+       @logger.info "#{playerID} tries move: #{move.toString}" unless move.nil?
         boardState.makeMove(move)
-      rescue MoveException  
-        @logger.fatal "PLAYER #{playerID} MOVE #{move.toString} INVALID"
+        boardState.print
+        nextTurn()  
+      rescue Exception  => detail
+        @logger.fatal "move failed: #{detail.message}"
+        puts detail.backtrace.join("\n")
         stop("invalid move") 
       end  
-       boardState.print
-      nextTurn()  
+  
   end
   
   def stop(message)

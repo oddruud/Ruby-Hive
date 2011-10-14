@@ -1,12 +1,12 @@
 class HexagonSide
-  UPPER_SIDE = 0
-  TOP_SIDE = 1
-  TOP_RIGHT_SIDE = 2
-  BOTTOM_RIGHT_SIDE = 3
-  BOTTOM_SIDE = 4
+  ONTOP_SIDE = 0
+  UNDER_SIDE = 1
+  TOP_SIDE = 2
+  TOP_RIGHT_SIDE = 3
+  BOTTOM_RIGHT_SIDE = 4
   BOTTOM_LEFT_SIDE = 5
   TOP_LEFT_SIDE = 6
-  BOTTOM_SIDE = 7 
+  BOTTOM_SIDE = 7
   SIDES = 8
 
 NAME= Array.new() 
@@ -21,8 +21,8 @@ NAME << "BOTTOM SIDE"
 
 def self.getOpposite(side)
    case side 
-      when HexagonSide::UPPER_SIDE then 
-        return HexagonSide::BOTTOM_SIDE
+      when HexagonSide::ONTOP_SIDE then 
+        return HexagonSide::UNDER_SIDE
       when HexagonSide::TOP_SIDE then 
         return HexagonSide::BOTTOM_SIDE
       when HexagonSide::TOP_RIGHT_SIDE then 
@@ -60,7 +60,7 @@ TRAPPED_SLOT = -5
  
 def initialize(x,y,z)
   @x,@y,@z = x, y, z  
-  yield self
+  yield self   if block_given? 
 end
 
 def setBoardPosition(x, y,z) 
@@ -81,10 +81,23 @@ end
 def forEachNeighbour 
     (0..HexagonSide::SIDES-1).each do |i|
       x, y, z = neighbour(i) 
-      if z ==0 || z == 1   #the z index of a piece can only be 0 or 1                    
+      if z == 0 || z == 1   #the z index of a piece can only be 0 or 1                    
         yield x, y, z
       end
     end   
+end
+
+def neighbouringPieces(boardState, amount = 7)
+    pieces = Array.new()
+    forEachNeighbour do |x,y,z|
+      id = boardState.board[x][y][z] 
+      if id > -1
+        piece = boardState.pieces[id]
+        pieces << piece 
+        return pieces  if pieces.length == amount
+      end 
+    end
+    return pieces
 end
  
  def self.slotState(white, black) 
@@ -109,8 +122,10 @@ end
 def self.neighbourCoordinates(x,y,z, side)  
  xdif,ydif, zdif = 0,0,0
  case side 
-      when HexagonSide::UPPER_SIDE then 
+      when HexagonSide::ONTOP_SIDE then 
         xdif, ydif, zdif = 0, 0, 1 
+      when HexagonSide::UNDER_SIDE then 
+        xdif, ydif, zdif = 0, 0, -1
       when HexagonSide::TOP_SIDE then 
         xdif, ydif = -1, -1 
       when HexagonSide::TOP_RIGHT_SIDE then 
@@ -123,10 +138,8 @@ def self.neighbourCoordinates(x,y,z, side)
         xdif, ydif = 0, 1  
       when HexagonSide::TOP_LEFT_SIDE then 
         xdif, ydif = -1, 0 
-      when HexagonSide::BOTTOM_SIDE then 
-        xdif, ydif, zdif = -1, 0, -1
       else
-        raise MoveException, "non existing hexagon side #{side}"
+        raise "non existing hexagon side #{side}"
  end
   if x != nil
     return x + xdif, y + ydif, z + zdif  

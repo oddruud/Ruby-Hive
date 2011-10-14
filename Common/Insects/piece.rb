@@ -4,6 +4,16 @@ class PieceColor
   BLACK= :black
   WHITE= :white 
   COLORS = [WHITE, BLACK]
+  
+  def self.opposingColor color
+    case color
+      when BLACK then
+        return WHITE
+      when WHITE then
+        return BLACK   
+    end
+  end
+  
 end
 
 
@@ -67,13 +77,20 @@ NAME << "BLACK_ANT3"
 
 #properties
 #attr_accessor :sides
-attr_accessor :id
 attr_accessor :validator
 attr_reader :used
+attr_reader :logger
+attr_reader :id
 
 def initialize()
   super -1,-1,-1
   @used = false 
+  yield self
+end
+
+def setId(id)
+  @id = id
+  @logger = LoggerCreator.createLoggerForClassObject(Piece, NAME[@id]) 
 end
 
 def self.colorById(id) 
@@ -88,6 +105,14 @@ def self.colorById(id)
 def copy
   newPiece = self.dup 
   return newPiece
+end
+
+def validMove?(boardState, move)
+  if validator.nil?
+    @logger.info "#{self} does not have a validator, FIX THIS!"
+    return true
+  end
+  return validator.validate(boardState, move)
 end
 
 def movable?(boardstate) 
@@ -119,32 +144,36 @@ end
     [6][5]
 =end 
 
-#def neighbour(side)
-#  return Slot.neighbour(@x,@y,side)
-#end
-
-#def forEachNeighbour
-#  Slot.forEachNeighbour @x,@y
-#end
-
 def availableMoves(boardState)
- moves = Array.new ()
+ moves = Array.new()
+ openSlots = Array.new()
+ 
+ openSlots << boardState.startSlot if not boardState.movesMade? #if there are no pieces on the board
+ 
+ if boardState.moveCount == 1 #if this is the second move to be made, you can connect to the opposing color 
+    opposingSlotType =  Piece.colorToSlotType(PieceColor.opposingColor(color))
+    openSlots = openSlots +  boardState.getSlotsWithTypeCode(opposingSlotType)  
+ end
+ 
  if @used == false
-    emptySlotType =  newPiecesUseSlotType(color)
-    openSameColorSlots =  boardState.getSlotsWithTypeCode(emptySlotType)  
+    emptySlotType =  Piece.colorToSlotType(color)
+    openSlots = openSlots +  boardState.getSlotsWithTypeCode(emptySlotType)  
  end
  
- openSameColorSlots.each do |slot|
-  #moves = moves + Move.new(id, ) 
+  @logger.info  "NUM open slots: #{openSlots.length}"
+  
+ openSlots.each do |slot|
+  move = Move.new(id, -1,-1){|move| move.setDestinationSlot(slot)}
+  moves = moves + [move]
+  @logger.info  "availableMove: #{move.toString}"
  end
- 
  
  return moves
 end
 
-def self.newPiecesUseSlotType(color)
-    whiteN = color == PieceColor.WHITE ? :Neighbour : :NotANeighbour
-    blackN = color == PieceColor.BLACK ? :Neighbour : :NotANeighbour
+def self.colorToSlotType(color)
+    whiteN = color == PieceColor::WHITE ? :Neighbour : :NotANeighbour
+    blackN = color == PieceColor::BLACK ? :Neighbour : :NotANeighbour
     return Slot.slotState(whiteN, blackN) 
 end 
 

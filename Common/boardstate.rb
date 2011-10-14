@@ -55,7 +55,7 @@ def reset
   @pieces[Piece::BLACK_ANT3]= Ant.new() 
   
   (0..@pieces.length-1).each do |i|
-    @pieces[i].id = i 
+    @pieces[i].setId(i) 
   end
   
   @board = Array.new(BOARD_SIZE).map!{Array.new(BOARD_SIZE, [-1,-1])}   #THE BOARD
@@ -89,6 +89,14 @@ end
     @moves.length != 0
   end
   
+  def moveCount
+     @moves.length
+  end
+  
+  def startSlot
+    return Slot.new(startPosX, startPosY, 0)
+  end
+  
   def validMove?(move)
     
     return true if not movesMade?
@@ -102,7 +110,7 @@ end
         @logger.info  "validator #{validator.name} SUCCESS"
       end
      end  
-     return piece.validator.validate(self, move)    #piece specific validation    
+     return piece.validMove?(self, move)    #piece specific validation    
   end
 
   def makeMove(move)
@@ -201,7 +209,7 @@ def getSlotsWithTypeCode(slotType)
   
   self.eachBoardPosition do |x,y,z, value|
     if value == slotType && value < 0  
-      slots = slots + Slot.new(x,y,z){|s| s.state = value} #add a slot 
+      slots << Slot.new(x,y,z){|s| s.state = value} #add a slot 
     end    
   end
   return slots 
@@ -223,26 +231,28 @@ def moveMessage(move)
  private
  
  def place(move) 
-   move.overwriteDestination!(startPosX, startPosY) unless movesMade?    
-   x,y = move.destination
-   setPieceTo(move.moving_piece_id, x, y) 
+   move.setDestinationCoordinates(startPosX, startPosY, 0) unless movesMade?    
+   x,y,z = move.destination
+   setPieceTo(move.moving_piece_id, x, y,z) 
    @moves << move
    @logger.info  "PLACED: #{move.toString}" 
  end
 
- def setPieceTo(piece_id, x ,y)
-  @logger.info "Placing #{@pieces[piece_id].class.name} at #{x},#{y}" 
+ def setPieceTo(piece_id, x ,y,z)
+  @logger.info "Placing #{@pieces[piece_id].class.name} at #{x},#{y},#{z}" 
   removePieceFromBoard(piece_id) 
   piece = @pieces[piece_id];
   
+  board_z = 0 
   if (@board[x][y][0] < 0)
     emptySlotCode = piece.color == PieceColor::WHITE ? Slot::EMPTY_SLOT_WHITE : Slot::EMPTY_SLOT_BLACK 
-    @board[x][y]= [piece_id, emptySlotCode] 
+    @board[x][y]= [piece_id, emptySlotCode]   
   else
+    board_z = 1
     @board[x][y]= [@board[x][y], piece_id] 
   end
     
-  piece.setBoardPosition(x,y)
+  piece.setBoardPosition(x, y, board_z)
   resolveNeighbourStates(piece) 
  end
   
