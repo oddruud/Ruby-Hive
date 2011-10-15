@@ -18,8 +18,10 @@ class Server
     @logger = LoggerCreator.createLoggerForClass(Server) 
     @running = true
     @sockets = Array.new() 
-    @gameHandler= GameHandler.new()
-    @gameHandler.setUpdateCallback() {|message| updateViewers(message)}
+    @gameHandler= GameHandler.new() do |gh| 
+        gh.setUpdateCallback() {|message| updateViewers(message)}
+        gh.createNewGame()
+    end
     @port = port  
    
  
@@ -41,9 +43,9 @@ class Server
  
  
     #Distributed Ruby server for connection with game player client------- 
-    DRb.start_service "druby://localhost:#{port}", @gameHandler  
-    @logger.info "Distrbuted Ruby Server running at #{DRb.uri}"  
-    DRb.thread.join   
+    #DRb.start_service "druby://localhost:#{port}", @gameHandler  
+    #@logger.info "Distrbuted Ruby Server running at #{DRb.uri}"  
+    #DRb.thread.join   
   end
     
    

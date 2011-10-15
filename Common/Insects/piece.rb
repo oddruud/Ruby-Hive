@@ -1,6 +1,7 @@
 require 'slot'
 
 class PieceColor
+  NONE= :none
   BLACK= :black
   WHITE= :white 
   COLORS = [WHITE, BLACK]
@@ -85,13 +86,19 @@ attr_reader :id
 def initialize()
   super -1,-1,-1
   @used = false 
-  yield self
+  if block_given?
+    yield self
+  end
 end
 
 def setId(id)
   @id = id
   @logger = LoggerCreator.createLoggerForClassObject(Piece, NAME[@id]) 
 end
+
+def name
+  NAME[@id]
+end 
 
 def self.colorById(id) 
   if id <  11
@@ -144,28 +151,37 @@ end
     [6][5]
 =end 
 
-def availableMoves(boardState)
- moves = Array.new()
+def secondMoves(boardState)
  openSlots = Array.new()
- 
- openSlots << boardState.startSlot if not boardState.movesMade? #if there are no pieces on the board
- 
  if boardState.moveCount == 1 #if this is the second move to be made, you can connect to the opposing color 
     opposingSlotType =  Piece.colorToSlotType(PieceColor.opposingColor(color))
-    openSlots = openSlots +  boardState.getSlotsWithTypeCode(opposingSlotType)  
+    openSlots = openSlots +  boardState.getSlotsWithTypeCode(opposingSlotType) 
+    openSlots.each do |slot|
+        @logger.info slot.to_s
+     end
  end
- 
- if @used == false
+ return openSlots
+end
+
+#the moves available if the piece is not yet on the board
+def availablePlaceMoves(boardState)
+ moves = Array.new()
+ openSlots = Array.new()
+ #@logger.info "collecting moves..."
+ openSlots << boardState.startSlot if not boardState.movesMade? #FIRST MOVE
+ openSlots += secondMoves(boardState)                           #2nd MOVE
+
+ unless @used                                                   #Nth MOVE
     emptySlotType =  Piece.colorToSlotType(color)
     openSlots = openSlots +  boardState.getSlotsWithTypeCode(emptySlotType)  
  end
  
-  @logger.info  "NUM open slots: #{openSlots.length}"
-  
+ #@logger.info  "NUM open slots: #{openSlots.length}"
+ 
+ openSlots.delete_if{|slot| slot.z == 1} #only allow slots on the lower level  
  openSlots.each do |slot|
   move = Move.new(id, -1,-1){|move| move.setDestinationSlot(slot)}
   moves = moves + [move]
-  @logger.info  "availableMove: #{move.toString}"
  end
  
  return moves
@@ -176,6 +192,15 @@ def self.colorToSlotType(color)
     blackN = color == PieceColor::BLACK ? :Neighbour : :NotANeighbour
     return Slot.slotState(whiteN, blackN) 
 end 
+
+def to_s
+  #if not @x < 0 
+  #  return "<#{NAME[@id]} (x: #{@x},y: #{@y}, z: #{@z})}>"
+  #else
+    return "<#{NAME[@id]}>"
+  #end
+end
+
 
 =begin
 def detachAll()

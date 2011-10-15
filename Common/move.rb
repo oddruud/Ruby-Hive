@@ -54,11 +54,15 @@ class Move
     if @dest_piece_id > 0
         return "#{Piece::NAME[@moving_piece_id]}  moves to #{Piece::NAME[@dest_piece_id]} on side #{HexagonSide::NAME[@side_id]}"
     else
-       return "Absolute Move #{Piece::NAME[@moving_piece_id]} to #{@dest_slot.boardPosition}"
+       return "Absolute Move #{Piece::NAME[@moving_piece_id]} to #{@dest_slot.to_s}"
      end
   end
+
+  def to_s
+    toString
+  end
   
-  def toMessage 
+  def to_message 
     return "MV.#{Piece::NAME[@moving_piece_id]}.#{Piece::NAME[@dest_piece_id]}.#{HexagonSide::NAME[@side_id]}"
   end
   

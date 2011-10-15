@@ -73,6 +73,9 @@ def boardPosition
   return @x, @y,@z
 end
 
+def to_s
+  "x: #{@x},y: #{@y},z: #{@z},state: #{@state}"
+end
 
 def neighbour(side)
   return Slot.neighbourCoordinates(@x,@y,@z,side)

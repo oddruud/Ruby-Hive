@@ -7,7 +7,8 @@ def initialize()
 end
   
 def availableMoves(boardState)
- moves= Array.new()
+  moves = Array.new()
+  moves = moves + availablePlaceMoves(boardState)
  return moves
 end
 

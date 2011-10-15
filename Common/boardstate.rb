@@ -8,6 +8,12 @@ require 'MoveValidators/QueenInFourMovesValidator'
 require 'move'  
 require 'LoggerCreator'
 
+class TurnState
+  GAME_OVER = :gameover
+  INVALID = :invalid_move
+  VALID = :valid_move
+end
+
 class BoardState
  include DRbUndumped
  
@@ -15,8 +21,10 @@ attr_reader :pieces    #1D array [piece_id] -> Piece
 attr_reader :board     #2D array [x][y][z] -> piece_id          
 attr_reader :moves     #1D array [i] -> Move
 attr_reader :logger   
+attr_reader :winningColor   
 
-BOARD_SIZE = 10
+BOARD_SIZE = 20
+BOARD_HEIGHT = 2
 PIECES_PER_PLAYER = 11
 
 def initialize(name = nil)
@@ -58,17 +66,20 @@ def reset
     @pieces[i].setId(i) 
   end
   
-  @board = Array.new(BOARD_SIZE).map!{Array.new(BOARD_SIZE, [-1,-1])}   #THE BOARD
-  
-  @logger.info "#{BOARD_SIZE}* #{BOARD_SIZE} board grid created:"
-  print 
+  @winningColor = PieceColor::NONE
+  @moves = Array.new()  #MOVE HISTORY
+  @board = Array.new(BOARD_SIZE).map!{Array.new(BOARD_SIZE).map!{ |x| x = [-1,-1] } }   #THE BOARD 
+  @logger.info "#{BOARD_SIZE} * #{BOARD_SIZE} * #{BOARD_HEIGHT} board grid created:"
+  print
   
   @validators = [ QueenInFourMovesValidator, 
                   PlacedToSameColorValidator 
-                ]
-                
-  @moves = Array.new()                                        #MOVE HISTORY
+                ]                          
 end
+
+  def colorOfWinner
+    return winningColor 
+  end
 
  #returns BoardState
   def nextState(move)
@@ -104,40 +115,46 @@ end
     piece = @pieces[move.moving_piece_id]   
     @validators.each do |validator|                 #common board validation-rules 
       if not validator.validate(self, move) 
-        @logger.info  "validator #{validator.name} FAILED"
+        @logger.debug  "validator #{validator.name} FAILED"
         return false 
       else
-        @logger.info  "validator #{validator.name} SUCCESS"
+        @logger.debug  "validator #{validator.name} SUCCESS"
       end
      end  
      return piece.validMove?(self, move)    #piece specific validation    
   end
 
   def makeMove(move)
+    
     begin 
       @logger.info  "playing #{move.toString}"
       move.providePieceInstances!(self) 
       if validMove?(move) 
         place(move) 
+        result = TurnState::VALID
       else
         @logger.info  "INVALID MOVE: #{move}"  
+        result = TurnState::INVALID
       end
       #end
     rescue MoveException => message
       @logger.info "Move exception:#{message}"
+      result = TurnState::INVALID
     end
+    return result 
   end
  
-  def print
-    count=0
-    @board.each do |y|
-      line= ""
-      y.each do |c|
-          line= line + c[0].to_s   
-      end
-      puts line
-    end
+  def to_s
+    output = "move #{self.moveCount}--------------------------------------"
+    output += @board.map {|x| x.inspect }.join("\n")
+    output += "------------------------------------------------"
+    return output
   end
+  
+  def to_message
+    state = @board.map {|x| x.inspect }.join("")
+    return "BS.#{state}."    
+  end 
 
   def copy
     newState= self.dup  # shallow copy
@@ -170,29 +187,24 @@ end
  
  def getPiecesByColor(color)
   pieces = []
-  @logger.info "getPiecesByColor: #{color}"
-  
   if color == PieceColor::WHITE
     pieces = @pieces[0, 11] 
-    @logger.info "white pieces: #{pieces}"
   elsif color == PieceColor::BLACK
     pieces = @pieces[11, 11] 
-    @logger.info "black pieces: #{pieces}"
   end
-  
     return pieces
  end
  
- #    emptySlotType =  Slot.colorsToEmptySlotType([color()])
-
 def eachBoardPosition
-yI,cI, zI = 0,0,0     
+yI,cI, zI = -1,-1,-1     
     @board.each do |y|
-      yI+=1
+      yI += 1
+      cI = -1
       y.each do |c|
-        zI+=1
+        cI += 1
+        zI = -1
         c.each do |z|
-          zI+=1
+          zI += 1
           yield yI, cI, zI, z
         end  
       end 
@@ -201,25 +213,19 @@ end
 
 
 def getSlotsWithTypeCode(slotType)   
-  slots = []
+  slots = Array.new()
   
   if slotType > -1
     raise "a slot with an id higher than -1 is not a slot but a piece, use getPiece(piece_id)"
   end 
   
-  self.eachBoardPosition do |x,y,z, value|
+  self.eachBoardPosition do |x, y, z, value|
     if value == slotType && value < 0  
-      slots << Slot.new(x,y,z){|s| s.state = value} #add a slot 
+      slots << Slot.new(x, y, z) {|s| s.state = value} #add a slot 
     end    
   end
   return slots 
 end
-
-  
-#def position(piece_id, x ,y)
-#  @board[x][y]= piece_id 
-#  @pieces[piece_id].setBoardPosition(x, y) 
-#end
 
 def moveMessage(move)
   originX, originY  = getOriginBoardPos(move)
@@ -227,7 +233,6 @@ def moveMessage(move)
    return "MV.#{originX}.#{originY}.#{destX}.#{destY}"
  end
  
-
  private
  
  def place(move) 
@@ -235,11 +240,11 @@ def moveMessage(move)
    x,y,z = move.destination
    setPieceTo(move.moving_piece_id, x, y,z) 
    @moves << move
-   @logger.info  "PLACED: #{move.toString}" 
+   @logger.debug  "PLACED: #{move.toString}" 
  end
 
  def setPieceTo(piece_id, x ,y,z)
-  @logger.info "Placing #{@pieces[piece_id].class.name} at #{x},#{y},#{z}" 
+  @logger.debug "Placing #{@pieces[piece_id].class.name} at #{x},#{y},#{z}" 
   removePieceFromBoard(piece_id) 
   piece = @pieces[piece_id];
   
@@ -257,7 +262,12 @@ def moveMessage(move)
  end
   
  def resolveNeighbourStates(piece)
+   #@logger.info "resolving neighbour states"
+  
+  count = 0 
   piece.forEachNeighbour do |x,y,z|
+    count = count + 1
+   # @logger.info "resolving for neighbour #{count} - #{x}, #{y}, #{z}"
     case @board[x][y][z]
       when Slot::UNCONNECTED then 
         if piece.color == PieceColor::WHITE   
@@ -270,6 +280,7 @@ def moveMessage(move)
       when Slot::EMPTY_SLOT_WHITE then
           @board[x][y][z] = Slot::EMPTY_SLOT_MIXED  if piece.color == PieceColor::BLACK   
     end
+    #@logger.info "resolved to #{ @board[x][y][z]}"
   end  
  end 
   

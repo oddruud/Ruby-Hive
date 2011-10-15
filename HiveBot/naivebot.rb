@@ -11,20 +11,19 @@ class NaiveBot < Bot
   end
  
   def determineNextMove(boardState)
-    @logger.info "calculating move for #{@color}.."
+    @logger.debug "calculating move for #{@color}.."
     
     pieces = boardState.getPiecesByColor(@color)
     possibleMoves = Array.new()
-    
-    @logger.info "NUM pieces #{pieces.length}"
     pieces.each do |piece|
+       
        possibleMoves = possibleMoves + piece.availableMoves(boardState)  
     end
     
     @logger.info "NUM possible Moves #{possibleMoves.length}"  
-    possibleMoves.each do |move|
-        @logger.info "determineNextMove - possible Moves #{move.toString}.." unless move.nil?
-    end
+    #possibleMoves.each do |move|
+    #    @logger.info "determineNextMove - possible Moves #{move.toString}.." unless move.nil?
+    #end
     
     #pick a random move: 
     move = possibleMoves[rand(possibleMoves.length)]  

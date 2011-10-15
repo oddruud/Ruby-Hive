@@ -5,6 +5,13 @@ def initialize()
   
 end
 
+def availableMoves(boardState)
+  moves = Array.new()
+  moves = moves + availablePlaceMoves(boardState)
+ return moves
+end
+
+
 def availablePositions(boardState)
  positions = Array.new()
  (1..6).each do |side|                                #iterate over all sides  
