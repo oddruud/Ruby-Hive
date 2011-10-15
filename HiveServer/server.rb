@@ -58,6 +58,7 @@ end
 
 
 #hive game viewer clients listen thread
+#TODO handle incoming tcp player bots
 def listen  
     @logger.info "tcp server is listening..."
     while @running do                        # Servers run forever
