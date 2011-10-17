@@ -227,10 +227,25 @@ def getSlotsWithTypeCode(slotType)
   return slots 
 end
 
-def moveMessage(move)
+ def moveMessage(move)
   originX, originY  = getOriginBoardPos(move)
   destX, destY  = getDestBoardPos(move)
    return "MV.#{originX}.#{originY}.#{destX}.#{destY}"
+ end
+ 
+ def bottleNeckBetweenSlots(slot1, slot2)
+    side = slot1.getSide(slot2) 
+    return bottleNeckToSide(slot1, side)
+ end 
+ 
+ def bottleNeckToSide(slot, side)
+   counter = 0
+   bottleNeckSides = slot1.getDirectNeighbourSides(side) 
+   bottleNeckSides.each do |side|
+      x,y,z =  slot.neighbour(side)
+      counter += 1 if @boardState[x, y, z] > -1    
+    end  
+   return counter == 2 ? true : false
  end
  
  private

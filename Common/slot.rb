@@ -1,12 +1,16 @@
 class HexagonSide
   ONTOP_SIDE = 0
   UNDER_SIDE = 1
+  
   TOP_SIDE = 2
   TOP_RIGHT_SIDE = 3
   BOTTOM_RIGHT_SIDE = 4
   BOTTOM_LEFT_SIDE = 5
   TOP_LEFT_SIDE = 6
   BOTTOM_SIDE = 7
+  
+  
+  
   SIDES = 8
 
 NAME= Array.new() 
@@ -58,6 +62,35 @@ EMPTY_SLOT_BLACK = -3
 EMPTY_SLOT_MIXED = -4
 TRAPPED_SLOT = -5
  
+=begin
+       when HexagonSide::ONTOP_SIDE then 
+        xdif, ydif, zdif = 0, 0, 1 
+      when HexagonSide::UNDER_SIDE then 
+        xdif, ydif, zdif = 0, 0, -1
+      when HexagonSide::TOP_SIDE then 
+        xdif, ydif = -1, -1 
+      when HexagonSide::TOP_RIGHT_SIDE then 
+        xdif, ydif = 0, -1  
+      when HexagonSide::BOTTOM_RIGHT_SIDE then 
+        xdif, ydif = 1, 0  
+      when HexagonSide::BOTTOM_SIDE then 
+        xdif, ydif = 1, 1  
+      when HexagonSide::BOTTOM_LEFT_SIDE then 
+        xdif, ydif = 0, 1  
+      when HexagonSide::TOP_LEFT_SIDE then 
+        xdif, ydif = -1, 0 
+=end
+ 
+@@RelativeCoordinatesToSide = Hash.new()  
+@@RelativeCoordinatesToSide[[0,0,1]] = HexagonSide::ONTOP_SIDE
+@@RelativeCoordinatesToSide[[0,0,-1]] = HexagonSide::UNDER_SIDE
+@@RelativeCoordinatesToSide[[-1,-1,0]] = HexagonSide::TOP_SIDE
+@@RelativeCoordinatesToSide[[0,-1, 0]] = HexagonSide::TOP_RIGHT_SIDE
+@@RelativeCoordinatesToSide[[1,0,0]] = HexagonSide::BOTTOM_RIGHT_SIDE
+@@RelativeCoordinatesToSide[[1,1,0]] = HexagonSide::BOTTOM_SIDE
+@@RelativeCoordinatesToSide[[0,1,0]] = HexagonSide::BOTTOM_LEFT_SIDE
+@@RelativeCoordinatesToSide[[-1,0,0]] = HexagonSide::TOP_LEFT_SIDE
+    
 def initialize(x,y,z)
   @x,@y,@z = x, y, z  
   yield self   if block_given? 
@@ -122,6 +155,24 @@ end
   [7][1][4]
     [6][5]
 =end  
+
+def getSide(otherSlot)
+  xDif, yDif, zDif = @x - otherSlot.x, @y - otherSlot.y, @z - otherSlot.z
+  side = @@RelativeCoordinatesToSide[[xDif,yDif, zDif]]
+end 
+
+def getDirectNeighbours(side)
+  case side 
+    when HexagonSide::ONTOP_SIDE then
+    when HexagonSide::UNDER_SIDE then
+      return nil
+   end 
+   
+    left = side - 1 > 1 ? side - 1 : 7
+    right = side + 1 < 8 ? side + 1 : 2
+    return [left, right]
+end
+
 def self.neighbourCoordinates(x,y,z, side)  
  xdif,ydif, zdif = 0,0,0
  case side 
@@ -148,6 +199,16 @@ def self.neighbourCoordinates(x,y,z, side)
     return x + xdif, y + ydif, z + zdif  
   else
     return 0, 0, 0
+  end
+end
+
+def eachEmptyNeighbourSlot(boardState)
+  forEachNeighbour do |x,y,z|
+    if boardState[x][y][z] < 0 
+      slot = Slot.new(x, y, z)
+      slot.state = boardState[x][y][z]
+      yield slot
+    end
   end
 end
   
