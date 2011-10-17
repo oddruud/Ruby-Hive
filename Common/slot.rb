@@ -114,10 +114,14 @@ def neighbour(side)
   return Slot.neighbourCoordinates(@x,@y,@z,side)
 end
 
-def forEachNeighbour 
+def forEachNeighbour(params = {}) 
+    
+    excludes = params[:exclude]
+     
     (0..HexagonSide::SIDES-1).each do |i|
-      x, y, z = neighbour(i) 
-      if z == 0 || z == 1   #the z index of a piece can only be 0 or 1                    
+      if excludes.index(i) == nil 
+        x, y, z = neighbour(i) 
+        if z == 0 || z == 1   #the z index of a piece can only be 0 or 1                    
         yield x, y, z
       end
     end   
@@ -173,8 +177,9 @@ def getDirectNeighbours(side)
     return [left, right]
 end
 
+#TODO what if beetle is onTop of other pieces, what are its neighbours? 
 def self.neighbourCoordinates(x,y,z, side)  
- xdif,ydif, zdif = 0,0,0
+ xdif, ydif, zdif = 0,0,0
  case side 
       when HexagonSide::ONTOP_SIDE then 
         xdif, ydif, zdif = 0, 0, 1 

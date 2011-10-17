@@ -1,33 +1,33 @@
 require 'Insects/piece'
-class Beetle< Piece
+class Beetle < Piece
 
 def initialize() 
 end
  
 def availableMoves(boardState)
   moves = Array.new()
-  moves = moves + availablePlaceMoves(boardState)
+  #check if there is a beetle on top!
+  if movable?(boardState)
+    moves += availablePlaceMoves(boardState)
+    moves += availableBoardMoves(boardState)
+  end
  return moves
 end 
  
-def availablePositions(boardState)
-  positions = Array.new()
-  (1..6).each do |side|                                #iterate over all sides  
-   x, y = Slot.neighbour(@x,@y,side)                   # get the x, y coordinates of the neighbour
-    if boardState.board[x][y] > -1                    #if there is a piece attached to this side
-      positions << walkTo(boardState.board[x][y], HexagonSide::getOpposite(side), boardState)     #add the position
-    end 
-  end
+#TODO fix! what if beetle is ontop?
+def availableBoardMoves(boardState)
+  moves = Array.new()
+ 
+   forEachNeighbour(:exclude => [HexagonSide::ONTOP_SIDE, HexagonSide::BOTTOM_SIDE]) do |x,y,z|
+      if boardState[x][y][z] > -1 #neighbouring piece for the beetle to jump on top of
+        unless x == @x && y == @y                      #not self
+          moves << Move.new(@id, -1,-1){|move| move.setDestinationSlot( Slot.new(x,y,1) ) }
+        end
+      elsif boardState[x][y][z] < -1
+        moves << Move.new(@id, -1,-1){|move| move.setDestinationSlot( Slot.new(x,y,z) ) } 
+      end
+   end   
  return positions
 end
-
-
-def walkTo(piece_id, originSide, boardState)
-  #from the perspective of the attached piece: 
-  
-    
-  
-end
-  
   
 end
