@@ -240,11 +240,13 @@ end
  
  def bottleNeckToSide(slot, side)
    counter = 0
-   bottleNeckSides = slot1.getDirectNeighbourSides(side) 
-   bottleNeckSides.each do |side|
+   bottleNeckSides = slot.getDirectNeighbourSides(side) 
+   unless bottleNeckSides.nil?
+    bottleNeckSides.each do |side|
       x,y,z =  slot.neighbour(side)
-      counter += 1 if @boardState[x, y, z] > -1    
+      counter += 1 if @board[x][y][z] > -1    
     end  
+   end
    return counter == 2 ? true : false
  end
  

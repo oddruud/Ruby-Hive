@@ -123,8 +123,7 @@ def validMove?(boardState, move)
 end
 
 def movable?(boardstate) 
-  return true if @used == false
-  
+  return true #!@used
   
   # a piece is not movable when
   #- removing the piece results in disconnecting the string of pieces. 
@@ -154,8 +153,10 @@ end
 def secondMoves(boardState)
  openSlots = Array.new()
  if boardState.moveCount == 1 #if this is the second move to be made, you can connect to the opposing color 
+  
     opposingSlotType =  Piece.colorToSlotType(PieceColor.opposingColor(color))
     openSlots = openSlots +  boardState.getSlotsWithTypeCode(opposingSlotType) 
+     @logger.debug "collecting second moves...#{openSlots.length} slots"
     openSlots.each do |slot|
         @logger.info slot.to_s
      end

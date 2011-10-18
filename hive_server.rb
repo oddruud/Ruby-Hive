@@ -7,7 +7,7 @@ require "server"
 require 'optparse'
 require 'LoggerCreator' 
 
-LoggerCreator.setLevel(Logger::INFO)
+LoggerCreator.setLevel(Logger::DEBUG)
 logger = LoggerCreator.createLoggerWithName("server_main")
 
 options = {}

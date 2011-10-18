@@ -6,31 +6,30 @@ def initialize()
 end
 
 def availableMoves(boardState)
+  @logger.debug "#{name} collecting moves"
   moves = Array.new()
-  moves = moves + availablePlaceMoves(boardState)
+  moves += availablePlaceMoves(boardState) #unless @used
+  #moves += avaliableBoardMoves(boardState) if @used and movable?(boardState)
  return moves
 end
 
 
-def availablePositions(boardState)
- positions = Array.new()
- (1..6).each do |side|                                #iterate over all sides  
-   x,y = Slot.neighbour(@x,@y,side)                   # get the x, y coordinates of the neighbour
-    if boardState.board[x][y] > -1                    #if there is a piece attached to this side
-      positions << jumpOver(x,y,side, boardState)     #add the position
-    end
- end
- return positions
+def availableBoardMoves(boardState)
+  moves = Array.new() 
+  forEachNeighbour({:exclude => [HexagonSide::ONTOP_SIDE, HexagonSide::BOTTOM_SIDE], :side => true}) do |x, y, z, side| 
+    x, y = jumpOver(x, y, side, boardState)     #add the position
+    moves << Move.new(@id, -1,-1){|move| move.setDestinationCoordinates(x,y,0)}
+  end
+  return moves
 end
 
 
-def jumpOver(x,y,side, boardState)
-     if boardState.board[x][y] > -1 
-        x,y = Slot.neighbour(x,y,side)
-        jumpOver(x,y, side,boardState)  
-     else
-       return {x, y} 
-     end
+def jumpOver(x, y, side, boardState)
+  if boardState.board[x][y][0] > -1 
+    x, y, z = neighbour(side)
+    endX, endY = jumpOver(x,y, side,boardState)  
+  end
+     return endX, endY 
 end
 
   

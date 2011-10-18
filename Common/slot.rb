@@ -114,17 +114,36 @@ def neighbour(side)
   return Slot.neighbourCoordinates(@x,@y,@z,side)
 end
 
-def forEachNeighbour(params = {}) 
-    
-    excludes = params[:exclude]
-     
+def forEachNeighbour(params = {})  
+    #params[:exclude]
     (0..HexagonSide::SIDES-1).each do |i|
-      if excludes.index(i) == nil 
+      #if not excludes.nil? and excludes.index(i) == nil 
         x, y, z = neighbour(i) 
-        if z == 0 || z == 1   #the z index of a piece can only be 0 or 1                    
-        yield x, y, z
-      end
+        if z == 0 || z == 1   #the z index of a piece can only be 0 or 1   
+         if params[:side]   
+            yield x, y, z, i               
+          else
+            yield x, y, z
+          end
+        end
+      #end
     end   
+end
+
+def forEachNeighbouringPiece(boardState, params = {})
+  forEachNeighbour(params) do |x,y,z|
+    if boardState[x][y][z] > -1
+      yield boardState.pieces[boardState[x][y][z]]
+    end 
+  end 
+end
+
+def forEachNeighbouringSlot(boardState, params = {})
+  forEachNeighbour(params) do |x,y,z|
+    if boardState[x][y][z] < -1
+      yield Slot.new(x,y,z){|slot| slot.state = boardState[x][y][z] }   
+    end 
+  end 
 end
 
 def neighbouringPieces(boardState, amount = 7)
@@ -165,16 +184,20 @@ def getSide(otherSlot)
   side = @@RelativeCoordinatesToSide[[xDif,yDif, zDif]]
 end 
 
-def getDirectNeighbours(side)
+def getDirectNeighbourSides(side)
   case side 
     when HexagonSide::ONTOP_SIDE then
     when HexagonSide::UNDER_SIDE then
       return nil
    end 
    
+   unless side.nil?
     left = side - 1 > 1 ? side - 1 : 7
     right = side + 1 < 8 ? side + 1 : 2
     return [left, right]
+   end
+   
+   return nil
 end
 
 #TODO what if beetle is onTop of other pieces, what are its neighbours? 
@@ -209,9 +232,9 @@ end
 
 def eachEmptyNeighbourSlot(boardState)
   forEachNeighbour do |x,y,z|
-    if boardState[x][y][z] < 0 
+    if boardState.board[x][y][z] < -1 
       slot = Slot.new(x, y, z)
-      slot.state = boardState[x][y][z]
+      slot.state = boardState.board[x][y][z]
       yield slot
     end
   end

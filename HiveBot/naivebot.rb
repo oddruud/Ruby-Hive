@@ -16,14 +16,10 @@ class NaiveBot < Bot
     pieces = boardState.getPiecesByColor(@color)
     possibleMoves = Array.new()
     pieces.each do |piece|
-       
-       possibleMoves = possibleMoves + piece.availableMoves(boardState)  
+       possibleMoves += piece.availableMoves(boardState)  
     end
     
     @logger.info "NUM possible Moves #{possibleMoves.length}"  
-    #possibleMoves.each do |move|
-    #    @logger.info "determineNextMove - possible Moves #{move.toString}.." unless move.nil?
-    #end
     
     #pick a random move: 
     move = possibleMoves[rand(possibleMoves.length)]  
