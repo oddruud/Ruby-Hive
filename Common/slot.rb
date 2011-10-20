@@ -134,7 +134,7 @@ end
 def forEachNeighbouringPiece(boardState, params = {})
   forEachNeighbour(params) do |x,y,z|
     if boardState.board[x][y][z] > -1
-      yield boardState.pieces[boardState[x][y][z]]
+      yield boardState.pieces[boardState.board[x][y][z]]
     end 
   end 
 end
@@ -143,6 +143,16 @@ def forEachNeighbouringSlot(boardState, params = {})
   forEachNeighbour(params) do |x,y,z|
     if boardState.board[x][y][z] < -1
       yield Slot.new(x,y,z){|slot| slot.state = boardState.board[x][y][z] }   
+    end 
+  end 
+end
+
+def forEachNeighbouringSlotOrPiece(boardState, params = {})
+  forEachNeighbour(params) do |x,y,z|
+    if boardState.board[x][y][z] < -1
+      yield Slot.new(x,y,z){|slot| slot.state = boardState.board[x][y][z] }   
+    elsif  boardState.board[x][y][z] > -1
+      yield boardState.pieces[boardState.board[x][y][z]]
     end 
   end 
 end
@@ -234,6 +244,10 @@ def self.neighbourCoordinates(x,y,z, side)
   else
     return 0, 0, 0
   end
+end
+
+def ==(slot)
+  return slot.x == @x && slot.y == @y && slot.z == @z
 end
 
 

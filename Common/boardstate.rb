@@ -314,42 +314,30 @@ end
   white = :NotANeighbour
   black = :NotANeighbour 
   piece = @pieces[piece_id]
-  if piece.used == true
-     piece.forEachNeighbour do |x,y,z|
-        case @board[x][y][z]
-          when Slot::UNCONNECTED then 
-          when Slot::EMPTY_SLOT_BLACK then 
-          when Slot::EMPTY_SLOT_WHITE then
-          when Slot::EMPTY_SLOT_MIXED then   
-              @board[x][y][z] = slotStateAfterRemoval(piece_id, nx,ny)       #changes the states of surrounding slots after the removal    
+  if piece.used 
+     piece.forEachNeighbouringSlotOrPiece(self) do |slot|
+         if slot.class == Piece
+             white = :Neighbour if @pieces[@board[x][y][z]].color == PieceColor::WHITE      
+             black = :Neighbour if @pieces[@board[x][y][z]].color == PieceColor::BLACK     
           else    
-              white = :Neighbour if @pieces[@board[x][y][z]].color == PieceColor::WHITE      
-              black = :Neighbour if @pieces[@board[x][y][z]].color == PieceColor::BLACK     
+             @board[slot.x][slot.y][slot.z] = slotStateAfterRemoval(piece, slot)       #changes the states of surrounding slots after the removal    
         end
      end    
-     rx,ry= piece.boardPosition                                   #the slot's new state after removal of the piece 
-     @board[rx][ry][0] = Slot::slotState?(white, black) #Todo
+     rx,ry,rz = piece.boardPosition                                
+     @board[rx][ry][rz] = Slot::slotState(white, black)    #the slot's new state after removal of the piece 
   end
  end 
-  
- 
- def slotStateAfterRemoval(removed_piece, slotx, sloty)
+   
+ def slotStateAfterRemoval(removed_piece, slot)
        white= :NotANeighbour
-       black= :NotANeighbour
-       rx,ry = @board[removed_piece] 
-       slot = Slot.new(slotx,sloty)
-       slot.forEachNeighbour do |x,y,z|
-         case @board[x][y][z]
-          when Slot::UNCONNECTED then 
-          when Slot::EMPTY_SLOT_BLACK then 
-          when Slot::EMPTY_SLOT_WHITE then
-          when Slot::EMPTY_SLOT_MIXED then
-          else
-            white = :Neighbour if @pieces[@board[x][y][z]].color == PieceColor::WHITE
-            black = :Neighbour if @pieces[@board[x][y][z]].color == PieceColor::BLACK    
-        end      
+       black= :NotANeighbour 
+       slot.forEachNeighbouringPiece(self) do |piece|
+         unless piece == removed_piece
+            white = :Neighbour if piece.color == PieceColor::WHITE
+            black = :Neighbour if piece.color == PieceColor::BLACK    
+         end
        end   
-     return Slot::slotState?(white, black) 
+     return Slot::slotState(white, black) 
  end 
  
  def getOriginBoardPos(move) 
