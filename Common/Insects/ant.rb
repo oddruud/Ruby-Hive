@@ -12,10 +12,10 @@ def availableMoves(boardState)
  return moves
 end
    
-def traverseBoard(boardState, currentSlot) #TODO keep some sort of history and let ant move one way only
+def traverseBoard(boardState, currentSlot) #TODO only move one way, check prevslot
   moves = Array.new()
    @logger.info "current slots: #{currentSlot.x}, #{currentSlot.y}, #{currentSlot.z}: #{currentSlot.value}"
-  self.forEachNeighbouringSlot(boardState, :exclude => [HexagonSide::ONTOP_SIDE, HexagonSide::BOTTOM_SIDE]) do |slot|
+   currentSlot.forEachNeighbouringSlot(boardState, :exclude => [HexagonSide::ONTOP_SIDE, HexagonSide::BOTTOM_SIDE]) do |slot|
    unless boardState.bottleNeckBetweenSlots(currentSlot, slot) || slot.x == @x && slot.y == @y && slot.z == @z
      @logger.info "traverseBoard: #{slot.x}, #{slot.y}, #{slot.z}"
       moves << Move.new(id,-1,-1){|move| move.setDestinationSlot(slot)}
