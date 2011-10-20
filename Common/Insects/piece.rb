@@ -194,12 +194,18 @@ def self.colorToSlotType(color)
     return Slot.slotState(whiteN, blackN) 
 end 
 
+def value 
+  return @id
+end 
+
 def to_s
-  #if not @x < 0 
-  #  return "<#{NAME[@id]} (x: #{@x},y: #{@y}, z: #{@z})}>"
-  #else
-    return "<#{NAME[@id]}>"
-  #end
+  unless @x.nil?
+  if not @x < 0 
+    return "<#{NAME[@id]} (x: #{@x},y: #{@y}, z: #{@z})}>"
+  end
+  end
+  
+  return "<#{NAME[@id]}>"
 end
 
 

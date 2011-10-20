@@ -50,7 +50,7 @@ class Server
     
    
 def updateViewers(gameMessage)
-  @logger.info "updating all game viewers with message #{gameMessage}"
+  #@logger.info "updating all game viewers with message #{gameMessage}"
   @sockets.each do |socket|
     socket.puts gameMessage
   end

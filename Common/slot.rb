@@ -115,9 +115,10 @@ def neighbour(side)
 end
 
 def forEachNeighbour(params = {})  
-    #params[:exclude]
+    exlusions = params[:exclude] || {}
+    
     (0..HexagonSide::SIDES-1).each do |i|
-      #if not excludes.nil? and excludes.index(i) == nil 
+      unless exlusions.include?(i)
         x, y, z = neighbour(i) 
         if z == 0 || z == 1   #the z index of a piece can only be 0 or 1   
          if params[:side]   
@@ -126,13 +127,13 @@ def forEachNeighbour(params = {})
             yield x, y, z
           end
         end
-      #end
+      end
     end   
 end
 
 def forEachNeighbouringPiece(boardState, params = {})
   forEachNeighbour(params) do |x,y,z|
-    if boardState[x][y][z] > -1
+    if boardState.board[x][y][z] > -1
       yield boardState.pieces[boardState[x][y][z]]
     end 
   end 
@@ -140,11 +141,12 @@ end
 
 def forEachNeighbouringSlot(boardState, params = {})
   forEachNeighbour(params) do |x,y,z|
-    if boardState[x][y][z] < -1
-      yield Slot.new(x,y,z){|slot| slot.state = boardState[x][y][z] }   
+    if boardState.board[x][y][z] < -1
+      yield Slot.new(x,y,z){|slot| slot.state = boardState.board[x][y][z] }   
     end 
   end 
 end
+
 
 def neighbouringPieces(boardState, amount = 7)
     pieces = Array.new()
@@ -178,6 +180,10 @@ end
   [7][1][4]
     [6][5]
 =end  
+
+def value 
+  return @state
+end 
 
 def getSide(otherSlot)
   xDif, yDif, zDif = @x - otherSlot.x, @y - otherSlot.y, @z - otherSlot.z
@@ -230,15 +236,7 @@ def self.neighbourCoordinates(x,y,z, side)
   end
 end
 
-def eachEmptyNeighbourSlot(boardState)
-  forEachNeighbour do |x,y,z|
-    if boardState.board[x][y][z] < -1 
-      slot = Slot.new(x, y, z)
-      slot.state = boardState.board[x][y][z]
-      yield slot
-    end
-  end
-end
+
   
   
 end

@@ -145,9 +145,9 @@ end
   end
  
   def to_s
-    output = "move #{self.moveCount}--------------------------------------"
+    output = "move #{self.moveCount}--------------------------------------\n"
     output += @board.map {|x| x.inspect }.join("\n")
-    output += "------------------------------------------------"
+    output += "\n---------------------------------------------------\n"
     return output
   end
   
@@ -278,13 +278,22 @@ end
   resolveNeighbourStates(piece) 
  end
   
+  def self.outOfBounds?(x, y)
+    return x >= BoardState::BOARD_SIZE || y >= BoardState::BOARD_SIZE
+  end
+  
+    
+  
  def resolveNeighbourStates(piece)
    #@logger.info "resolving neighbour states"
   
   count = 0 
   piece.forEachNeighbour do |x,y,z|
-    count = count + 1
-   # @logger.info "resolving for neighbour #{count} - #{x}, #{y}, #{z}"
+    count += 1
+    @logger.info "resolving for neighbour #{count} - #{x}, #{y}, #{z}"
+    
+    raise "Out of Boardbounds exception" if BoardState.outOfBounds?(x,y)
+    
     case @board[x][y][z]
       when Slot::UNCONNECTED then 
         if piece.color == PieceColor::WHITE   
