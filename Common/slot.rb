@@ -123,7 +123,7 @@ def forEachNeighbour(params = {})
     
     (0..HexagonSide::SIDES-1).each do |i|
       unless exlusions.include?(i)
-        @logger.info "NEIGHBOUR SIDE: #{i}"
+       # @logger.info "NEIGHBOUR SIDE: #{i}"
         x, y, z = neighbour(i) 
         if z == 0 || z == 1   #the z index of a piece can only be 0 or 1   
          if params[:side]   
