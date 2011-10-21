@@ -250,6 +250,16 @@ end
    return counter == 2 ? true : false
  end
  
+ def getPieceAt(x,y,z)
+   @pieces[@board[x][y][z]]
+ end
+ 
+ def getSlotAt(x,y,z)
+   return @pieces[@board[x][y][z]] if @board[x][y][z] > -1
+   return Slot.new(x,y,z){|s| s.state = @board[x][y][z]} if @board[x][y][z] < -1
+   return nil
+ end
+ 
  private
  
  def place(move) 

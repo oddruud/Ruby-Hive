@@ -8,12 +8,10 @@ class HexagonSide
   BOTTOM_LEFT_SIDE = 5
   TOP_LEFT_SIDE = 6
   BOTTOM_SIDE = 7
-  
-  
-  
+ 
   SIDES = 8
 
-NAME= Array.new() 
+NAME = Array.new() 
 NAME << "UPPER SIDE"
 NAME << "TOP SIDE"
 NAME << "TOP RIGHT SIDE"
@@ -22,6 +20,10 @@ NAME << "BOTTOM SIDE"
 NAME << "BOTTOM LEFT SIDE"
 NAME << "TOP LEFT SIDE"
 NAME << "BOTTOM SIDE"
+
+def self.sideName(side)
+  NAME[side]
+end
 
 def self.getOpposite(side)
    case side 
@@ -55,6 +57,7 @@ attr_accessor :x
 attr_accessor :y
 attr_accessor :z
 attr_accessor :state
+attr_reader :logger
 
 UNCONNECTED = -1
 EMPTY_SLOT_WHITE = -2
@@ -94,6 +97,7 @@ TRAPPED_SLOT = -5
 def initialize(x,y,z)
   @x,@y,@z = x, y, z  
   yield self   if block_given? 
+  @logger = LoggerCreator.createLoggerForClassObject(Slot, @state) 
 end
 
 def setBoardPosition(x, y,z) 
@@ -119,6 +123,7 @@ def forEachNeighbour(params = {})
     
     (0..HexagonSide::SIDES-1).each do |i|
       unless exlusions.include?(i)
+        @logger.info "NEIGHBOUR SIDE: #{i}"
         x, y, z = neighbour(i) 
         if z == 0 || z == 1   #the z index of a piece can only be 0 or 1   
          if params[:side]   
