@@ -1,4 +1,4 @@
-Class Server
+class Server
 
 
 def initialize()

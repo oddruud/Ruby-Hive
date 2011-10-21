@@ -3,6 +3,7 @@ require 'Insects/beetle'
 require 'Insects/ant'  
 require 'Insects/grasshopper'  
 require 'Insects/spider'  
+require 'Insects/mosquito'  
 require 'MoveValidators/PlacedToSameColorValidator'
 require 'MoveValidators/QueenInFourMovesValidator'
 require 'move'  
@@ -25,7 +26,7 @@ attr_reader :winningColor
 
 BOARD_SIZE = 20
 BOARD_HEIGHT = 2
-PIECES_PER_PLAYER = 11
+PIECES_PER_PLAYER = 12
 
 def initialize(name = nil)
   @logger = LoggerCreator.createLoggerForClassObject(BoardState,name,nil)
@@ -48,6 +49,7 @@ def reset
   @pieces[Piece::WHITE_ANT1]= Ant.new()
   @pieces[Piece::WHITE_ANT2]= Ant.new()
   @pieces[Piece::WHITE_ANT3]= Ant.new()
+  @pieces[Piece::WHITE_MOSQUITO]= Mosquito.new()
     
   #BLACK PIECES
   @pieces[Piece::BLACK_QUEEN_BEE]= QueenBee.new()
@@ -61,6 +63,7 @@ def reset
   @pieces[Piece::BLACK_ANT1]= Ant.new()
   @pieces[Piece::BLACK_ANT2]= Ant.new()
   @pieces[Piece::BLACK_ANT3]= Ant.new() 
+  @pieces[Piece::BLACK_MOSQUITO]= Mosquito.new()
   
   (0..@pieces.length-1).each do |i|
     @pieces[i].setId(i) 
@@ -168,23 +171,7 @@ end
     end  
     return newState
   end
-
-  #TODO
-  #def availableMovesByPiece(piece_id)
-  #end
   
-  #TODO
-  #def availableMovesByColor(color)
-  #end
-
-  #TODO
-  #def getSide(origin, neighbour)
-  #end
-
- #def unusedPieces(color)
-  
- #end
- 
  def getPiecesByColor(color)
   pieces = []
   if color == PieceColor::WHITE
@@ -248,6 +235,21 @@ end
     end  
    end
    return counter == 2 ? true : false
+ end
+ 
+ def getPiecesAt(x,y)
+   piece_ids = @board[x][y]
+   pieces = Array.new()
+   piece_ids.each do |id|
+     pieces << @piece[id] if id > -1
+   end
+   return pieces
+ end
+ 
+ def getNumPiecesAt(x,y) 
+  count = 0
+  @board[x][y].each{|id| count+=1 if id >-1} 
+  return count
  end
  
  def getPieceAt(x,y,z)

@@ -8,9 +8,13 @@ def availableMoves(boardState)
   moves = Array.new()
   moves += availablePlaceMoves( boardState ) unless @used 
   @logger.info "ant place moves: #{moves.length}"
-  moves += Ant.traverseBoard(boardState, self,self)  if @used
+  moves += Ant.availableBoardMoves(self, boardState)  if @used
   @logger.info "ant total moves: #{moves.length}"
  return moves
+end
+     
+def self.availableBoardMoves(ant, boardState) 
+ return Ant.traverseBoard(boardState, ant, ant)
 end
    
  #TODO

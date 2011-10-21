@@ -145,8 +145,9 @@ def forEachNeighbouringPiece(boardState, params = {})
 end
 
 def forEachNeighbouringSlot(boardState, params = {})
-  forEachNeighbour(params) do |x,y,z|
-    if boardState.board[x][y][z] < -1
+  params[:side] = true
+  forEachNeighbour(params) do |x,y,z, side| 
+    if boardState.board[x][y][z] < -1 and not boardState.bottleNeckToSide(self, side)
       yield Slot.new(x,y,z){|slot| slot.state = boardState.board[x][y][z] }   
     end 
   end 
