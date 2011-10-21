@@ -20,16 +20,13 @@ end
  #TODO
 def self.traverseBoard(boardState, ant, currentSlot, endSlot, prevSlot = nil) #TODO only move one way, check prevslot
   moves = Array.new()
-   #@logger.info "current slots: #{currentSlot.x}, #{currentSlot.y}, #{currentSlot.z}: #{currentSlot.value}"
    currentSlot.forEachNeighbouringSlot(boardState, :exclude => [HexagonSide::ONTOP_SIDE, HexagonSide::BOTTOM_SIDE]) do |slot|
-   unless boardState.bottleNeckBetweenSlots(currentSlot, slot) || endSlot == slot || prevSlot == slot
-     #@logger.info "traverseBoard: #{slot.x}, #{slot.y}, #{slot.z}"
+   unless endSlot == slot || prevSlot == slot
       moves << Move.new(ant.id,-1,-1){|move| move.setDestinationSlot(slot)}
-      moves += traverseBoard(boardState,ant, slot, currentSlot)
-    break #TODO only go one way..
+      moves += traverseBoard(boardState, ant, slot, currentSlot)
+    break
    end
   end
-  #@logger.info "return #{moves.length} moves"
   return moves
 end  
    
