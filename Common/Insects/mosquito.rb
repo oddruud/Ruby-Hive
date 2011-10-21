@@ -11,8 +11,12 @@ def availableMoves(boardState)
  return moves
 end
      
-def self.availableBoardMoves(mosquito, boardState) 
- return []
+def self.availableBoardMoves(mosquito, boardState)  
+  moves = Array.new()
+  mosquito.forEachNeighbouringPiece(boardState, :exclude => [HexagonSide::ONTOP_SIDE, HexagonSide::BOTTOM_SIDE]) do |piece|
+    moves += piece.class.availableBoardMoves(mosquito, boardState) 
+  end
+ return moves
 end
    
 

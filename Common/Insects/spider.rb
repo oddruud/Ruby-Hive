@@ -15,18 +15,18 @@ def availableMoves(boardState)
 end
 
 def self.availableBoardMoves(spider, boardState)
- return self.traverseBoard(boardState, spider,nil,3)
+ return self.traverseBoard(boardState, spider,nil,0)
 end
 
  #TODO
-def self.traverseBoard(boardState, currentSlot, prevSlot, stepCount) #TODO only move one way, check prevslot
+def self.traverseBoard(boardState, currentSlot, prevSlot, stepCount = 0) #TODO only move one way, check prevslot
   moves = Array.new()
    currentSlot.forEachNeighbouringSlot(boardState, :exclude => [HexagonSide::ONTOP_SIDE, HexagonSide::BOTTOM_SIDE]) do |slot|
-   unless boardState.bottleNeckBetweenSlots(currentSlot, slot) || endSlot == slot || prevSlot == slot
-      moves << Move.new(id,-1,-1){|move| move.setDestinationSlot(slot)}
-      moves += traverseBoard(boardState, slot, currentSlot)
-    break #TODO only go one way..
-   end
+    unless prevSlot == slot     
+        moves << Move.new(id,-1,-1){|move| move.setDestinationSlot(slot)}     if stepCount == 3  
+        moves << traverseBoard(boardState, slot, currentSlot, stepCount += 1)
+        break
+    end
   end
   return moves
 end  
