@@ -7,19 +7,24 @@ end
 def availableMoves(boardState)
   moves = Array.new()
   moves += availablePlaceMoves( boardState ) unless @used 
-  moves += traverseBoard(boardState, self )  if @used
+  @logger.info "ant place moves: #{moves.length}"
+  moves += Ant.availableBoardMoves(self, boardState)  if @used
+  @logger.info "ant total moves: #{moves.length}"
  return moves
 end
+     
+def self.availableBoardMoves(ant, boardState) 
+ return Ant.traverseBoard(boardState,ant, ant, ant)
+end
    
-def traverseBoard(boardState, currentSlot) #TODO keep some sort of history and let ant move one way only
+ #TODO
+def self.traverseBoard(boardState, ant, currentSlot, endSlot, prevSlot = nil) #TODO only move one way, check prevslot
   moves = Array.new()
-  self.eachEmptyNeighbourSlot(boardState) do |slot|
-   unless boardState.bottleNeckBetweenSlots(currentSlot, slot)
-    unless slot.x == @x && slot.y == @y && slot.z == @z
-      moves << Move.new(id,-1,-1){|move| move.setDestinationSlot(slot)}
-      moves += traverseBoard(boardState, slot)
-    end
-    break #TODO only go one way..
+   currentSlot.forEachNeighbouringSlot(boardState, :exclude => [HexagonSide::ONTOP_SIDE, HexagonSide::BOTTOM_SIDE]) do |slot|
+   unless endSlot == slot || prevSlot == slot
+      moves << Move.new(ant.id,-1,-1){|move| move.setDestinationSlot(slot)}
+      moves += traverseBoard(boardState, ant, slot, currentSlot)
+    break
    end
   end
   return moves

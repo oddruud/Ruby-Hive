@@ -32,17 +32,19 @@ WHITE_GRASSHOPPER3 = 7
 WHITE_ANT1 = 8
 WHITE_ANT2 = 9
 WHITE_ANT3 = 10
-BLACK_QUEEN_BEE = 11
-BLACK_BEETLE1 = 12
-BLACK_BEETLE2 = 13
-BLACK_SPIDER1 = 14
-BLACK_SPIDER2 = 15
-BLACK_GRASSHOPPER1 = 16
-BLACK_GRASSHOPPER2 = 17
-BLACK_GRASSHOPPER3 = 18
-BLACK_ANT1 = 19
-BLACK_ANT2 = 20
-BLACK_ANT3 = 21
+WHITE_MOSQUITO = 11 
+BLACK_QUEEN_BEE = 12
+BLACK_BEETLE1 = 13
+BLACK_BEETLE2 = 14
+BLACK_SPIDER1 = 15
+BLACK_SPIDER2 = 16
+BLACK_GRASSHOPPER1 = 17
+BLACK_GRASSHOPPER2 = 18
+BLACK_GRASSHOPPER3 = 19
+BLACK_ANT1 = 20
+BLACK_ANT2 = 21
+BLACK_ANT3 = 22
+BLACK_MOSQUITO = 23
 
 NAME= Array.new() 
 NAME << "WHITE_QUEEN_BEE"
@@ -56,6 +58,7 @@ NAME << "WHITE_GRASSHOPPER3"
 NAME << "WHITE_ANT1"  
 NAME << "WHITE_ANT2"  
 NAME << "WHITE_ANT3" 
+NAME << "WHITE_MOSQUITO" 
 NAME << "BLACK_QUEEN_BEE"
 NAME << "BLACK_BEETLE1" 
 NAME << "BLACK_BEETLE2"
@@ -67,6 +70,7 @@ NAME << "BLACK_GRASSHOPPER3"
 NAME << "BLACK_ANT1"
 NAME << "BLACK_ANT2"
 NAME << "BLACK_ANT3"
+NAME << "BLACK_MOSQUITO"
 
 #SIDE ENUMS
 =begin
@@ -194,12 +198,18 @@ def self.colorToSlotType(color)
     return Slot.slotState(whiteN, blackN) 
 end 
 
+def value 
+  return @id
+end 
+
 def to_s
-  #if not @x < 0 
-  #  return "<#{NAME[@id]} (x: #{@x},y: #{@y}, z: #{@z})}>"
-  #else
-    return "<#{NAME[@id]}>"
-  #end
+  unless @x.nil?
+  if not @x < 0 
+    return "<#{NAME[@id]} (x: #{@x},y: #{@y}, z: #{@z})}>"
+  end
+  end
+  
+  return "<#{NAME[@id]}>"
 end
 
 

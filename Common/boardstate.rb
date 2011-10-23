@@ -3,6 +3,7 @@ require 'Insects/beetle'
 require 'Insects/ant'  
 require 'Insects/grasshopper'  
 require 'Insects/spider'  
+require 'Insects/mosquito'  
 require 'MoveValidators/PlacedToSameColorValidator'
 require 'MoveValidators/QueenInFourMovesValidator'
 require 'move'  
@@ -25,7 +26,7 @@ attr_reader :winningColor
 
 BOARD_SIZE = 20
 BOARD_HEIGHT = 2
-PIECES_PER_PLAYER = 11
+PIECES_PER_PLAYER = 12
 
 def initialize(name = nil)
   @logger = LoggerCreator.createLoggerForClassObject(BoardState,name,nil)
@@ -48,6 +49,7 @@ def reset
   @pieces[Piece::WHITE_ANT1]= Ant.new()
   @pieces[Piece::WHITE_ANT2]= Ant.new()
   @pieces[Piece::WHITE_ANT3]= Ant.new()
+  @pieces[Piece::WHITE_MOSQUITO]= Mosquito.new()
     
   #BLACK PIECES
   @pieces[Piece::BLACK_QUEEN_BEE]= QueenBee.new()
@@ -61,6 +63,7 @@ def reset
   @pieces[Piece::BLACK_ANT1]= Ant.new()
   @pieces[Piece::BLACK_ANT2]= Ant.new()
   @pieces[Piece::BLACK_ANT3]= Ant.new() 
+  @pieces[Piece::BLACK_MOSQUITO]= Mosquito.new()
   
   (0..@pieces.length-1).each do |i|
     @pieces[i].setId(i) 
@@ -145,9 +148,9 @@ end
   end
  
   def to_s
-    output = "move #{self.moveCount}--------------------------------------"
+    output = "move #{self.moveCount}--------------------------------------\n"
     output += @board.map {|x| x.inspect }.join("\n")
-    output += "------------------------------------------------"
+    output += "\n---------------------------------------------------\n"
     return output
   end
   
@@ -168,23 +171,7 @@ end
     end  
     return newState
   end
-
-  #TODO
-  #def availableMovesByPiece(piece_id)
-  #end
   
-  #TODO
-  #def availableMovesByColor(color)
-  #end
-
-  #TODO
-  #def getSide(origin, neighbour)
-  #end
-
- #def unusedPieces(color)
-  
- #end
- 
  def getPiecesByColor(color)
   pieces = []
   if color == PieceColor::WHITE
@@ -250,6 +237,31 @@ end
    return counter == 2 ? true : false
  end
  
+ def getPiecesAt(x,y)
+   piece_ids = @board[x][y]
+   pieces = Array.new()
+   piece_ids.each do |id|
+     pieces << @piece[id] if id > -1
+   end
+   return pieces
+ end
+ 
+ def getNumPiecesAt(x,y) 
+  count = 0
+  @board[x][y].each{|id| count+=1 if id >-1} 
+  return count
+ end
+ 
+ def getPieceAt(x,y,z)
+   @pieces[@board[x][y][z]]
+ end
+ 
+ def getSlotAt(x,y,z)
+   return @pieces[@board[x][y][z]] if @board[x][y][z] > -1
+   return Slot.new(x,y,z){|s| s.state = @board[x][y][z]} if @board[x][y][z] < -1
+   return nil
+ end
+ 
  private
  
  def place(move) 
@@ -278,13 +290,22 @@ end
   resolveNeighbourStates(piece) 
  end
   
+  def self.outOfBounds?(x, y)
+    return x >= BoardState::BOARD_SIZE || y >= BoardState::BOARD_SIZE
+  end
+  
+    
+  
  def resolveNeighbourStates(piece)
    #@logger.info "resolving neighbour states"
   
   count = 0 
   piece.forEachNeighbour do |x,y,z|
-    count = count + 1
-   # @logger.info "resolving for neighbour #{count} - #{x}, #{y}, #{z}"
+    count += 1
+    @logger.info "resolving for neighbour #{count} - #{x}, #{y}, #{z}"
+    
+    raise "Out of Boardbounds exception" if BoardState.outOfBounds?(x,y)
+    
     case @board[x][y][z]
       when Slot::UNCONNECTED then 
         if piece.color == PieceColor::WHITE   
@@ -305,42 +326,30 @@ end
   white = :NotANeighbour
   black = :NotANeighbour 
   piece = @pieces[piece_id]
-  if piece.used == true
-     piece.forEachNeighbour do |x,y,z|
-        case @board[x][y][z]
-          when Slot::UNCONNECTED then 
-          when Slot::EMPTY_SLOT_BLACK then 
-          when Slot::EMPTY_SLOT_WHITE then
-          when Slot::EMPTY_SLOT_MIXED then   
-              @board[x][y][z] = slotStateAfterRemoval(piece_id, nx,ny)       #changes the states of surrounding slots after the removal    
+  if piece.used 
+     piece.forEachNeighbouringSlotOrPiece(self) do |slot|
+         if slot.class == Piece
+             white = :Neighbour if @pieces[@board[x][y][z]].color == PieceColor::WHITE      
+             black = :Neighbour if @pieces[@board[x][y][z]].color == PieceColor::BLACK     
           else    
-              white = :Neighbour if @pieces[@board[x][y][z]].color == PieceColor::WHITE      
-              black = :Neighbour if @pieces[@board[x][y][z]].color == PieceColor::BLACK     
+             @board[slot.x][slot.y][slot.z] = slotStateAfterRemoval(piece, slot)       #changes the states of surrounding slots after the removal    
         end
      end    
-     rx,ry= piece.boardPosition                                   #the slot's new state after removal of the piece 
-     @board[rx][ry][0] = Slot::slotState?(white, black) #Todo
+     rx,ry,rz = piece.boardPosition                                
+     @board[rx][ry][rz] = Slot::slotState(white, black)    #the slot's new state after removal of the piece 
   end
  end 
-  
- 
- def slotStateAfterRemoval(removed_piece, slotx, sloty)
+   
+ def slotStateAfterRemoval(removed_piece, slot)
        white= :NotANeighbour
-       black= :NotANeighbour
-       rx,ry = @board[removed_piece] 
-       slot = Slot.new(slotx,sloty)
-       slot.forEachNeighbour do |x,y,z|
-         case @board[x][y][z]
-          when Slot::UNCONNECTED then 
-          when Slot::EMPTY_SLOT_BLACK then 
-          when Slot::EMPTY_SLOT_WHITE then
-          when Slot::EMPTY_SLOT_MIXED then
-          else
-            white = :Neighbour if @pieces[@board[x][y][z]].color == PieceColor::WHITE
-            black = :Neighbour if @pieces[@board[x][y][z]].color == PieceColor::BLACK    
-        end      
+       black= :NotANeighbour 
+       slot.forEachNeighbouringPiece(self) do |piece|
+         unless piece == removed_piece
+            white = :Neighbour if piece.color == PieceColor::WHITE
+            black = :Neighbour if piece.color == PieceColor::BLACK    
+         end
        end   
-     return Slot::slotState?(white, black) 
+     return Slot::slotState(white, black) 
  end 
  
  def getOriginBoardPos(move) 
