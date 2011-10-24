@@ -1,12 +1,14 @@
+require "drb"
+require 'move' 
 require 'Insects/queenbee'  
 require 'Insects/beetle'  
 require 'Insects/ant'  
 require 'Insects/grasshopper'  
 require 'Insects/spider'  
 require 'Insects/mosquito'  
+require 'MoveValidators/MoveValidator'
 require 'MoveValidators/PlacedToSameColorValidator'
 require 'MoveValidators/QueenInFourMovesValidator'
-require 'move'  
 require 'LoggerCreator'
 
 class TurnState
@@ -79,6 +81,11 @@ def reset
                   PlacedToSameColorValidator 
                 ]                          
 end
+
+  def getPieceById(id)
+    raise "#{id} does not match with any piece in #{self}" if id < 0 or id > @pieces.length
+    return @pieces[id]
+  end
 
   def colorOfWinner
     return winningColor 

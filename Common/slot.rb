@@ -65,25 +65,6 @@ EMPTY_SLOT_BLACK = -3
 EMPTY_SLOT_MIXED = -4
 TRAPPED_SLOT = -5
  
-=begin
-       when HexagonSide::ONTOP_SIDE then 
-        xdif, ydif, zdif = 0, 0, 1 
-      when HexagonSide::UNDER_SIDE then 
-        xdif, ydif, zdif = 0, 0, -1
-      when HexagonSide::TOP_SIDE then 
-        xdif, ydif = -1, -1 
-      when HexagonSide::TOP_RIGHT_SIDE then 
-        xdif, ydif = 0, -1  
-      when HexagonSide::BOTTOM_RIGHT_SIDE then 
-        xdif, ydif = 1, 0  
-      when HexagonSide::BOTTOM_SIDE then 
-        xdif, ydif = 1, 1  
-      when HexagonSide::BOTTOM_LEFT_SIDE then 
-        xdif, ydif = 0, 1  
-      when HexagonSide::TOP_LEFT_SIDE then 
-        xdif, ydif = -1, 0 
-=end
- 
 @@RelativeCoordinatesToSide = Hash.new()  
 @@RelativeCoordinatesToSide[[0,0,1]] = HexagonSide::ONTOP_SIDE
 @@RelativeCoordinatesToSide[[0,0,-1]] = HexagonSide::UNDER_SIDE

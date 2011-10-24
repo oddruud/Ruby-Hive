@@ -1,10 +1,10 @@
 require 'Insects/piece'
-require 'MoveValidators/SpiderMoveValidator'
+#require 'MoveValidators/SpiderMoveValidator'
 
 class Spider < Piece
 
 def initialize 
-   @validator = SpiderMoveValidator  
+   #@validator = SpiderMoveValidator  
 end
   
 def availableMoves(boardState)

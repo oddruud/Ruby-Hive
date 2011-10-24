@@ -1,9 +1,9 @@
 require 'Insects/piece'
-require 'MoveValidators/QueenBeeMoveValidator'
+#require 'MoveValidators/QueenBeeMoveValidator'
 class QueenBee < Piece
 
 def initialize() 
-  @validator = QueenBeeMoveValidator  
+  #@validator = QueenBeeMoveValidator  
 end
   
 def availableMoves(boardState)

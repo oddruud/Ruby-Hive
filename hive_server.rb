@@ -5,8 +5,10 @@ $LOAD_PATH.unshift( File.join( File.dirname(__FILE__), 'HiveServer' ) )
 
 require "server" 
 require 'optparse'
+require 'bundler'
 require 'LoggerCreator' 
 
+Bundler.require(:default, :test)
 LoggerCreator.setLevel(Logger::DEBUG)
 logger = LoggerCreator.createLoggerWithName("server_main")
 
