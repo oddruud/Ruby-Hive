@@ -16,7 +16,7 @@ def self.availableBoardMoves(beetle, boardState)
   moves = Array.new()
    beetle.forEachNeighbour(:exclude => [HexagonSide::ONTOP_SIDE, HexagonSide::BOTTOM_SIDE]) do |x,y|
       numPieces = boardState.getNumPiecesAt(x, y)          
-      moves << Move.new(beetle.id, -1,-1){|move| move.setDestinationCoordinates( x,y, numPieces ) }
+      moves << Move.fromCords(beetle.id, x,y, numPieces )
    end  
  return moves
 end

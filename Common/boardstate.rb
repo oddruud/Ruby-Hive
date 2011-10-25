@@ -81,7 +81,12 @@ def reset
                   PlacedToSameColorValidator 
                 ]                          
 end
-
+   
+  def pos(x,y,z)
+    return pos(x,y,z)
+  end
+    
+    
   def getPieceById(id)
     raise "#{id} does not match with any piece in #{self}" if id < 0 or id > @pieces.length
     return @pieces[id]
@@ -238,7 +243,7 @@ end
    unless bottleNeckSides.nil?
     bottleNeckSides.each do |side|
       x,y,z =  slot.neighbour(side)
-      counter += 1 if @board[x][y][z] > -1    
+      counter += 1 if pos(x, y, z) > -1    
     end  
    end
    return counter == 2 ? true : false
@@ -260,12 +265,12 @@ end
  end
  
  def getPieceAt(x,y,z)
-   @pieces[@board[x][y][z]]
+   @pieces[pos(x,y,z)]
  end
  
  def getSlotAt(x,y,z)
-   return @pieces[@board[x][y][z]] if @board[x][y][z] > -1
-   return Slot.new(x,y,z){|s| s.state = @board[x][y][z]} if @board[x][y][z] < -1
+   return @pieces[pos(x,y,z)] if pos(x,y,z) > -1
+   return Slot.new(x,y,z){|s| s.state = pos(x,y,z)} if pos(x,y,z) < -1
    return nil
  end
  
@@ -313,19 +318,19 @@ end
     
     raise "Out of Boardbounds exception" if BoardState.outOfBounds?(x,y)
     
-    case @board[x][y][z]
+    case pos(x,y,z)
       when Slot::UNCONNECTED then 
         if piece.color == PieceColor::WHITE   
-          @board[x][y][z] = Slot::EMPTY_SLOT_WHITE 
+          pos(x,y,z) = Slot::EMPTY_SLOT_WHITE 
         elsif piece.color == PieceColor::BLACK   
-          @board[x][y][z] = Slot::EMPTY_SLOT_BLACK 
+          pos(x,y,z) = Slot::EMPTY_SLOT_BLACK 
         end  
       when Slot::EMPTY_SLOT_BLACK then
-          @board[x][y][z] = Slot::EMPTY_SLOT_MIXED if piece.color == PieceColor::WHITE   
+          pos(x,y,z) = Slot::EMPTY_SLOT_MIXED if piece.color == PieceColor::WHITE   
       when Slot::EMPTY_SLOT_WHITE then
-          @board[x][y][z] = Slot::EMPTY_SLOT_MIXED  if piece.color == PieceColor::BLACK   
+          pos(x,y,z) = Slot::EMPTY_SLOT_MIXED  if piece.color == PieceColor::BLACK   
     end
-    #@logger.info "resolved to #{ @board[x][y][z]}"
+    #@logger.info "resolved to #{ pos(x,y,z)}"
   end  
  end 
   
@@ -336,8 +341,8 @@ end
   if piece.used 
      piece.forEachNeighbouringSlotOrPiece(self) do |slot|
          if slot.class == Piece
-             white = :Neighbour if @pieces[@board[x][y][z]].color == PieceColor::WHITE      
-             black = :Neighbour if @pieces[@board[x][y][z]].color == PieceColor::BLACK     
+             white = :Neighbour if @pieces[pos(x,y,z)].color == PieceColor::WHITE      
+             black = :Neighbour if @pieces[pos(x,y,z)].color == PieceColor::BLACK     
           else    
              @board[slot.x][slot.y][slot.z] = slotStateAfterRemoval(piece, slot)       #changes the states of surrounding slots after the removal    
         end

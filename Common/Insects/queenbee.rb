@@ -16,7 +16,7 @@ end
 def self.availableBoardMoves(queenbee, boardState)
   moves = Array.new()
    queenbee.forEachNeighbouringSlot(boardState,:exclude => [HexagonSide::ONTOP_SIDE, HexagonSide::BOTTOM_SIDE]) do |slot|    
-      moves << Move.new(queenbee.id, -1,-1){|move| move.setDestinationSlot(slot)}
+      moves << Move.new(queenbee.id, slot)
    end  
  return moves
 end

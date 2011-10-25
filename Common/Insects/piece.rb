@@ -185,7 +185,7 @@ def availablePlaceMoves(boardState)
  
  openSlots.delete_if{|slot| slot.z == 1} #only allow slots on the lower level  
  openSlots.each do |slot|
-  move = Move.new(id, -1,-1){|move| move.setDestinationSlot(slot)}
+  move = Move.new(id, slot.x,slot.y,slot.z)
   moves = moves + [move]
  end
  

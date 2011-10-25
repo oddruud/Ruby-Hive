@@ -22,7 +22,7 @@ def self.traverseBoard(boardState, ant, currentSlot, endSlot, prevSlot = nil) #T
   moves = Array.new()
    currentSlot.forEachNeighbouringSlot(boardState, :exclude => [HexagonSide::ONTOP_SIDE, HexagonSide::BOTTOM_SIDE]) do |slot|
    unless endSlot == slot || prevSlot == slot
-      moves << Move.new(ant.id,-1,-1){|move| move.setDestinationSlot(slot)}
+      moves << Move.new(ant.id, slot)
       moves += traverseBoard(boardState, ant, slot, currentSlot)
     break
    end
