@@ -119,8 +119,8 @@ end
 
 def forEachNeighbouringPiece(boardState, params = {})
   forEachNeighbour(params) do |x,y,z|
-    if boardState.board[x][y][z] > -1
-      yield boardState.pieces[boardState.board[x][y][z]]
+    if boardState.at(x,y,z) > -1
+      yield boardState.pieces[boardState.at(x,y,z)]
     end 
   end 
 end
@@ -128,18 +128,18 @@ end
 def forEachNeighbouringSlot(boardState, params = {})
   params[:side] = true
   forEachNeighbour(params) do |x,y,z, side| 
-    if boardState.board[x][y][z] < -1 and not boardState.bottleNeckToSide(self, side)
-      yield Slot.new(x,y,z){|slot| slot.state = boardState.board[x][y][z] }   
+    if boardState.at(x,y,z) < -1 and not boardState.bottleNeckToSide(self, side)
+      yield Slot.new(x,y,z){|slot| slot.state = boardState.at(x,y,z) }   
     end 
   end 
 end
 
 def forEachNeighbouringSlotOrPiece(boardState, params = {})
   forEachNeighbour(params) do |x,y,z|
-    if boardState.board[x][y][z] < -1
-      yield Slot.new(x,y,z){|slot| slot.state = boardState.board[x][y][z] }   
-    elsif  boardState.board[x][y][z] > -1
-      yield boardState.pieces[boardState.board[x][y][z]]
+    if boardState.at(x,y,z) < -1
+      yield Slot.new(x,y,z){|slot| slot.state = boardState.at(x,y,z) }   
+    elsif  boardState.at(x,y,z) > -1
+      yield boardState.pieces[boardState.at(x,y,z)]
     end 
   end 
 end
@@ -148,7 +148,7 @@ end
 def neighbouringPieces(boardState, amount = 7)
     pieces = Array.new()
     forEachNeighbour do |x,y,z|
-      id = boardState.board[x][y][z] 
+      id = boardState.at(x,y,z) 
       if id > -1
         piece = boardState.pieces[id]
         pieces << piece 

@@ -16,8 +16,9 @@ class Bot < Player
     
   def makeMove(boardState)
     @logger.info "#{name} makemove called"
-    thread = Thread.new{ determineNextMove(boardState) }
-    thread.join 
+    #thread = Thread.new{ determineNextMove(boardState) }
+    #thread.join 
+     determineNextMove(boardState)
   end  
   
   def determineNextMove(boardState)
