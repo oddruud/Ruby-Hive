@@ -150,6 +150,7 @@ def neighbouringPieces(boardState, amount = 7)
     forEachNeighbour do |x,y,z|
       id = boardState.at(x,y,z) 
       if id > -1
+        puts "#{@x},#{@y},#{@z}:#{value} connects to #{x},#{y},#{z}:#{id}"
         piece = boardState.pieces[id]
         pieces << piece 
         return pieces  if pieces.length == amount

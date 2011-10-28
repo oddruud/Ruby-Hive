@@ -61,11 +61,18 @@ class Move
   def toStringVerbose(boardState)
     
     if @relative_id < 0 
+      puts "toStringVerbose id #{@moving_piece_id}"
       piece = boardState.pieces[@moving_piece_id]
       neighbour = piece.neighbouringPieces(boardState,1)[0]
-      @relative_id = neighbour.id 
-      side_id = neighbour.getSide(piece)
-      sideName= HexagonSide::sideName(side_id)
+      
+      if  neighbour.nil? 
+        return "Relative Move #{Piece::NAME[@moving_piece_id]} NOT connected to other pieces"
+      end
+  
+        @relative_id = neighbour.id 
+        puts "relative id: #{@relative_id}"
+        side_id = neighbour.getSide(piece)
+        sideName= HexagonSide::sideName(side_id) unless side_id.nil?
     else
       sideName= HexagonSide::sideName(side_id) + "(predefined)"
     end

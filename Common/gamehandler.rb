@@ -23,7 +23,7 @@ class GameHandler
 
   def createNewGame
     @players = Array.new()
-    @boardState= BoardState.new("MAINBOARD")
+    @boardState= BoardState.new("MAINBOARD"){|boardState| boardState.reset}
     sendMessage("GI.#{BoardState::BOARD_SIZE}.#{BoardState::BOARD_SIZE}.")
   end
 

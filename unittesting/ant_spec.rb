@@ -11,7 +11,7 @@ describe BoardState do
    
    before :each do 
      LoggerCreator.setLevel(Logger::INFO)
-      @boardState = BoardState.new()
+      @boardState = BoardState.new("test_board"){|boardState| boardState.reset}
       @whiteQueen = @boardState.getPiece(Piece::WHITE_QUEEN_BEE) 
       @blackSpider = @boardState.getPiece(Piece::BLACK_SPIDER1) 
       @whiteSpider = @boardState.getPiece(Piece::WHITE_SPIDER1) 
@@ -36,7 +36,12 @@ describe BoardState do
      puts "should have:"
       @possibleAntMoves.each{|move| puts move.toStringVerbose(@boardState)}  
      puts "determined:"
-      moves.each{|move| puts move.toStringVerbose(@boardState)} 
+      moves.each do |move| 
+        boardNext = @boardState.nextState(move)
+        puts move.to_s + "\n"
+        puts "next: " + boardNext.to_s
+        puts move.toStringVerbose(boardNext)  
+      end
       
       puts "should have:"
       @possibleAntMoves.each{|move| puts move.to_s}  

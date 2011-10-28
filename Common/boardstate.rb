@@ -23,6 +23,7 @@ class BoardState
 attr_reader :pieces    #1D array [piece_id] -> Piece
 attr_reader :board     #2D array [x][y][z] -> piece_id          
 attr_reader :moves     #1D array [i] -> Move
+attr_reader :currentPiece  
 attr_reader :logger   
 attr_reader :winningColor   
 
@@ -30,10 +31,14 @@ BOARD_SIZE = 10
 BOARD_HEIGHT = 2
 PIECES_PER_PLAYER = 12
 
+  @@validators = [ QueenInFourMovesValidator, 
+                  PlacedToSameColorValidator 
+                ]  
+
 def initialize(name = nil)
   @logger = LoggerCreator.createLoggerForClassObject(BoardState,name,nil)
   @logger.info "initializing new boardstate: #{name}"
-  reset
+  yield self if block_given? 
 end
 
 def reset
@@ -75,13 +80,61 @@ def reset
   @moves = Array.new()  #MOVE HISTORY
   @board = Array.new(BOARD_SIZE).map!{Array.new(BOARD_SIZE).map!{ |x| x = [-1,-1] } }   #THE BOARD 
   @logger.info "#{BOARD_SIZE} * #{BOARD_SIZE} * #{BOARD_HEIGHT} board grid created:"
-  puts to_s
-  
-  @validators = [ QueenInFourMovesValidator, 
-                  PlacedToSameColorValidator 
-                ]                          
+  puts to_s                        
 end
-   
+  
+ def setPieces(pieces) 
+    @pieces = pieces
+ end
+
+  def setBoard(board) 
+    @board = board 
+  end
+  
+  def setMoves(moves) 
+    @moves = moves
+  end
+
+def nextState(move)
+   nextBoardState = self.clone
+   nextBoardState.makeMove(move) 
+   return nextBoardState
+end
+
+def clone
+  c = BoardState.new()
+  c.setPieces( piecesCopy() ) 
+  c.setBoard( boardCopy() )
+  c.setMoves( movesCopy() )    
+  return c
+end
+
+#def clone
+#  c = Marshal.load( Marshal.dump(self) )    
+#  return c
+#end
+
+def boardCopy()  
+  copy = Array.new(BOARD_SIZE).map!{Array.new(BOARD_SIZE)}   #THE BOARD 
+  @board.each_index do |xI| 
+    @board[xI].each_index do |yI|
+      copy[xI][yI] = Array.new(@board[xI][yI]) 
+    end
+  end
+  return copy 
+end
+
+def piecesCopy()
+  copy = Array.new()
+  @pieces.each_index do |i|
+    copy << @pieces[i].dup
+  end  
+end
+
+def movesCopy()
+  return Array.new(@moves)
+end
+
   def at(x,y,z)
     checkOutOfBounds(x, y, z)
     return @board[x][y][z]
@@ -105,16 +158,21 @@ end
     return @pieces[id]
   end
 
+  def pickUpPiece(id)
+    @currentPiece = @pieces[id]
+    removePieceFromBoard(id)
+  end
+  
+  def dropPiece(id)
+    @currentPiece = nil
+    
+  end
+
   def colorOfWinner
     return winningColor 
   end
 
- #returns BoardState
-  def nextState(move)
-    nextBoardState = self.copy 
-    nextBoardState.makeMove(move) 
-    return nextBoardState
-  end
+
   
   def startPosX
      BOARD_SIZE/2
@@ -137,11 +195,9 @@ end
   end
   
   def validMove?(move)
-    
     return true if not movesMade?
-    
     piece = @pieces[move.moving_piece_id]   
-    @validators.each do |validator|                 #common board validation-rules 
+    @@validators.each do |validator|                 #common board validation-rules 
       if not validator.validate(self, move) 
         @logger.debug  "validator #{validator.name} FAILED"
         return false 
@@ -153,9 +209,10 @@ end
   end
 
   def makeMove(move)
-    
+    pickUpPiece(move.moving_piece_id)
+    piece = getPiece(move.moving_piece_id)
     begin 
-      @logger.info  "playing #{move.toString}"
+      @logger.info  "playing piece at #{piece.boardPosition}: #{move.toString}"
       if validMove?(move) 
         place(move) 
         result = TurnState::VALID
@@ -182,19 +239,6 @@ end
     state = @board.map {|x| x.inspect }.join("")
     return "BS.#{state}."    
   end 
-
-  def copy
-    newState = self.dup  # shallow copy
-    newState.pieces = nil 
-    newState.pieces = Hash.new()
-    #copy all deeer objects
-    @piece.each do |p|
-      newPiece = p.copy
-      newPiece.boardState = newState 
-      newState.pieces << newPiece
-    end  
-    return newState
-  end
   
  def getPiecesByColor(color)
   pieces = []
@@ -299,7 +343,7 @@ end
 
  def setPieceTo(piece_id, x ,y, z)
   @logger.debug "Placing #{@pieces[piece_id].class.name} at #{x},#{y},#{z}" 
-  removePieceFromBoard(piece_id) 
+  #removePieceFromBoard(piece_id) 
   piece = @pieces[piece_id];
   
   @board[x][y].delete_if{|id| id < 0 }
@@ -314,7 +358,6 @@ end
   count = 0 
   piece.forEachNeighbour do |x,y,z|
     count += 1
-    #@logger.info "resolving for neighbour #{count} - #{x}, #{y}, #{z}"
     case at(x,y,z)
       when Slot::UNCONNECTED then 
         if piece.color == PieceColor::WHITE   
@@ -343,7 +386,8 @@ end
             setId(slot.x,slot.y,slot.z, slotStateAfterRemoval(piece, slot) ) #changes the states of surrounding slots after the removal    
         end
      end    
-     rx,ry,rz = piece.boardPosition                                
+     rx,ry,rz = piece.boardPosition   
+     @logger.warn "removing #{piece.name}:#{piece_id} at #{piece.boardPosition} replacing with #{Slot::slotState(white, black)}"                            
      setId(rx,ry,rz,  Slot::slotState(white, black) ) #the slot's new state after removal of the piece 
   end
  end 
