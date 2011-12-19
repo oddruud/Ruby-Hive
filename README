@@ -1,14 +1,10 @@
-![ruby](http://www.ruby-lang.org/images/logo.gif) ![hive](http://www.trulyobscure.com/images/437.jpg)
-
-Hive is a board-game without a board. Each turn a player alters or add to the state of the board with hexagonal pieces depicting insect types. Each of the insects have their own type of move behavior. Hive is a pure strategy, deterministic game, no chance is involved. 
-
 I started this project because I like to grasp the game of Hive fully by iterating on good heuristics, improving them as I play against my own creation. A second goal of this project is to master the Ruby programming language, to master its style ,its cleanness in brevity and expressiveness. With the least amount of commenting I want to be able to pickup this project after a while of idleness and start where I left of immediately. Another important aspect of Ruby programming is unittesting. The hive board-game allows for a high degree of loose coupling and is therefore very unittestible.        
 
 The project consists of two parts: 
 
--**the game server interface** which controls the game
+-the game server interface
 
--**the bot(s)** that connect to the game server and provide their moves when the server gives them their turn.      
+-the bot(s)      
 
 At the time I am in the process of finalizing the framework part. There are some bugs which I am tracking down using unittesting. When the framework is correct I will begin with the heuristics of a Hive bot. At the time, for testing purposes, there is only one very basic bot which selects a move randomly from the entire set of allowed moves.   
          
