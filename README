@@ -7,4 +7,5 @@ The project consists of two parts:
 -the bot(s)      
 
 At the time I am in the process of finalizing the framework part. There are some bugs which I am tracking down using unittesting. When the framework is correct I will begin with the heuristics of a Hive bot. At the time, for testing purposes, there is only one very basic bot which selects a move randomly from the entire set of allowed moves.   
-         
+
+At the time I am traveling through South East Asia, I didn't bring a computer with me so progress is fairly slow :)
