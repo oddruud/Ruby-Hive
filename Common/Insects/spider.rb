@@ -21,7 +21,7 @@ end
  #TODO
 def self.traverseBoard(boardState, spider, currentSlot, prevSlot, stepCount = 0) #TODO only move one way, check prevslot
   moves = Array.new()
-   currentSlot.forEachNeighbouringSlot(boardState, :exclude => [HexagonSide::ONTOP_SIDE, HexagonSide::BOTTOM_SIDE]) do |slot|
+   currentSlot.forEachAdjacentSlot(boardState) do |slot|
     unless prevSlot == slot     
         moves << Move.new(spider.id,slot) if stepCount == 3  
         moves << traverseBoard(boardState,spider, slot, currentSlot, stepCount += 1)

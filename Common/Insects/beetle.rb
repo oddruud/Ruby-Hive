@@ -14,7 +14,7 @@ end
 #TODO fix! what if beetle is ontop? handle beetle stacking
 def self.availableBoardMoves(beetle, boardState)
   moves = Array.new()
-   beetle.forEachNeighbour(:exclude => [HexagonSide::ONTOP_SIDE, HexagonSide::BOTTOM_SIDE]) do |x,y|
+   beetle.forEachNeighbour(:exclude => [HexagonSide::ONTOP_SIDE, HexagonSide::UNDER_SIDE]) do |x,y|
       numPieces = boardState.getNumPiecesAt(x, y)          
       moves << Move.fromCords(beetle.id, x,y, numPieces )
    end  

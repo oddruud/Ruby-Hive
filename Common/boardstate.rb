@@ -25,23 +25,27 @@ attr_reader :board     #2D array [x][y][z] -> piece_id
 attr_reader :moves     #1D array [i] -> Move
 attr_reader :currentPiece  
 attr_reader :logger   
-attr_reader :winningColor   
+attr_reader :winning_color   
 
 BOARD_SIZE = 10
 BOARD_HEIGHT = 2
 PIECES_PER_PLAYER = 12
+START_POS_X = BOARD_SIZE/2 
+START_POS_Y = BOARD_SIZE/2
 
-  @@validators = [ QueenInFourMovesValidator, 
+@@validators = [ QueenInFourMovesValidator, 
                   PlacedToSameColorValidator 
                 ]  
 
 def initialize(name = nil)
   @logger = LoggerCreator.createLoggerForClassObject(BoardState,name,nil)
   @logger.info "initializing new boardstate: #{name}"
-  yield self if block_given? 
+  reset
+  #yield self if block_given? 
 end
 
 def reset
+puts "reset"
   @logger.info  "Creating pieces for Board State"
   @pieces =  Array.new()                                       #THE PIECES
   #WHITE PIECES
@@ -76,11 +80,11 @@ def reset
     @pieces[i].setId(i) 
   end
   
-  @winningColor = PieceColor::NONE
+  @winning_color = PieceColor::NONE
   @moves = Array.new()  #MOVE HISTORY
   @board = Array.new(BOARD_SIZE).map!{Array.new(BOARD_SIZE).map!{ |x| x = [-1,-1] } }   #THE BOARD 
   @logger.info "#{BOARD_SIZE} * #{BOARD_SIZE} * #{BOARD_HEIGHT} board grid created:"
-  puts to_s                        
+  #puts to_s                        
 end
   
  def setPieces(pieces) 
@@ -136,50 +140,45 @@ def movesCopy()
 end
 
   def at(x,y,z)
-    checkOutOfBounds(x, y, z)
-    return @board[x][y][z]
-  end
-  
-  def checkOutOfBounds(x, y, z)
-    if x >= BoardState::BOARD_SIZE || y >= BoardState::BOARD_SIZE || z >= @board[x][y].length
-      raise "Out of Boardbounds exception"
+    if not outOfBounds(x,y,z) 
+      return @board[x][y][z]
+    else
+      return nil 
     end
   end
   
+  def hasPieceAt(x,y,z)
+    return at(x,y,z) > Slot::UNCONNECTED && !outOfBounds(x,y,z) 
+  end
+  
+  def outOfBounds(x, y, z)
+    return x >= BoardState::BOARD_SIZE || y >= BoardState::BOARD_SIZE || z >= @board[x][y].length
+  end
+  
   def setId(x,y,z,id)
-    checkOutOfBounds(x, y, z)
-    @board[x][y][z] = id
+    @board[x][y][z] = id unless outOfBounds(x, y, z)
   end
    
     
-  def getPiece(id)
-    @logger.info "providing #{Piece::NAME[id]}"
+  def getPieceById(id)
     raise "#{id} does not match with any piece in #{self}" if id < 0 or id > @pieces.length
     return @pieces[id]
   end
 
   def pickUpPiece(id)
+    @logger.debug "FIX ME!"
     @currentPiece = @pieces[id]
     removePieceFromBoard(id)
   end
   
+  #FIXMME!
   def dropPiece(id)
+    @logger.debug "FIX ME!"
     @currentPiece = nil
-    
   end
 
   def colorOfWinner
-    return winningColor 
-  end
-
-
-  
-  def startPosX
-     BOARD_SIZE/2
-  end
-  
-  def startPosY
-    BOARD_SIZE/2
+    return winning_color 
   end
   
   def movesMade?
@@ -191,7 +190,7 @@ end
   end
   
   def startSlot
-    return Slot.new(startPosX, startPosY, 0)
+    return Slot.new(START_POS_X, START_POS_Y, 0)
   end
   
   def validMove?(move)
@@ -210,7 +209,7 @@ end
 
   def makeMove(move)
     pickUpPiece(move.moving_piece_id)
-    piece = getPiece(move.moving_piece_id)
+    piece = getPieceById(move.moving_piece_id)
     begin 
       @logger.info  "playing piece at #{piece.boardPosition}: #{move.toString}"
       if validMove?(move) 
@@ -251,27 +250,25 @@ end
  end
  
 def eachBoardPosition
-yI,cI, zI = -1,-1,-1     
-    @board.each do |y|
-      yI += 1
-      cI = -1
-      y.each do |c|
-        cI += 1
+  xI, yI, zI = -1,-1,-1     
+    @board.each do |x|
+      xI += 1
+      yI = -1
+      x.each do |y|
+        yI += 1
         zI = -1
-        c.each do |z|
+        y.each do |z|
           zI += 1
-          yield yI, cI, zI, z
+          yield xI, yI, zI, z
         end  
       end 
     end
 end   
 
-
 def getSlotsWithTypeCode(slotType)   
   slots = Array.new()
-  
   if slotType > -1
-    raise "a slot with an id higher than -1 is not a slot but a piece, use getPiece(piece_id)"
+    raise "a slot with an id higher than -1 is not a slot but a piece, use getPieceById(piece_id)"
   end 
   
   self.eachBoardPosition do |x, y, z, value|
@@ -321,20 +318,20 @@ end
  end
  
  def getPieceAt(x,y,z)
-   @pieces[at(x,y,z)]
+   raise "out of bounds " if outOfBounds(x,y,z)
+   return hasPieceAt(x, y, z) ? @pieces[at(x,y,z)] : nil
  end
  
  def getSlotAt(x,y,z)
-   id = at(x,y,z)
-   return @pieces[id] if id > -1
-   return Slot.new(x,y,z){|s| s.state = id} if id < -1
-   return nil
+   id = at(x, y, z)
+   return @pieces[id] if id > Slot::UNCONNECTED
+   return id <= Slot::UNCONNECTED ? Slot.new(x,y,z){|s| s.state = id} : nil  
  end
  
  private
  
  def place(move) 
-   move.setDestinationCoordinates(startPosX, startPosY, 0) unless movesMade?    
+   move.setDestinationCoordinates(START_POS_X, START_POS_Y, 0) unless movesMade?    
    x,y,z = move.destination
    setPieceTo(move.moving_piece_id, x, y,z) 
    @moves << move

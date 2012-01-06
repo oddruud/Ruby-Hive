@@ -17,10 +17,10 @@ end
 
 def self.availableBoardMoves(grassHopper, boardState)
   moves = Array.new() 
-   grassHopper.forEachNeighbouringPiece(boardState,{:exclude => [HexagonSide::ONTOP_SIDE, HexagonSide::BOTTOM_SIDE], :side => true}) do |neighbour_piece| 
-   side = grassHopper.getSide(neighbour_piece)
-   slot = GrassHopper.jumpOver(grassHopper, side, boardState)     #add the position
-   moves << Move.new(grassHopper.id, slot)
+  grassHopper.forEachAdjacentPiece(boardState) do |neighbour_piece| 
+    side = grassHopper.getSide(neighbour_piece)
+    slot = GrassHopper.jumpOver(grassHopper, side, boardState)     #add the position
+    moves << Move.new(grassHopper.id, slot)
   end
   return moves
 end

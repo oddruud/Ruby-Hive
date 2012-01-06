@@ -8,10 +8,11 @@ require 'moveexception'
 class GameHandler
    include DRbUndumped
   
-  attr_accessor :boardState 
+  attr_reader :board_state 
   attr_reader :players
   attr_reader :turn
-  attr_reader :messageCallback
+  attr_reader :message_callback
+  attr_reader :game_state_desciption 
   attr_reader :logger
   
   def initialize()
@@ -23,23 +24,34 @@ class GameHandler
 
   def createNewGame
     @players = Array.new()
-    @boardState= BoardState.new("MAINBOARD"){|boardState| boardState.reset}
-    sendMessage("GI.#{BoardState::BOARD_SIZE}.#{BoardState::BOARD_SIZE}.")
+    @interval_time = 1
+    @game_state_description = "Fresh game, waiting for players to connect..." 
+    @board_state = BoardState.new("MAINBOARD")
+    #sendMessage("GI.#{board_state::BOARD_SIZE}.#{board_state::BOARD_SIZE}.")
   end
 
   def setUpdateCallback(&block)
-     @messageCallback = block 
+     @message_callback = block 
   end
-
+  
+  def setStateDescription(text)
+ 	 @game_state_description = text 
+  end
+  
+  def getStateDescription
+ 	 return @game_state_description 
+  end
+  
   def addPlayer(player)
     if @players.length < 2
       @players << player
       @logger.info "PLAYER #{@players.length}: #{player.name} added..." 
+      setStateDescription("PLAYER #{@players.length}: #{player.name} connected..." )
       player.setID(@players.length.to_s) 
       player.setColor(PieceColor::COLORS[@players.length-1])
       player.submitMoveTo = Proc.new{|id, move| moveMade(id, move)}  
       player.welcome("the server welcomes you..wait for start signal..."); 
-      sendMessage("PA.#{player.id}.#{player.name}.")
+      #sendMessage("PA.#{player.id}.#{player.name}.")
       start() if @players.length == 2 
     end
   end
@@ -48,33 +60,42 @@ class GameHandler
     @player.delete_if {|player| player.id == id} 
   end
   
+  def getPiece(id, turn)  
+  	piece = @board_state.getPieceById id
+  	x, y, z = piece.boardPosition
+  	#todo add support to retrieve coordinates from previous turns 
+	return piece
+  end 
 
   private 
   
   def start() 
     @turn = 1 
     welcome = "#{@players[0].name} VS  #{@players[1].name}";
+    setStateDescription(welcome)
     sendMessage("GB.#{welcome}.")
-    @players.each do |p|
-      p.gameStarts(welcome)
-    end 
-    
+    @players.each { |p| p.gameStarts(welcome) }
+
     nextTurn()    
   end  
   
   def nextTurn()
-   sendMessage(@boardState.to_message)
-    if boardState.moveCount > 21
+   sendMessage(@board_state.to_message)
+    if board_state.moveCount > 21
       raise "breakpoint"
     end
-    
     @turn = @turn == 1 ? 0: 1 
-    @players[@turn].makeMove(boardState); 
+    sleep(intervalTime)
+    @players[@turn].makeMove(board_state); 
   end 
+  
+  def intervalTime
+    return @interval_time
+  end
   
   def gameOver()
     @logger.info "GAME OVER"
-    winner = playerByColor(@boardState.colorOfWinner())
+    winner = playerByColor(@board_state.colorOfWinner())
     @logger.info "#{winner.to_s} wins"
     sendMessage("GO.#{winner.id}.")
   end
@@ -95,8 +116,8 @@ class GameHandler
        @logger.info "#{playerID} tries move: #{move.toString}" unless move.nil?
        
         sendMessage(move.to_message)
-        result = boardState.makeMove(move)
-        @logger.debug boardState.to_s
+        result = board_state.makeMove(move)
+        @logger.debug board_state.to_s
         
         case result 
         when TurnState::GAME_OVER then 
@@ -114,7 +135,7 @@ class GameHandler
   end
   
   def sendMessage(message)
-     @messageCallback.call(message)
+     @message_callback.call(message) unless @message_callback.nil?
   end
   
   def stop(message)

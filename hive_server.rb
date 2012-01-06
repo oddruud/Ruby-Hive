@@ -8,7 +8,7 @@ require 'optparse'
 require 'LoggerCreator' 
 
 #Bundler.require(:default, :test)
-LoggerCreator.setLevel(Logger::DEBUG)
+LoggerCreator.setLevel(Logger::INFO)
 logger = LoggerCreator.createLoggerWithName("server_main")
 
 options = {}
@@ -25,15 +25,12 @@ opt_parser = OptionParser.new do |opt|
   opt.on("-p","--port", Integer ,"the portnumber") do |port|
     options[:port] = port || 3333
   end
-  
-   opt.on("-d","--debug", "debug") do |debug|
+  opt.on("-d","--debug", "debug") do |debug|
     options[:debug] = true
   end
-
   opt.on("-h","--help","help") do
     puts opt_parser
   end
-  
 end
 
 opt_parser.parse!
@@ -43,8 +40,4 @@ case ARGV[0]
 when "start"
   logger.info "starting hive game server on port #{options[:port]}"
   server= Server.new(options[:port], options[:debug])
- 
-  
 end
-
-

@@ -72,14 +72,6 @@ NAME << "BLACK_ANT2"
 NAME << "BLACK_ANT3"
 NAME << "BLACK_MOSQUITO"
 
-#SIDE ENUMS
-=begin
-  [2][3]
-  [7][1][4]
-    [6][5]
-=end 
-
-
 #properties
 #attr_accessor :sides
 attr_accessor :validator
@@ -87,12 +79,11 @@ attr_reader :used
 attr_reader :logger
 attr_reader :id
 
-def initialize()
-  super -1,-1,-1
+def initialize(x= -1,y = -1,z = -1, id  = -1)
+  super(x, y, z)
+  @x, @y, @z, @id= x, y, z, id 
   @used = false 
-  if block_given?
-    yield self
-  end
+  yield self if block_given?
 end
 
 def setId(id)
@@ -104,8 +95,12 @@ def name
   NAME[@id]
 end 
 
+def used?
+	@used
+end 
+
 def self.colorById(id) 
-  if id <  11
+  if id <  NAME.length/2
     return PieceColor::WHITE
   else
     return PieceColor::BLACK
@@ -126,12 +121,13 @@ def validMove?(boardState, move)
   return validator.validate(boardState, move)
 end
 
+
+#FIXME!
 def movable?(boardstate) 
   return true #!@used
   
   # a piece is not movable when
   #- removing the piece results in disconnecting the string of pieces. 
- 
 end
 
 def color
@@ -141,18 +137,6 @@ end
 def toString
   return self.name[id]
 end
-#SIDE ENUMS
-=begin
-    2
-7     3
-   1   
-6     4
-   5
-   
-  [2][3]
-  [7][1][4]
-    [6][5]
-=end 
 
 def secondMoves(boardState)
  openSlots = Array.new()
@@ -212,38 +196,12 @@ def to_s
   return "<#{NAME[@id]}>"
 end
 
-
-=begin
-def detachAll()
-
+def ==(piece)
+  return piece.x == @x && piece.y == @y && piece.z == @z && piece.id == @id
 end
 
-def detachPiece(piece_id)
-
+def ===(piece)
+  return @object_id == piece.object_id
 end
-
-=end
-
-=begin
-def isConnectedTo(piece_id)
-  @sides.each do |s|
-    if piece_id == s
-      return true 
-    end
-  end
-  return false
-end
-=end
-
-=begin
-def attachPiece(piece_id, side_id)
-  if @sides[side_id].nil? 
-    @sides[side_id]= piece_id
-    return true
-  else
-    return false
-  end
-end
-=end
 
 end

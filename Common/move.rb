@@ -19,7 +19,6 @@ class Move
     raise "piece_id is NILL" if piece_id.nil? 
     @relative_id = -1
     @side = -1 
-    
     yield self if block_given?
   end
   

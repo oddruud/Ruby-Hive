@@ -35,17 +35,4 @@ class LoggerCreator
      logger.level = level
    end
  end
-=begin 
- def enableInfo(value) 
-   
- end 
- 
- def enableDebug(value) 
-   
- end 
- 
- def enableFatal(value) 
-   
- end 
-=end 
 end

@@ -40,8 +40,6 @@ class Server
       @gameHandler.addPlayer NaiveBot.new("testbot1")
       @gameHandler.addPlayer NaiveBot.new("testbot2")
     end
- 
- 
     #Distributed Ruby server for connection with game player client------- 
     #DRb.start_service "druby://localhost:#{port}", @gameHandler  
     #@logger.info "Distrbuted Ruby Server running at #{DRb.uri}"  
@@ -55,7 +53,6 @@ def updateViewers(gameMessage)
     socket.puts gameMessage
   end
 end
-
 
 #hive game viewer clients listen thread
 #TODO handle incoming tcp player bots
