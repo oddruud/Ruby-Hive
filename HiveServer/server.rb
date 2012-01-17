@@ -11,14 +11,14 @@ class Server
   attr_reader :server
   attr_reader :sockets
   attr_reader :running
-  attr_reader :gameHandler
+  attr_reader :game_handler
   attr_reader :logger
   
   def initialize(port, testMode)
     @logger = LoggerCreator.createLoggerForClass(Server) 
     @running = true
     @sockets = Array.new() 
-    @gameHandler= GameHandler.new() do |gh| 
+    @game_handler= GameHandler.new() do |gh| 
         gh.setUpdateCallback() {|message| updateViewers(message)}
         gh.createNewGame()
     end
@@ -35,17 +35,18 @@ class Server
     #-----------------------------------------------------------------  
     #serverThread.join 
     
-    
-    if testMode
-      @gameHandler.addPlayer NaiveBot.new("testbot1")
-      @gameHandler.addPlayer NaiveBot.new("testbot2")
-    end
     #Distributed Ruby server for connection with game player client------- 
-    #DRb.start_service "druby://localhost:#{port}", @gameHandler  
+    #DRb.start_service "druby://localhost:#{port}", @game_handler  
     #@logger.info "Distrbuted Ruby Server running at #{DRb.uri}"  
     #DRb.thread.join   
   end
     
+def startTest()
+    @game_handler.addPlayer NaiveBot.new("testbot1")
+    @game_handler.addPlayer NaiveBot.new("testbot2")
+    @game_handler.start()
+end   
+   
    
 def updateViewers(gameMessage)
   #@logger.info "updating all game viewers with message #{gameMessage}"

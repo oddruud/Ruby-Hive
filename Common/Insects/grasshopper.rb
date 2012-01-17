@@ -1,35 +1,38 @@
 require 'Insects/piece'
 class GrassHopper < Piece
 
-def initialize() 
+def initialize(board_state, id)
+  super(board_state, id)  
   
 end
 
-def availableMoves(boardState)
+def availableMoves
   @logger.debug "#{name} collecting moves"
   moves = Array.new()
-  moves += availablePlaceMoves(boardState) unless @used
+  moves += availablePlaceMoves unless used?
   @logger.info "grashopper place moves: #{moves.length}"
-  moves += GrassHopper.availableBoardMoves(self, boardState) if @used and movable?(boardState)
+  moves += GrassHopper.availableBoardMoves(self) if used? and movable?
   @logger.info "grashopper board moves: #{moves.length}"
  return moves
 end
 
-def self.availableBoardMoves(grassHopper, boardState)
+def self.availableBoardMoves(grasshopper)
   moves = Array.new() 
-  grassHopper.forEachAdjacentPiece(boardState) do |neighbour_piece| 
-    side = grassHopper.getSide(neighbour_piece)
-    slot = GrassHopper.jumpOver(grassHopper, side, boardState)     #add the position
-    moves << Move.new(grassHopper.id, slot)
+  grasshopper.forEachAdjacentPiece do |neighbour_piece| 
+    side = grasshopper.getSide(neighbour_piece)
+    slot = GrassHopper.jumpOver(grasshopper, side)     #add the position
+    moves << Move.new(grasshopper.id, slot)
   end
   return moves
 end
 
-def self.jumpOver(currentSlot, side, boardState)
-  return currentSlot  if currentSlot.value < 0
-  x, y, z = currentSlot.neighbour(side)
-  nextSlot = boardState.getSlotAt(x,y,z)
-  return jumpOver(nextSlot, side, boardState)  
+def self.jumpOver(current_slot, side)
+  return current_slot  if current_slot.value <= Slot::UNCONNECTED
+  next_slot = current_slot.neighbour(side)
+  return jumpOver(next_slot, side)  
+end
+
+def trapped?
 end
 
   

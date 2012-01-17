@@ -1,5 +1,6 @@
 require 'rubygems' # only necessary in Ruby 1.8
 require 'gosu'
+require 'chingu'
 require 'GraphicsView/hexagonpiece'
 require 'gamehandler'
 require 'boardstate'
@@ -11,7 +12,7 @@ require 'GraphicsView/viewconstants'
 # player UI
 # sounds
 
-class GameView < Gosu::Window
+class GameView < Chingu::Window
 
   def initialize(gamehandler)
     super(ViewConstants::WINDOW_WIDTH, ViewConstants::WINDOW_HEIGHT, false)
@@ -51,6 +52,7 @@ def drawGrid
 			color = Gosu::Color.new(255, 0, 0, 255)
 			HexagonPiece.drawHexagon(self,x,y, HexagonPiece::ENCLOSING_RADIUS, color)
 			@font.draw("(#{xi},#{yi})", x-15, y-10, 12, 1.0, 1.0, -1)
+		  @font.draw("(#{value})", x-15, y + 10, 8, 1.0, 1.0, -1) if value <= Slot::UNCONNECTED 
 		end
 	end
 end

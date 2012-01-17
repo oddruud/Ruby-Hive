@@ -24,7 +24,7 @@ class GameHandler
 
   def createNewGame
     @players = Array.new()
-    @interval_time = 1
+    @interval_time = 0.5
     @game_state_description = "Fresh game, waiting for players to connect..." 
     @board_state = BoardState.new("MAINBOARD")
     #sendMessage("GI.#{board_state::BOARD_SIZE}.#{board_state::BOARD_SIZE}.")
@@ -52,8 +52,13 @@ class GameHandler
       player.submitMoveTo = Proc.new{|id, move| moveMade(id, move)}  
       player.welcome("the server welcomes you..wait for start signal..."); 
       #sendMessage("PA.#{player.id}.#{player.name}.")
-      start() if @players.length == 2 
+      @ready_to_start = true if @players.length == 2
+      #TODO send a signal 
     end
+  end
+  
+  def readyToStart?()
+    return @ready_to_start
   end
   
   def removePlayerWithId(id)
@@ -66,10 +71,9 @@ class GameHandler
   	#todo add support to retrieve coordinates from previous turns 
 	return piece
   end 
-
-  private 
   
   def start() 
+    raise "game handler not ready to start" if not readyToStart?
     @turn = 1 
     welcome = "#{@players[0].name} VS  #{@players[1].name}";
     setStateDescription(welcome)
@@ -77,15 +81,19 @@ class GameHandler
     @players.each { |p| p.gameStarts(welcome) }
 
     nextTurn()    
-  end  
-  
+  end
+
+  private 
+
   def nextTurn()
    sendMessage(@board_state.to_message)
-    if board_state.moveCount > 21
-      raise "breakpoint"
-    end
+    #if board_state.moveCount > 21
+    #  raise "breakpoint"
+    #end
     @turn = @turn == 1 ? 0: 1 
+    puts "sleeping..."
     sleep(intervalTime)
+    puts "New move"
     @players[@turn].makeMove(board_state); 
   end 
   

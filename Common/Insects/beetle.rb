@@ -1,24 +1,29 @@
 require 'Insects/piece'
 class Beetle < Piece
 
-def initialize() 
+def initialize(board_state, id)
+  super(board_state, id)  
 end
  
-def availableMoves(boardState)
+def availableMoves
   moves = Array.new()
-  moves += availablePlaceMoves(boardState) unless @used
-  moves += Beetle.availableBoardMoves(self,boardState) if @used and movable?(boardState) 
+  moves += availablePlaceMoves unless used?
+  moves += Beetle.availableBoardMoves(self) if used? and movable?
  return moves
 end 
  
 #TODO fix! what if beetle is ontop? handle beetle stacking
-def self.availableBoardMoves(beetle, boardState)
+def self.availableBoardMoves( beetle )
   moves = Array.new()
-   beetle.forEachNeighbour(:exclude => [HexagonSide::ONTOP_SIDE, HexagonSide::UNDER_SIDE]) do |x,y|
-      numPieces = boardState.getNumPiecesAt(x, y)          
-      moves << Move.fromCords(beetle.id, x,y, numPieces )
+  board_state = beetle.getBoard
+   beetle.forEachNeighbouringSlotOrPiece do |slot|
+      numPieces = board_state.getNumPiecesAt(slot.x, slot.y)          
+      moves << Move.fromCords(beetle.id, slot.x, slot.y, numPieces )
    end  
  return moves
+end
+
+def trapped?
 end
   
 end

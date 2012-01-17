@@ -2,20 +2,21 @@ require 'Insects/piece'
 #require 'MoveValidators/QueenBeeMoveValidator'
 class QueenBee < Piece
 
-def initialize() 
+def initialize(board_state, id)
+  super(board_state, id) 
   #@validator = QueenBeeMoveValidator  
 end
   
-def availableMoves(boardState)
+def availableMoves
   moves = Array.new()
-  moves += availablePlaceMoves(boardState) unless @used
-  moves += QueenBee.availableBoardMoves(self, boardState) if @used and movable?(boardState) 
+  moves += availablePlaceMoves unless used?
+  moves += QueenBee.availableBoardMoves( self ) if used? and movable?
  return moves
 end
 
-def self.availableBoardMoves(queenbee, boardState)
+def self.availableBoardMoves(queenbee)
   moves = Array.new()
-   queenbee.forEachAdjacentSlot(boardState) do |slot|    
+   queenbee.forEachAdjacentSlot do |slot|    
       moves << Move.new(queenbee.id, slot)
    end  
  return moves

@@ -23,7 +23,7 @@ class Move
   end
   
   def self.fromCords(piece_id, x, y, z)
-    return Move.new(piece_id, Slot.new(x,y,z))
+    return Move.new(piece_id, Slot.new(nil, x,y,z))
   end
   
   def self.fromRelativeCords(piece_id, neighbour, side)
@@ -31,14 +31,14 @@ class Move
      @side = side
      puts "relative" + @relative_id.to_s
     x,y,z = neighbour.neighbour(side)
-    return Move.fromCords(piece_id, x,y,z)do |mv| 
+    return Move.fromCords(piece_id, x,y,z) do |mv| 
       mv.relative_id = neighbour.id 
       mv.side = side
     end  
   end 
    
-  def setDestinationCoordinates(x, y, z) 
-      @dest_slot = Slot.new(x,y,z)
+  def setDestinationCoordinates( x, y, z ) 
+      @dest_slot = Slot.new(nil, x, y, z)
   end
   
   def setDestinationSlot(slot) 
@@ -50,7 +50,7 @@ class Move
   end 
   
   def toString
-    return "Absolute Move #{Piece::NAME[@moving_piece_id]} to #{@dest_slot.to_s}"
+    return "#{Piece::NAME[@moving_piece_id]} to #{@dest_slot.to_s}"
   end
 
   def to_s

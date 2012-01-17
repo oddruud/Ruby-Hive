@@ -10,6 +10,9 @@ require 'server'
 require 'GraphicsView/viewer.rb'
 
 server = Server.new(3333, true)
-window = GameView.new(server.gameHandler)
+
+window = GameView.new(server.game_handler)
 view_thread = Thread.new {window.show}
+
+server.startTest() 
 view_thread.join 

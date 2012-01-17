@@ -43,7 +43,7 @@ def initialize(window, id)
  @id  = id
  image_name = @@piece_image_names[id]
  @image = Gosu::Image.new(window, "Common/GraphicsView/Data/images/#{image_name}",true) 
- @x,@y,@z = 0.0,0.0,0.0
+ @x,@y,@z = 0.0, 0.0, 0
  @used = false
  @window = window
  @name = "-"
@@ -53,15 +53,16 @@ end
 def update(x,y, piece)
 	@x = x  
 	@y = y
+	@z = piece.z
+	@z ||= 0
 	@used = piece.used
 	@name = piece.name
 end
 
 def draw 
-	#@image.draw(@x, @y, 1)
-	color = Gosu::Color.new(255, 255, 255, 255)
-	HexagonPiece.drawHexagon(@window, @x, @y, ENCLOSING_RADIUS, color)
-	@font.draw("(#{@name}", @x-40, @y+20, 5, 1.0, 1.0, -1)
+	color = Gosu::Color.new(255, 255- (@z * 100), 255 - (@z * 100), 255)
+	HexagonPiece.drawHexagon(@window, @x, @y, ENCLOSING_RADIUS - (@z * 10), color)
+	@font.draw("(#{@name}", @x-40, @y+20 - (@z * 10), 5, 1.0, 1.0, -1)
 end
 
 def self.drawHexagon window, x, y, radius ,color

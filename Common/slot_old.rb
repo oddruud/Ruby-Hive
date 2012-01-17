@@ -76,18 +76,12 @@ EMPTY_SLOT_WHITE = -2
 EMPTY_SLOT_BLACK = -3
 EMPTY_SLOT_MIXED = -4
     
-def initialize(board_state, x=-1, y=-1, z=-1, state = UNCONNECTED)
+def initialize(x=-1, y=-1, z=-1, board_state, state = UNCONNECTED)
   setBoardPosition(x, y, z)
   @state = state   
-  
-  raise "ivalid board_state param" if board_state.kind_of? Fixnum
   @board_state = board_state
   @logger = LoggerCreator.createLoggerForClassObject(Slot, @state) 
   yield self  if block_given? 
-end
-
-def getBoard
-  return @board_state
 end
 
 def setBoardPosition(x, y, z) 
@@ -102,10 +96,12 @@ def to_s
   "x: #{@x},y: #{@y},z: #{@z},state: #{@state}"
 end
 
-def neighbour(side)
+def neighbour(board_state, side)
   raise "null side" if side.nil?
+
+  
   x,y,z = Slot.neighbourCoordinates(@x, @y, @z, side)
-  return @board_state.getSlotAt(x, y, z)
+  return board_state.getSlotAt(x, y, z)
 end
 
 def neighbourCoords(side)
@@ -115,6 +111,7 @@ end
 
 def neighbourCoordinatesArray(side)
   raise "null side" if side.nil?
+  
   raise "y is false" if @y == false
   raise "z is false" if @z == false
   raise "x is false" if @x == false
@@ -125,7 +122,11 @@ end
 
 def self.neighbourCoordinates(x, y, z, side)  
  xdif, ydif, zdif = 0,0,0
-
+ 
+ raise "y is false" if y == false
+ raise "z is false" if z == false
+ raise "x is false" if x == false
+ 
  case side 
       when HexagonSide::ONTOP_SIDE then 
         xdif, ydif, zdif = 0, 0, 1 
@@ -155,84 +156,86 @@ def self.neighbourCoordinates(x, y, z, side)
   end
 end
 
-def forEachNeighbourCoordinate(params = {})  
+def forEachNeighbour(params = {})  
     exlusions = params[:exclude] || {}
     (0..HexagonSide::SIDES-1).each do |i|
       unless exlusions.include?(i)
-        x,y,z = neighbourCoords(i) 
+        x, y, z = neighbourCoords(i) 
+        if z == 0 || z == 1   #the z index of a piece can only be 0 or 1   
          if params[:side]   
-            yield x,y,z, i               
+            yield x, y, z, i               
           else
-            yield x,y,z
+            yield x, y, z
           end
+        end
       end
     end   
 end
 
-def forEachNeighbouringPiece(params = {})
-  forEachNeighbourCoordinate(params) do |x ,y ,z|
-    if @board_state.hasPieceAt(x, y, z)
-      yield @board_state.getPieceAt( x, y, z ) 
+def forEachNeighbouringPiece(boardState, params = {})
+  forEachNeighbour(params) do |x, y, z|
+    if boardState.hasPieceAt(x, y, z)
+      yield boardState.getPieceAt( x, y, z ) 
     end 
   end 
 end
 
-def forEachNeighbouringSlot( params = {})
+def forEachNeighbouringSlot(boardState, params = {})
   params[:side] = true
-  forEachNeighbourCoordinate(params) do |x,y,z, side| 
-    if @board_state.hasConnectedSlotAt(x, y, z) and not @board_state.bottleNeckToSide(self, side)
-      yield @board_state.getSlotAt(x,y,z)       
+  forEachNeighbour(params) do |x,y,z, side| 
+    if boardState.hasConnectedSlotAt(x, y, z) and not boardState.bottleNeckToSide(self, side)
+      yield Slot.new(x, y, z){|slot| slot.state = boardState.at(x, y, z) }   
     end
   end 
 end
 
-def forEachNeighbouringSlotOrPiece( params = {})
-  forEachNeighbourCoordinate(params) do |x,y,z,side|
-    if not @board_state.hasPieceAt(x, y, z) 
-      if not @board_state.bottleNeckToSide(self, side)
-        yield @board_state.getSlotAt(x,y,z)
+def forEachNeighbouringSlotOrPiece(boardState, params = {})
+  forEachNeighbour(params) do |x,y,z,side|
+    if not boardState.hasPieceAt(x, y, z) 
+      if not boardState.bottleNeckToSide(self, side)
+        yield Slot.new(x,y,z){|slot| slot.state = boardState.at(x ,y ,z) }   
       end
     else
-      yield @board_state.getPieceAt(x, y, z) 
+      yield boardState.getPieceAt(x, y, z) 
     end 
   end 
 end
 
-def forEachAdjacentPiece()
+def forEachAdjacentPiece(boardState)
   params = {:exclude => [HexagonSide::ONTOP_SIDE, HexagonSide::UNDER_SIDE], :side => true}
-  forEachNeighbourCoordinate(params) do |x, y, z|
-     if @board_state.hasPieceAt(x, y, z) 
-       yield @board_state.getPieceAt( x, y, z )
+  forEachNeighbour(params) do |x, y, z|
+     if boardState.hasPieceAt(x, y, z) 
+       yield boardState.getPieceAt( x, y, z )
      end 
    end
 end
 
-def forEachAdjacentSlot( params = {} )
+def forEachAdjacentSlot(boardState, params = {} )
   params = {:exclude => [HexagonSide::ONTOP_SIDE, HexagonSide::UNDER_SIDE], :side => true}
-  forEachNeighbourCoordinate(params) do |x,y,z, side| 
-      if @board_state.hasConnectedSlotAt(x, y, z) 
-        yield @board_state.getSlotAt(x, y, z)
+  forEachNeighbour(params) do |x,y,z, side| 
+      if boardState.hasConnectedSlotAt(x, y, z) 
+        yield Slot.new(x, y, z){|slot| slot.state = boardState.at(x, y, z) }   
       end     
   end
 end
 
-def forEachAdjacentSlotOrPiece()
+def forEachAdjacentSlotOrPiece(boardState)
   params = {:exclude => [HexagonSide::ONTOP_SIDE, HexagonSide::UNDER_SIDE], :side => true}
-  forEachNeighbourCoordinate(params) do |x,y,z|
-    if not @board_state.hasPieceAt(x, y, z) 
-      yield @board_state.getSlotAt(x,y,z)  
+  forEachNeighbour(params) do |x,y,z|
+    if not boardState.hasPieceAt(x, y, z) 
+      yield Slot.new(x,y,z){|slot| slot.state = boardState.at(x ,y ,z) }   
     else
-       if @board_state.hasConnectedSlotAt(x, y, z)
-         yield @board_state.getPieceAt(x, y, z) 
+       if boardState.hasConnectedSlotAt(x, y, z)
+         yield boardState.getPieceAt(x, y, z) 
        end
     end 
   end
 end
 
-def neighbouringPieces( amount = 7)
+def neighbouringPieces(boardState, amount = 7)
     pieces = Array.new()
-    forEachNeighbourCoordinate do |x,y,z|
-      piece =  @board_state.getPieceAt(x,y,z) 
+    forEachNeighbour do |x,y,z|
+      piece =  boardState.getPieceAt(x,y,z) 
       if piece 
         pieces << piece 
         return pieces  if pieces.length == amount
@@ -241,10 +244,10 @@ def neighbouringPieces( amount = 7)
     return pieces
 end
 
-def connections()
+def connections(boardState)
   count=0
-  forEachNeighbourCoordinate do |x,y,z|
-    count+=1 if @board_state.getPieceAt(x,y,z) 
+  forEachNeighbour do |x,y,z|
+    count+=1 if boardState.getPieceAt(x,y,z) 
   end
   return count 
 end

@@ -1,5 +1,12 @@
 require 'logger'
 
+class Logger
+  def setName(classObject, objectName)
+    progname =  LoggerCreator.createClassObjectName(classObject, objectName)
+  end
+  
+end
+
 class LoggerCreator
  
  @@level = Logger::INFO
@@ -12,11 +19,15 @@ class LoggerCreator
   logger.level = @@level
   logger.formatter = proc { |severity, datetime, progname, msg|
     "[#{datetime.strftime("%H:%M:%S")}] #{severity}-#{progname}: #{msg}\n"
-  }     
-  
+  }       
   @@loggers << logger
   return logger
  end
+ 
+
+ def self.createClassObjectName(classObject, objectName)
+  return "#{classObject.name}[#{objectName}]"
+ end 
  
  def self.createLoggerForClass(classObject, output = nil) 
     raise "object must be a class" unless classObject.kind_of? Class 
@@ -25,7 +36,7 @@ class LoggerCreator
  
  def self.createLoggerForClassObject(classObject, objectName=nil, output = nil) 
     raise "object must be a class" unless classObject.kind_of? Class 
-    return self.createLoggerWithName("#{classObject.name}[#{objectName}]")
+    return self.createLoggerWithName(createClassObjectName(classObject, objectName))
  end
 
  def self.setLevel(level) 
