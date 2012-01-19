@@ -12,18 +12,18 @@ describe Ant do
    before :each do 
      LoggerCreator.setLevel(Logger::INFO)
       @boardState = BoardState.new("test_board"){|boardState| boardState.reset}
-      @whiteQueen = @boardState.getPiece(Piece::WHITE_QUEEN_BEE) 
-      @blackSpider = @boardState.getPiece(Piece::BLACK_SPIDER1) 
-      @whiteSpider = @boardState.getPiece(Piece::WHITE_SPIDER1) 
-      @blackAnt = @boardState.getPiece(Piece::BLACK_ANT1) 
+      @white_queen = @boardState.getPiece(Piece::WHITE_QUEEN_BEE) 
+      @black_spider = @boardState.getPiece(Piece::BLACK_SPIDER1) 
+      @white_spider = @boardState.getPiece(Piece::WHITE_SPIDER1) 
+      @black_ant = @boardState.getPiece(Piece::BLACK_ANT1) 
      
-      @boardState.makeMove(Move.fromCords(Piece::WHITE_QUEEN_BEE,5,5,0)) 
-      @boardState.makeMove(Move.fromRelativeCords(Piece::BLACK_SPIDER1, @whiteQueen, HexagonSide::BOTTOM_SIDE))
-      @boardState.makeMove(Move.fromRelativeCords(Piece::WHITE_SPIDER1, @whiteQueen , HexagonSide::TOP_SIDE))
-      @boardState.makeMove(Move.fromRelativeCords(Piece::BLACK_ANT1, @blackSpider, HexagonSide::BOTTOM_SIDE))
+      @boardState.makeMove(Move.fromCords(@white_queen ,5,5,0)) 
+      @boardState.makeMove(Move.fromRelativeCords( @black_spider, @whiteQueen, HexagonSide::BOTTOM_SIDE))
+      @boardState.makeMove(Move.fromRelativeCords( @white_spider, @whiteQueen , HexagonSide::TOP_SIDE))
+      @boardState.makeMove(Move.fromRelativeCords( @black_ant, @blackSpider, HexagonSide::BOTTOM_SIDE))
       
-      @possibleAntMoves = [ Move.fromRelativeCords(Piece::BLACK_ANT1, @whiteQueen, HexagonSide::TOP_LEFT_SIDE), 
-                            Move.fromRelativeCords(Piece::BLACK_ANT1, @whiteQueen, HexagonSide::TOP_RIGHT_SIDE)
+      @possibleAntMoves = [ Move.fromRelativeCords(@black_ant , @whiteQueen, HexagonSide::TOP_LEFT_SIDE), 
+                            Move.fromRelativeCords(@black_ant , @whiteQueen, HexagonSide::TOP_RIGHT_SIDE)
                           ].to_set 
    end 
 

@@ -12,15 +12,16 @@ def availableMoves
  return moves
 end
  
- 
 #WHITE_MOSQUITO moves....
 #[21:45:05] FATAL-GameHandler: move failed: stack level too deep
 #/Users/ruudopdenkelder/Projects/Hive-Boardgame-Framework/Common/slot.rb:87:in `setBoardPosition' 
      
 def self.availableBoardMoves(mosquito)  
   moves = Array.new()
-  mosquito.forEachAdjacentPiece do |piece|
-    moves += piece.class.availableBoardMoves( mosquito ) unless piece.kind_of? Mosquito 
+  mosquito.touch do
+    mosquito.forEachAdjacentPiece do |piece|
+      moves += piece.class.availableBoardMoves( mosquito ) unless piece.kind_of? Mosquito 
+    end
   end
  return moves
 end

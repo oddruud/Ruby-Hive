@@ -1,7 +1,7 @@
 require "socket"  
 require "drb"
 require "gamehandler"  
-require "move"
+require "Move/move"
 require "LoggerCreator"
 require "HiveBot/naivebot"
 

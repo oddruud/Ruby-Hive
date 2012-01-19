@@ -1,8 +1,8 @@
 require "boardstate"
 require "player"
 require 'LoggerCreator'
-require 'move'
-require 'moveexception'
+require 'Move/move'
+require 'Move/moveexception'
 
 
 class GameHandler
@@ -121,19 +121,18 @@ class GameHandler
   def moveMade(playerID, move)
       begin  
         raise "move is null" if move.nil?
-       @logger.info "#{playerID} tries move: #{move.toString}" unless move.nil?
+        @logger.info "#{playerID} tries move: #{move.toString}" unless move.nil?
        
-        sendMessage(move.to_message)
+        #sendMessage(move.to_message)
         result = board_state.makeMove(move)
-        @logger.debug board_state.to_s
         
         case result 
-        when TurnState::GAME_OVER then 
-          gameOver()
-        when TurnState::VALID then 
-          nextTurn()  
-        when TurnState::INVALID then
-          stop("invalid move: #{move.to_s}")
+          when TurnState::GAME_OVER then 
+            gameOver()
+          when TurnState::VALID then 
+            nextTurn()  
+          when TurnState::INVALID then
+            stop("invalid move: #{move.to_s}")
         end
       rescue Exception  => detail
         @logger.fatal "move failed: #{detail.message}"

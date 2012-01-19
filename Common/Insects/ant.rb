@@ -8,30 +8,32 @@ end
 def availableMoves
   moves = Array.new()
   moves += availablePlaceMoves unless used? 
-  @logger.info "ant place moves: #{moves.length}"
   if used? and movable?
-  	boardmoves = Ant.availableBoardMoves( self )
-  	moves += boardmoves
-  	@logger.info "#{self} board moves: #{boardmoves.length}"
+  	#boardmoves =  Ant.availableBoardMoves( self ) 
+  	#moves += boardmoves
+  	#@logger.info "#{self} board moves: #{boardmoves.length}"
   end
  return moves
 end
      
 def self.availableBoardMoves( ant ) 
-    Ant.slide(ant, ant, ant)
+  moves = Array.new()
+  ant.touch do
+    marked_slots = Set.new([ant])
+    Ant.slide(ant, ant, marked_slots, moves)
+  end
+    return moves
 end
    
  #TODO
-def self.slide( ant, current_slot, end_slot, prev_slot = nil ) #TODO only move one way, check prevslot
-  moves = Array.new()
+def self.slide( ant, current_slot, marked_slots, moves) #TODO only move one way, check prevslot
    current_slot.forEachAdjacentSlot do |slot|
-   unless end_slot == slot || prev_slot == slot #|| moves.each{|move| return move.dest_slot == slot}
-      moves << Move.new(ant.id, slot)
-      moves += slide(ant, slot, current_slot)
+   unless marked_slots.include?(slot)
+      moves << Move.new(ant , slot)
+      slide(ant, slot, marked_slots, moves)
     break
    end
   end
-  return moves
 end  
    
 end

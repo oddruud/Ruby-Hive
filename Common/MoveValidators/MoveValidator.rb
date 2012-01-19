@@ -1,4 +1,4 @@
-require 'move'
+require 'Move/move'
 #require 'boardstate' TODO
 require 'Insects/piece'
 

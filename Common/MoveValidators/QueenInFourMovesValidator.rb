@@ -3,9 +3,9 @@ require 'Insects/piece'
 
 class QueenInFourMovesValidator < MoveValidator
 
-  def self.validate(boardState, move)
-    queen =  getQueenFromPieceId(boardState.pieces,move.moving_piece_id)
-    return true unless fourthPieceToBePlaced?(boardState.moves) && queen.used == false
+  def self.validate(board_state, move)
+    queen =  getQueenFromPieceId(board_state.pieces,move.moving_piece_id)
+    return true unless fourthPieceToBePlaced?(board_state.moves) && queen.used == false
     return false 
   end
   

@@ -11,8 +11,10 @@ describe BoardState do
    before :each do 
      @board_state= BoardState.new("test_board")
      #play some moves: 
-     @board_state.makeMove(Move.fromCords(Piece::WHITE_QUEEN_BEE,5,5,0)) 
-     @board_state.makeMove(Move.fromCords(Piece::BLACK_QUEEN_BEE,6,5,0))  
+     @white_queen = @boardState.getPieceById(Piece::WHITE_QUEEN_BEE) 
+     @black_queen = @boardState.getPieceById(Piece::BLACK_QUEEN_BEE) 
+     @board_state.makeMove(Move.fromCords(@white_queen,5,5,0)) 
+     @board_state.makeMove(Move.fromCords(@black_queen,6,5,0))  
    end 
    
    it 'should provide a slot when right x,y,z provided' do 
@@ -30,9 +32,9 @@ describe BoardState do
   end
   
   it 'should only contain unique IDs after moving pieces, thus clean moving' do 
-     @board_state.makeMove(Move.fromCords(Piece::WHITE_QUEEN_BEE,1,5,0)) 
-     @board_state.makeMove(Move.fromCords(Piece::BLACK_QUEEN_BEE,2,5,0))
-     @board_state.makeMove(Move.fromCords(Piece::WHITE_QUEEN_BEE,7,5,0))
+     @board_state.makeMove(Move.fromCords(@white_queen ,1,5,0)) 
+     @board_state.makeMove(Move.fromCords(@black_queen,2,5,0))
+     @board_state.makeMove(Move.fromCords(@white_queen ,7,5,0))
     
      id_bag = Set.new()  
      
@@ -43,15 +45,18 @@ describe BoardState do
   end
   
   it 'should positively identify bottlenecks' do 
-   @board_state.makeMove(Move.fromCords(Piece::WHITE_ANT1,6,1,0)) 
-   @board_state.makeMove(Move.fromCords(Piece::BLACK_ANT2,6,3,0))
+    black_ant = @boardState.getPieceById(Piece::BLACK_ANT2) 
+    white_ant = @boardState.getPieceById(Piece::WHITE_ANT1) 
+     
+   @board_state.makeMove(Move.fromCords(white_ant,6,1,0)) 
+   @board_state.makeMove(Move.fromCords(black_ant,6,3,0))
        
    slot1 =  @board_state.getSlotAt(6,2,0)
    slot2 = @board_state.getSlotAt(7,2,0)
    @board_state.bottleNeckBetweenSlots(slot1, slot2).should == true
    
-   @board_state.makeMove(Move.fromCords(Piece::WHITE_ANT1,2,6,0)) 
-   @board_state.makeMove(Move.fromCords(Piece::BLACK_ANT2,3,7,0))
+   @board_state.makeMove(Move.fromCords(white_ant,2,6,0)) 
+   @board_state.makeMove(Move.fromCords(black_ant,3,7,0))
     
    slot1 =  @board_state.getSlotAt(2,7,0)
    slot2 = @board_state.getSlotAt(3,6,0)
@@ -71,7 +76,7 @@ describe BoardState do
   #TEST FOR: removePieceFromBoard(piece)
   it 'should heal the state of surrounding slots after removing a piece' do
     ant1 = @board_state.getPieceById(Piece::WHITE_ANT1)
-    @board_state.makeMove(Move.fromCords(Piece::WHITE_ANT1,5,6,0)) 
+    @board_state.makeMove(Move.fromCords(ant1,5,6,0)) 
     
     #UNCONNECTED = -1
     #EMPTY_SLOT_WHITE = -2

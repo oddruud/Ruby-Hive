@@ -16,9 +16,11 @@ end
 
 def self.availableBoardMoves(queenbee)
   moves = Array.new()
-   queenbee.forEachAdjacentSlot do |slot|    
-      moves << Move.new(queenbee.id, slot)
-   end  
+  queenbee.touch do
+    queenbee.forEachAdjacentSlot do |slot|    
+      moves << Move.new(queenbee , slot)
+    end  
+ end
  return moves
 end
 

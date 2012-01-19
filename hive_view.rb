@@ -2,6 +2,7 @@
 
 $LOAD_PATH.unshift( File.join( File.dirname(__FILE__), 'Common' ) )
 $LOAD_PATH.unshift( File.join( File.dirname(__FILE__), 'HiveServer' ) ) 
+$LOAD_PATH.unshift( File.join( File.dirname(__FILE__), 'HiveBot' ) ) 
 
 require 'rubygems' # only necessary in Ruby 1.8
 require 'gosu'

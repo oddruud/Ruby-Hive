@@ -2,7 +2,7 @@ require 'MoveValidators/MoveValidator'
 
 class PlacedToSameColorValidator < MoveValidator
 
-def self.validate(boardState, move)
+def self.validate(board_state, move)
   return true
   
   #TODO

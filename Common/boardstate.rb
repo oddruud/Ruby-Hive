@@ -1,5 +1,5 @@
 require "drb"
-require 'move' 
+require 'Move/move' 
 require 'Insects/queenbee'  
 require 'Insects/beetle'  
 require 'Insects/ant'  
@@ -82,6 +82,12 @@ puts "reset"
   @logger.info "#{BOARD_SIZE} * #{BOARD_SIZE} * #{BOARD_HEIGHT} board grid created:"
   #puts to_s                        
 end
+  
+  #Works under the presumption that White always begins!!
+ def get_turns(player_color)
+   return (@moves.length / 2).floor + ( @moves.length & 1 ) if player_color == PieceColor::WHITE 
+   return (@moves.length / 2).floor if player_color == PieceColor::BLACK 
+ end   
   
  def setPieces(pieces) 
     @pieces = pieces
@@ -170,18 +176,29 @@ end
     raise "#{id} does not match with any piece in #{self}" if id < 0 or id > @pieces.length
     return @pieces[id]
   end
+  
+  def get_piece_with_color(color, piece_type)
+    id = piece_type
+    id += pieces.length / 2 if color == PieceColor::BLACK 
+    return getPieceById(id)
+  end
 
-  def pickUpPiece(piece)
-    raise "you cannot pick up #{piece} already other piece in hand: #{@currentPiece}" unless @currentPiece.nil?
+  def pickupPiece(piece)
+    raise "you cannot pick up #{piece} already other piece in hand: #{@currentPiece}" unless @currentPiece.nil? 
     @currentPiece = piece
-    removePieceFromBoard(piece)
+    
+    removePieceFromBoard(piece) unless @currentPiece == piece
+    piece.pickup_count += 1
   end
   
   #FIXMME!
   def dropPiece(piece)
     raise "the piece #{piece} can not be dropped sinced it hast been picked up" unless piece == @currentPiece
-    placePieceBack(piece)
-    @currentPiece = nil 
+    if piece.pickup_count == 0
+      placePieceBack(piece) 
+      @currentPiece = nil 
+    end
+    piece.pickup_count -= 1
   end
 
   def colorOfWinner
@@ -196,7 +213,7 @@ end
      @moves.length
   end
   
-  def startSlot
+  def start_slot
     return Slot.new(self, START_POS_X, START_POS_Y, 0)
   end
   
@@ -233,12 +250,13 @@ end
     @@validators.each do |validator|                 #common board validation-rules 
       if not validator.validate(self, move) 
         @logger.debug  "validator #{validator.name} FAILED"
+        raise MoveException, "#{move} failed the #{validator}"
         return false 
       else
         @logger.debug  "validator #{validator.name} SUCCESS"
       end
      end  
-     return piece.validMove?( move )    #piece specific validation    
+     return true #piece.validMove?( move )    #piece specific validation    
   end
 
   def makeMove(move)

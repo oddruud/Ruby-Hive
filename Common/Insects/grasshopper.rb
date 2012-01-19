@@ -18,10 +18,12 @@ end
 
 def self.availableBoardMoves(grasshopper)
   moves = Array.new() 
-  grasshopper.forEachAdjacentPiece do |neighbour_piece| 
-    side = grasshopper.getSide(neighbour_piece)
-    slot = GrassHopper.jumpOver(grasshopper, side)     #add the position
-    moves << Move.new(grasshopper.id, slot)
+  grasshopper.touch do
+    grasshopper.forEachAdjacentPiece do |neighbour_piece| 
+      side = grasshopper.getSide(neighbour_piece)
+      slot = GrassHopper.jumpOver(grasshopper, side)     #add the position
+      moves << Move.new(grasshopper , slot)
+    end
   end
   return moves
 end

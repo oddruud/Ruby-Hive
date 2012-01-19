@@ -1,5 +1,5 @@
 require 'boardstate'
-require 'move'
+require 'Move/move'
 require 'LoggerCreator'
 
 class Player
@@ -11,10 +11,12 @@ class Player
   attr_reader :color
   attr_reader :logger
   attr_accessor :submitMoveTo
+  attr_accessor :submitted_moves
    
   def initialize(name)
    @name = name
    @logger = LoggerCreator.createLoggerForClass(Player)
+   @submitted_moves = Array.new()
   end
 
   def setID(id)
@@ -34,7 +36,7 @@ class Player
     @logger.info "#{message}";  
   end    
    
-  def makeMove(boardState)
+  def makeMove(board_state)
     @logger.info "player's makemove called"
     submitMove(Move.new(0,0,0)) 
   end  
@@ -43,17 +45,32 @@ class Player
       submitMoveTo.call(@id, move)
   end  
   
-  def myPieces(boardState)
-     return boardState.getPiecesByColor(@color)
+  def pieces(board_state)
+     return board_state.getPiecesByColor(@color)
   end
 
-  def opponentPieces(boardState)
+  
+  def turns 
+    board_state.get_turns(color)
+  end 
+  
+  def color
+    return @color 
+  end
+
+  def opponentPieces(board_state)
     pieces = []  
     PieceColor::COLORS.each do |color|
       unless color == @color 
-        pieces = pieces + boardState.getPiecesByColor(color)
+        pieces = pieces + board_state.getPiecesByColor(color)
       end
     end
     return pieces
   end
+  
+  def logMove(move)
+    @submitted_moves << move
+  end
+
+  
 end

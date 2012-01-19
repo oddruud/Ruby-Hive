@@ -14,10 +14,14 @@ end
 
 def self.availableBoardMoves(ladybug)
   moves = Array.new()
+  #ladybug.touch do 
+  #  moves
+  #end
   return moves
 end
 
 def trapped?
+  return false
 end
   
 end

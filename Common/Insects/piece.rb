@@ -79,18 +79,24 @@ attr_reader :used
 attr_reader :logger
 attr_reader :id
 
+attr_accessor :pickup_count
+
 def initialize(board_state, id)
   super(board_state)
-  @x, @y, @z= -1, -1, -1
+  setId(id)
+  @x, @y, @z = -1, -1, -1
   @used = false 
-  @id = id
-  @logger = LoggerCreator.createLoggerForClassObject(Piece, NAME[@id]) 
+  @pickup_count = 0 
   yield self if block_given?
 end
 
 def setId(id)
   @id = id
-  @logger.setName(Piece, NAME[@id]) 
+  if @logger.nil?
+     @logger = LoggerCreator.createLoggerForClassObject(Piece, NAME[@id])
+  else
+     @logger.setName( Piece , NAME[@id] ) 
+  end
 end
 
 def self.nameById(id)
@@ -120,7 +126,7 @@ def copy
 end
 
 def pickup
-  @board_state.pickUpPiece(self)
+  @board_state.pickupPiece(self)
 end
 
 def drop
@@ -128,9 +134,9 @@ def drop
 end
 
 def touch
-  pickup()
+  pickup
   yield
-  drop()
+  drop
 end 
 
 
@@ -153,7 +159,6 @@ end
 def secondMoves
  openSlots = Array.new()
  if @board_state.moveCount == 1 #if this is the second move to be made, you can connect to the opposing color 
-  
     opposingSlotType =  Piece.colorToSlotType(PieceColor.opposingColor(color))
     openSlots = openSlots +  @board_state.getSlotsWithTypeCode(opposingSlotType) 
      @logger.debug "collecting second moves...#{openSlots.length} slots"
@@ -169,7 +174,7 @@ def availablePlaceMoves
  moves = Array.new()
  openSlots = Array.new()
  #@logger.info "collecting moves..."
- openSlots << @board_state.startSlot if not @board_state.movesMade? #FIRST MOVE
+ openSlots << @board_state.start_slot if not @board_state.movesMade? #FIRST MOVE
  openSlots += secondMoves                           #2nd MOVE
 
  unless @used                                                   #Nth MOVE
@@ -178,7 +183,6 @@ def availablePlaceMoves
  end
  
  #@logger.info  "NUM open slots: #{openSlots.length}"
- 
  openSlots.delete_if{|slot| slot.z == 1} #only allow slots on the lower level  
  openSlots.each do |slot|
   move = Move.new(id, slot)
@@ -198,7 +202,7 @@ end
 def locked?
   return true if trapped?
   pickup()
-  result = @board_state.valid?
+    result = @board_state.valid?
   drop()
   return result
 end
