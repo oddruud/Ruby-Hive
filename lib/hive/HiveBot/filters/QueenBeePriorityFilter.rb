@@ -10,7 +10,7 @@ class Hive::QueenBeePriorityFilter < Hive::Filter
     queen = board_state.get_piece_with_color(player.color, Hive::Piece::QUEEN_BEE)
     if player.turns(board_state) == 3 and not queen.used?
       LOGGER.debug "force all queen moves"
-      moves.delete_if {|m| !m.piece.kind_of? QueenBee}
+      moves.delete_if {|m| !m.piece.kind_of? Hive::QueenBee}
     end 
         
   end

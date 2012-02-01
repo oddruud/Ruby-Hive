@@ -64,7 +64,7 @@ class Hive::GameHandler
   end
   
   def getPiece(id, turn)  
-  	piece = @board_state.getPieceById id
+  	piece = @board_state.get_piece_by_id id
   	x, y, z = piece.boardPosition
 	return piece
   end 
@@ -111,12 +111,11 @@ class Hive::GameHandler
     return nil 
   end
   
-  
   def moveMade(player, move)
       begin  
         raise "move is null" if move.nil?
-        @logger.info "#{player} tries move: #{move.toString}" unless move.nil?
-      
+        @logger.info "#{player} tries move: #{move}" unless move.nil?
+      	raise "#{player} tried to move piece #{move.piece} from opposing color" unless player.color == move.color 
         result = @board_state.make_move(player, move)
         
         case result 
@@ -125,7 +124,7 @@ class Hive::GameHandler
           when Hive::TurnState::VALID then 
             nextTurn()  
           when Hive::TurnState::INVALID then
-            stop("invalid move: #{move.to_s}")
+            stop("invalid move: #{move}")
         end
       rescue Exception  => detail
         @logger.fatal "move failed: #{detail.message}"

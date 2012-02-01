@@ -32,7 +32,7 @@ class Hive::Move
   end
   
   def self.fromCords(piece, x, y, z)
-    return Hive::Move.new(piece, Slot.new(nil, x,y,z))
+    return Hive::Move.new(piece, Hive::Slot.new(nil, x,y,z))
   end
   
   def self.fromRelativeCords(piece, neighbour, side)
@@ -62,34 +62,14 @@ class Hive::Move
     return @dest_slot.boardPosition
   end 
   
-  def toString
-    return "#{Hive::Piece::NAME[moving_piece_id]} (id: #{moving_piece_id}) to #{@dest_slot.to_s}"
+  def to_string()
+    return "#{piece.name} (id: #{piece.id}) to #{@dest_slot.to_s}"
   end
 
   def to_s
-    toString
+    to_string
   end
- 
-  def toStringVerbose(boardState)
-    
-    if @relative_id < 0 
-      puts "toStringVerbose id #{moving_piece_id}"
-      piece = boardState.pieces[moving_piece_id]
-      neighbour = piece.neighbouringPieces(boardState, 1).first
-      
-      if  neighbour.nil? 
-        return "Relative Move #{Piece::NAME[moving_piece_id]} NOT connected to other pieces"
-      end
-  
-        @relative_id = neighbour.id 
-        puts "relative id: #{@relative_id}"
-        side_id = neighbour.getSide(piece)
-        sideName= HexagonSide::sideName(side_id) unless side_id.nil?
-    else
-      sideName= HexagonSide::sideName(side_id) + "(predefined)"
-    end
-    return "Relative Move #{Piece::NAME[moving_piece_id]} connected to #{Piece::NAME[@relative_id]} at side #{sideName}"
-  end
+
   
   def to_message 
     return "MV.#{Piece::NAME[moving_piece_id]}.#{@dest_slot.x}.#{@dest_slot.y}.#{@dest_slot.y}"

@@ -35,7 +35,7 @@ ANT3 = 10
 MOSQUITO = 11  
 LADYBUG = 12  
   
-#PIECE CONSTANTS: CORRESPOND TO INDICES IN BOARDSTATE ARRAY
+#PIECE CONSTANTS: CORRESPOND TO VALUES IN 3D BOARDSTATE ARRAY
 WHITE_QUEEN_BEE = 0
 WHITE_BEETLE1 = 1
 WHITE_BEETLE2 = 2
@@ -63,9 +63,12 @@ BLACK_ANT2 = 22
 BLACK_ANT3 = 23
 BLACK_MOSQUITO = 24
 BLACK_LADYBUG = 25
+
+WHITE_PIECE_RANGE = WHITE_QUEEN_BEE..WHITE_LADYBUG
+BLACK_PIECE_RANGE = BLACK_QUEEN_BEE..BLACK_LADYBUG
 PIECE_RANGE = WHITE_QUEEN_BEE..BLACK_LADYBUG
 
-NAME= Array.new() 
+NAME = Array.new() 
 NAME << "WHITE_QUEEN_BEE"
 NAME << "WHITE_BEETLE1"
 NAME << "WHITE_BEETLE2"
@@ -99,6 +102,7 @@ attr_accessor :validator
 attr_accessor :used
 attr_reader :logger
 attr_reader :insect_id
+attr_reader :free_to_move
 
 attr_accessor :pickup_count
 
@@ -108,6 +112,7 @@ def initialize(board_state, id)
   @x, @y, @z = -1, -1, -1
   @used = false 
   @pickup_count = 0 
+  @free_to_move = true
   yield self if block_given?
 end
 
@@ -117,6 +122,11 @@ end
 
 def setBoardPosition(x, y, z) 
   @x,@y,@z = x, y, z
+  update_movability
+end
+
+def self.num_play_pieces
+	return Hive::Piece::WHITE_PIECE_RANGE.max + 1
 end
 
 def self.piece_id_range
@@ -199,7 +209,7 @@ end
 def secondMoves
  openSlots = Array.new()
  if @board_state.moveCount == 1 #if this is the second move to be made, you can connect to the opposing color 
-    opposingSlotType =  Hive::Piece.colorToSlotType(PieceColor.opposingColor(color))
+    opposingSlotType =  Hive::Piece.colorToSlotType(Hive::PieceColor.opposingColor(color))
     openSlots = openSlots +  @board_state.getSlotsWithTypeCode(opposingSlotType) 
      @logger.debug "collecting second moves...#{openSlots.length} slots"
     openSlots.each do |slot|
@@ -239,22 +249,23 @@ def self.colorToSlotType(color)
     return Hive::Slot.slotState(whiteN, blackN) 
 end 
 
-#TODO lock check
-def locked?
-  return true if trapped?
-  pickup
-    result = @board_state.valid?
-  drop
-  return result
-end
 
-#TODO
-def trapped?
-  return false
-end
-
+#movable: is the piece movable?
 def movable?
-  return locked? ? false : true 
+	return @free_to_move 
+end
+
+#direct opposite of movable
+def locked?	
+	return @free_to_move ? false : true 
+end
+
+
+def update_movability
+	@free_to_move = trapped? #check whether the piece is directly trapped by neighbouring pieces 
+	if @free_to_move
+		touch{@free_to_move = @board_state.valid?} #check whether removing the piece would result in an inconsistent state
+	end
 end
 
 def value 
@@ -272,6 +283,13 @@ end
 
 def ===(piece)
   return @object_id == piece.object_id
+end
+
+private
+
+#TODO: check whether piece is trapped by surrounding pieces 
+def trapped?
+  return false
 end
 
 end

@@ -42,11 +42,9 @@ def initialize(name = nil)
   @logger = LoggerCreator.createLoggerForClassObject(Hive::BoardState,name,nil)
   @logger.info "initializing new boardstate: #{name}"
   reset
-  #yield self if block_given? 
 end
 
 def reset
-puts "reset"
   @logger.info  "Creating pieces for Board State"
   @pieces =  Array.new()                                       #THE PIECES
   #WHITE PIECES
@@ -86,7 +84,6 @@ puts "reset"
   #puts to_s                        
 end
   
-
   #Works under the presumption that White always begins!!
  def get_turns(player_color)
    return (@moves.length / 2).floor + ( @moves.length & 1 ) if player_color == Hive::PieceColor::WHITE 
@@ -112,7 +109,7 @@ def nextState(move)
 end
 
 def clone
-  c = BoardState.new()
+  c = Hive::BoardState.new()
   c.setPieces( piecesCopy() ) 
   c.setBoard( boardCopy() )
   c.setMoves( movesCopy() )    
@@ -149,14 +146,6 @@ end
     return at(x, y, z) > Hive::Slot::UNCONNECTED && !outOfBounds(x,y,z) 
   end
   
-  # def coordinateDegree(x,y,z)
-  #      count = 0
-  #      Slot.new(x,y,z).forEachNeighbour do |x,y,z|
-  #        count += 1 if not getPieceAt(x,y,z).nil?
-  #      end
-  #      return count
-  #   end
-  
   def hasConnectedSlotAt(x,y,z)
     return !outOfBounds(x,y,z) && at(x,y,z) < Hive::Slot::UNCONNECTED
   end
@@ -173,7 +162,7 @@ end
     return "(x:#{x},y:#{y},z:#{z})"
   end 
     
-  def getPieceById(id)
+  def get_piece_by_id(id)
     raise "#{id} does not match with any piece in #{self}" unless Hive::Piece.valid_id?(id)
     @logger.debug "getPieceById:#{id}"
     return @pieces[id]
@@ -181,8 +170,8 @@ end
   
   def get_piece_with_color(color, piece_type)
     id = piece_type
-    id += pieces.length / 2 if color == Hive::PieceColor::BLACK 
-    return getPieceById(id)
+    id += Hive::Piece::BLACK_PIECE_RANGE.min + piece_type if color == Hive::PieceColor::BLACK 
+    return get_piece_by_id(id)
   end
 
   def pickupPiece(piece)
@@ -262,7 +251,7 @@ end
 
   def make_move(player, move)
     begin 
-      @logger.info  "playing piece at #{move.piece.boardPosition}: #{move.toString}"
+      @logger.info  "playing piece at #{move.piece.boardPosition}: #{move}"
       if validMove?(player, move ) 
         place(move) 
         result = Hive::TurnState::VALID
@@ -293,15 +282,15 @@ end
  def getPiecesByColor(color)
   pieces = []
   if color == Hive::PieceColor::WHITE
-    pieces = @pieces[0, 11] 
+    pieces = @pieces[Hive::Piece::WHITE_PIECE_RANGE] 
   elsif color == Hive::PieceColor::BLACK
-    pieces = @pieces[11, 11] 
+    pieces = @pieces[Hive::Piece::BLACK_PIECE_RANGE] 
   end
     return pieces
  end
  
 def eachBoardPosition
-  xI, yI, zI = -1,-1,-1     
+  xI, yI, zI = -1, -1, -1     
     @board.each do |x|
       xI += 1
       yI = -1
@@ -345,7 +334,7 @@ end
    unless bottleNeckSides.nil?
     bottleNeckSides.each do |side|
       x,y,z =  slot.neighbourCoords(side)
-      counter += 1 if at(x, y, z) > Slot::UNCONNECTED
+      counter += 1 if at(x, y, z) > Hive::Slot::UNCONNECTED
     end  
    end
    return counter == 2 ? true : false
@@ -393,8 +382,8 @@ end
         end
      end    
      rx,ry,rz = piece.boardPosition   
-     @logger.warn "removing #{piece}, replacing with #{Slot::slotState(white, black)}"                            
-     setId(rx,ry,rz,  Slot::slotState(white, black) ) #the slot's new state after removal of the piece 
+     @logger.warn "removing #{piece}, replacing with #{Hive::Slot::slotState(white, black)}"                            
+     setId(rx,ry,rz,  Hive::Slot::slotState(white, black) ) #the slot's new state after removal of the piece 
   end
  end
  
@@ -404,10 +393,10 @@ end
  def place(move) 
    move.setDestinationCoordinates(START_POS_X, START_POS_Y, 0) unless movesMade?    
    x,y,z = move.destination
-   piece = getPieceById(move.moving_piece_id);
+   piece = get_piece_by_id(move.moving_piece_id);
    setPieceTo(piece, x, y,z) 
    @moves << move
-   @logger.debug  "PLACED: #{move.toString}" 
+   @logger.debug  "PLACED: #{move}" 
  end
 
  def setPieceTo(piece, x ,y, z)
@@ -440,9 +429,9 @@ end
           setId(x,y,z,Hive::Slot::EMPTY_SLOT_BLACK) 
         end  
       when Hive::Slot::EMPTY_SLOT_BLACK then
-          setId(x, y, z,Hive::Slot::EMPTY_SLOT_MIXED) if piece.color == PieceColor::WHITE   
+          setId(x, y, z,Hive::Slot::EMPTY_SLOT_MIXED) if piece.color == Hive::PieceColor::WHITE   
       when Hive::Slot::EMPTY_SLOT_WHITE then
-          setId(x, y ,z ,Hive::Slot::EMPTY_SLOT_MIXED)  if piece.color == PieceColor::BLACK   
+          setId(x, y ,z ,Hive::Slot::EMPTY_SLOT_MIXED)  if piece.color == Hive::PieceColor::BLACK   
     end
   end  
  end 

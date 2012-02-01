@@ -29,29 +29,28 @@ def update
 	@pieces.each_index do |i| 
 		piece = @gamehandler.getPiece(i, @view_turn)
 		if piece.used
-			x, y = indexToPixelCoordinates(piece.x, piece.y) 
+			x, y = index_to_screen_coordinates(piece.x, piece.y) 
 		else
-			x, y = stackLocation(piece.id)	
+			x, y = stack_location(piece)	
 		end
 		@pieces[i].update x, y, piece
 	end
 end
 
-def draw 
-	#@background.draw(Hive::ViewConstants::WINDOW_WIDTH / 2 - 500, Hive::ViewConstants::WINDOW_HEIGHT / 2 - 375, 0)
+def draw
 	draw_background
-	drawGrid
+	draw_grid
 	@pieces.each { |pg| pg.draw } 
 	@font.draw("#{ @gamehandler.getStateDescription }", 10, 10, 12, 1.0, 1.0, -1)
 end
 
-def drawGrid
+def draw_grid
 	i = 0
 	@gamehandler.board_state.eachBoardPosition do |xi,yi,zi,value|
 	 	if zi==0
-			x, y = indexToPixelCoordinates(xi, yi) 
-			color = Gosu::Color.new(255, 0, 0, 255)
-			Hive::HexagonPiece.drawHexagon(self,x,y, Hive::HexagonPiece::ENCLOSING_RADIUS, color)
+			x, y = index_to_screen_coordinates(xi, yi) 
+			color = Gosu::Color.new(255, 255, 0, 255)
+			Hive::HexagonPiece.draw_hexagon(self,x,y, Hive::HexagonPiece::ENCLOSING_RADIUS, color)
 			@font.draw("(#{xi},#{yi})", x-15, y-10, 12, 1.0, 1.0, -1)
 		  @font.draw("(#{value})", x-15, y + 10, 8, 1.0, 1.0, -1) if value <= Hive::Slot::UNCONNECTED 
 		end
@@ -68,7 +67,7 @@ end
  end
 
 
-def indexToPixelCoordinates(xi, yi)  
+def index_to_screen_coordinates(xi, yi)  
     r = Hive::HexagonPiece::R
     h = Hive::HexagonPiece::H 
     s = Hive::HexagonPiece::S 
@@ -79,11 +78,11 @@ def indexToPixelCoordinates(xi, yi)
     return x_pixel, y_pixel     			   
 end
 
-def stackLocation(piece_id)
-	if piece_id < 12
-		x, y = 70, 100+(piece_id % 12) * 30
+def stack_location(piece)
+	if piece.color == Hive::PieceColor::WHITE
+		x, y = 70, 100 + (piece.id % Hive::Piece.num_play_pieces) * 30
 	else
-		x, y = Hive::ViewConstants::WINDOW_WIDTH - 70, 100+(piece_id % 12) * 30
+		x, y = Hive::ViewConstants::WINDOW_WIDTH - 70, 100 + (piece.id % Hive::Piece.num_play_pieces) * 30
 	end
 	return x , y
 end

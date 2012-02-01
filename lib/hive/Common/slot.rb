@@ -123,23 +123,23 @@ def self.neighbourCoordinates(x, y, z, side)
  xdif, ydif, zdif = 0,0,0
 
  case side 
-      when HexagonSide::ONTOP_SIDE then 
+      when Hive::HexagonSide::ONTOP_SIDE then 
         xdif, ydif, zdif = 0, 0, 1 
-      when HexagonSide::UNDER_SIDE then
+      when Hive::HexagonSide::UNDER_SIDE then
         xdif, ydif, zdif = 0, 0, -1
-      when HexagonSide::RIGHT_SIDE then
+      when Hive::HexagonSide::RIGHT_SIDE then
         xdif, ydif = 1, 0 
-      when HexagonSide::BOTTOM_RIGHT_SIDE then 
+      when Hive::HexagonSide::BOTTOM_RIGHT_SIDE then 
         xdif, ydif = (y & 1), 1  
-      when HexagonSide::BOTTOM_LEFT_SIDE then 
+      when Hive::HexagonSide::BOTTOM_LEFT_SIDE then 
         xdif, ydif = (-1 + (y & 1)), 1  
-      when HexagonSide::LEFT_SIDE then 
+      when Hive::HexagonSide::LEFT_SIDE then 
         xdif, ydif = -1, 0 
-      when HexagonSide::TOP_LEFT_SIDE then 
+      when Hive::HexagonSide::TOP_LEFT_SIDE then 
         xdif, ydif = (-1 + (y & 1)), -1  
-      when HexagonSide::TOP_RIGHT_SIDE then 
+      when Hive::HexagonSide::TOP_RIGHT_SIDE then 
         xdif, ydif = (y & 1), -1 
-      when HexagonSide::NULL_SIDE then 
+      when Hive::HexagonSide::NULL_SIDE then 
         return -1, -1, 0 # return null slot position  
       else
         raise "non existing hexagon side: #{side} (#{side.class})"
@@ -153,7 +153,7 @@ end
 
 def forEachNeighbourCoordinate(params = {})  
     exlusions = params[:exclude] || {}
-    (0..HexagonSide::SIDES-1).each do |i|
+    (0..Hive::HexagonSide::SIDES-1).each do |i|
       unless exlusions.include?(i)
         x,y,z = neighbourCoords(i) 
          if params[:side]   
@@ -195,7 +195,7 @@ def forEachNeighbouringSlotOrPiece( params = {})
 end
 
 def forEachAdjacentPiece()
-  params = {:exclude => [HexagonSide::ONTOP_SIDE, HexagonSide::UNDER_SIDE], :side => true}
+  params = {:exclude => [Hive::HexagonSide::ONTOP_SIDE, Hive::HexagonSide::UNDER_SIDE], :side => true}
   forEachNeighbourCoordinate(params) do |x, y, z|
      if @board_state.hasPieceAt(x, y, z) 
        yield @board_state.getPieceAt( x, y, z )
@@ -204,7 +204,7 @@ def forEachAdjacentPiece()
 end
 
 def forEachAdjacentSlot( params = {} )
-  params = {:exclude => [HexagonSide::ONTOP_SIDE, HexagonSide::UNDER_SIDE], :side => true}
+  params = {:exclude => [Hive::HexagonSide::ONTOP_SIDE, Hive::HexagonSide::UNDER_SIDE], :side => true}
   forEachNeighbourCoordinate(params) do |x,y,z, side| 
       if @board_state.hasConnectedSlotAt(x, y, z) 
         yield @board_state.getSlotAt(x, y, z)
@@ -213,7 +213,7 @@ def forEachAdjacentSlot( params = {} )
 end
 
 def forEachAdjacentSlotOrPiece()
-  params = {:exclude => [HexagonSide::ONTOP_SIDE, HexagonSide::UNDER_SIDE], :side => true}
+  params = {:exclude => [Hive::HexagonSide::ONTOP_SIDE, Hive::HexagonSide::UNDER_SIDE], :side => true}
   forEachNeighbourCoordinate(params) do |x,y,z|
     if not @board_state.hasPieceAt(x, y, z) 
       yield @board_state.getSlotAt(x,y,z)  
@@ -273,22 +273,22 @@ def getSide(otherSlot)
   raise "Error: xDifference: #{xDif}- this function can only determine the side of immediate neightbours." if xDif < -1 || xDif > 1 
   raise "Error: yDifference: #{yDif}- this function can only determine the side of immediate neightbours." if yDif < -1 || yDif > 1 
 
-  return HexagonSide::RIGHT_SIDE if xDif > 0 && yDif == 0 
-  return HexagonSide::LEFT_SIDE if xDif < 0  && yDif == 0
-  return HexagonSide::BOTTOM_RIGHT_SIDE if xDif >= (@y & 1) && yDif > 0  
-  return HexagonSide::BOTTOM_LEFT_SIDE if xDif >= 1 - (@y & 1) && yDif > 0  
-  return HexagonSide::TOP_LEFT_SIDE if xDif <= -1 + (@y & 1) && yDif < 0  
-  return HexagonSide::TOP_RIGHT_SIDE if xDif >= (@y & 1) && yDif < 0  
-  return HexagonSide::NULL_SIDE
+  return Hive::HexagonSide::RIGHT_SIDE if xDif > 0 && yDif == 0 
+  return Hive::HexagonSide::LEFT_SIDE if xDif < 0  && yDif == 0
+  return Hive::HexagonSide::BOTTOM_RIGHT_SIDE if xDif >= (@y & 1) && yDif > 0  
+  return Hive::HexagonSide::BOTTOM_LEFT_SIDE if xDif >= 1 - (@y & 1) && yDif > 0  
+  return Hive::HexagonSide::TOP_LEFT_SIDE if xDif <= -1 + (@y & 1) && yDif < 0  
+  return Hive::HexagonSide::TOP_RIGHT_SIDE if xDif >= (@y & 1) && yDif < 0  
+  return Hive::HexagonSide::NULL_SIDE
 end 
 
 
 #TODO! fix this
 def getDirectNeighbourSides(side)
   case side 
-    when HexagonSide::ONTOP_SIDE then
-    when HexagonSide::UNDER_SIDE then
-    when HexagonSide::NULL_SIDE then 
+    when Hive::HexagonSide::ONTOP_SIDE then
+    when Hive::HexagonSide::UNDER_SIDE then
+    when Hive::HexagonSide::NULL_SIDE then 
       return nil
    end 
    

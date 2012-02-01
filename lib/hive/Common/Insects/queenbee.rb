@@ -1,11 +1,10 @@
 require 'Insects/piece'
-#require 'MoveValidators/QueenBeeMoveValidator'
+
 class Hive::QueenBee < Hive::Piece
 
 def initialize(board_state, id)
   super(board_state, id) 
-  raise "id of qieen not correct" unless Hive::Piece.valid_id?(id)
-  #@validator = QueenBeeMoveValidator  
+  raise "id of qieen not correct" unless Hive::Piece.valid_id?(id) 
 end
   
 def availableMoves

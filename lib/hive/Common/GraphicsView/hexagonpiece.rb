@@ -49,6 +49,7 @@ def initialize(window, id)
  @movable = true
  @name = "-"
  @font = Gosu::Font.new(window, Gosu::default_font_name, 12)
+ @color = Hive::PieceColor::WHITE
 end
 
 def update(x,y, piece)
@@ -57,21 +58,25 @@ def update(x,y, piece)
 	@z = piece.z
 	@z ||= 0
 	@used = piece.used
-	#@movable = piece.movable?
+	@movable = piece.movable?
 	@name = piece.name
+	@color = piece.color
 end
 
 def draw 
-	if @movable
-		color = Gosu::Color.new(255, 255- (@z * 100), 255 - (@z * 100), 255)
+	if @color == Hive::PieceColor::WHITE
+		color = Gosu::Color.new(255, 255, 255, 255)
 	else
-		color = Gosu::Color.new(0, 0, 255, 255)
+		color = Gosu::Color.new(255, 0, 0, 0)
 	end
-	Hive::HexagonPiece.drawHexagon(@window, @x, @y, ENCLOSING_RADIUS - (@z * 10), color)
-	@font.draw("(#{@name}", @x-40, @y+20 - (@z * 10), 5, 1.0, 1.0, -1)
+	draw_lock_state unless @movable
+	
+	Hive::HexagonPiece.draw_hexagon(@window, @x, @y, ENCLOSING_RADIUS - (@z * 10), color)
+	
+	@font.draw("#{@name}", @x-40, @y+20 - (@z * 10), 5, 1.0, 1.0, -1)
 end
 
-def self.drawHexagon window, x, y, radius ,color
+def self.draw_hexagon window, x, y, radius ,color
 	(1..6).each do |i|
 		angle1 = (Math::PI/3.0) * (i-1) + (Math::PI/6.0) 
 		angle2 = (Math::PI/3.0) * i + (Math::PI/6.0)
@@ -82,5 +87,17 @@ def self.drawHexagon window, x, y, radius ,color
 		window.draw_line(x1, y1, color, x2, y2, color, 4)
 	end
 end 
+
+
+def draw_lock_state
+	lock_color =  Gosu::Color.new(0, 0, 255, 255)
+	 @window.draw_quad(
+     @x - ENCLOSING_RADIUS/4,     @y - ENCLOSING_RADIUS/4,     lock_color,
+     @x + ENCLOSING_RADIUS/4, @y - ENCLOSING_RADIUS/4,    lock_color,
+     @x - ENCLOSING_RADIUS/4, @y + ENCLOSING_RADIUS/4, lock_color,
+     @x + ENCLOSING_RADIUS/4, @y + ENCLOSING_RADIUS/4, lock_color,
+     0)
+end
+
 
 end
