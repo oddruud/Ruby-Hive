@@ -6,12 +6,12 @@ def initialize(board_state, id)
   
 end
 
-def availableMoves
+def available_moves
   @logger.debug "#{name} collecting moves"
   moves = Array.new()
-  moves += availablePlaceMoves unless used?
+  moves += available_place_moves unless used?
   @logger.info "grashopper place moves: #{moves.length}"
-  moves += Hive::GrassHopper.availableBoardMoves(self) if used? and movable?
+  moves += Hive::GrassHopper.available_board_moves(self) if used? and movable?
   @logger.info "grashopper board moves: #{moves.length}"
  return moves
 end
@@ -27,12 +27,12 @@ end
 # /Users/ruudopdenkelder/Projects/Hive-Boardgame-Framework/Common/Insects/grasshopper.rb:24:in `availableBoardMoves'
 # [08:46:21] INFO-GameHandler: game stopped: invalid move
 
-def self.availableBoardMoves(grasshopper)
+def self.available_board_moves(grasshopper)
   moves = Array.new() 
   grasshopper.touch do
-    grasshopper.forEachAdjacentPiece do |neighbour_piece| 
-      side = grasshopper.getSide(neighbour_piece)
-      slot = Hive::GrassHopper.jumpOver(grasshopper, side)     #add the position
+    grasshopper.for_each_adjacent_piece do |neighbour_piece| 
+      side = grasshopper.get_side(neighbour_piece)
+      slot = Hive::GrassHopper.jump_over(grasshopper, side)     #add the position
       moves << Hive::Move.new(grasshopper , slot)
     end
   end
@@ -40,11 +40,11 @@ def self.availableBoardMoves(grasshopper)
   return moves
 end
 
-def self.jumpOver(current_slot, side)
+def self.jump_over(current_slot, side)
   return current_slot  if current_slot.value <= Slot::UNCONNECTED
   next_slot = current_slot.neighbour(side)
   puts "^"
-  return jumpOver(next_slot, side)  
+  return jump_over(next_slot, side)  
 end
 
 def trapped?

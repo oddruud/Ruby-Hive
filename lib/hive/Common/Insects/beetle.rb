@@ -5,21 +5,21 @@ def initialize(board_state, id)
   super(board_state, id)  
 end
  
-def availableMoves
+def available_moves
   moves = Array.new()
-  moves += availablePlaceMoves unless used?
-  moves +=  Hive::Beetle.availableBoardMoves(self) if used? and movable?
+  moves += available_place_moves unless used?
+  moves +=  Hive::Beetle.available_board_moves(self) if used? and movable?
  return moves
 end 
  
 #TODO fix! what if beetle is ontop? handle beetle stacking
-def self.availableBoardMoves( beetle )
+def self.available_board_moves( beetle )
   moves = Array.new()
   beetle.touch do
-    board_state = beetle.getBoard
-    beetle.forEachNeighbouringSlotOrPiece do |slot|
-      numPieces = board_state.getNumPiecesAt(slot.x, slot.y)          
-      moves << Hive::Move.fromCords(beetle , slot.x, slot.y, numPieces )
+    board_state = beetle.get_board
+    beetle.for_each_neighbouring_slot_or_piece do |slot|
+      num_pieces = board_state.get_num_pieces_at(slot.x, slot.y)          
+      moves << Hive::Move.from_cords(beetle , slot.x, slot.y, num_pieces )
    end  
  end
  beetle.logger.info "board moves: #{moves.length}"

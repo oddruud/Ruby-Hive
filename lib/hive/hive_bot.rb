@@ -22,8 +22,8 @@ system("mkfifo  hivepipe");
 
 DRb.start_service 
 bot= NaiveBot.new(name)
-bot.gameHandler = DRbObject.new nil, uri
-bot.gameHandler.addPlayer(bot)
+bot.game_handler = DRbObject.new nil, uri
+bot.game_handler.add_player(bot)
 
 #begin
 #    timeout(1) do #the server has one second to answer

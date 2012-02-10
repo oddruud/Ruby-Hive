@@ -5,10 +5,10 @@ def initialize(board_state, id)
   super(board_state, id)  
 end
   
-def availableMoves
+def available_moves
   moves = Array.new()
-  moves += availablePlaceMoves unless used? 
-  moves += Hive::Mosquito.availableBoardMoves(self)  if used?
+  moves += available_place_moves unless used? 
+  moves += Hive::Mosquito.available_board_moves(self)  if used?
  return moves
 end
  
@@ -27,10 +27,10 @@ end
      
      
 #stack level too deep
-def self.availableBoardMoves(mosquito)  
+def self.available_board_moves(mosquito)  
   moves = Array.new()
-    mosquito.forEachAdjacentPiece do |neighbour|
-        #moves += neighbour.class.availableBoardMoves( mosquito ) unless neighbour.kind_of? Mosquito 
+    mosquito.for_each_adjacent_piece do |neighbour|
+        #moves += neighbour.class.available_board_moves( mosquito ) unless neighbour.kind_of? Mosquito 
     end
   mosquito.logger.info "board moves: #{moves.length}"
  return moves

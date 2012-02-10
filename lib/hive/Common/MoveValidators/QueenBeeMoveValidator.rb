@@ -5,7 +5,7 @@ class Hive::QueenBeeMoveValidator < Hive::MoveValidator
     
   end
   
-  def self.validate(boardState,player, move)
+  def self.validate(board_state,player, move)
     return true
   end
   

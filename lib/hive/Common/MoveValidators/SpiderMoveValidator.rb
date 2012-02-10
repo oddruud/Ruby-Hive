@@ -7,7 +7,7 @@ class SpiderMoveValidator < MoveValidator
   end
     
   #TODO
-  def self.validate(boardState, move)
+  def self.validate(board_state, move)
     return true
   end
 

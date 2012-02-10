@@ -27,7 +27,7 @@ end
 
 def update
 	@pieces.each_index do |i| 
-		piece = @gamehandler.getPiece(i, @view_turn)
+		piece = @gamehandler.get_piece( i )
 		if piece.used
 			x, y = index_to_screen_coordinates(piece.x, piece.y) 
 		else
@@ -41,12 +41,12 @@ def draw
 	draw_background
 	draw_grid
 	@pieces.each { |pg| pg.draw } 
-	@font.draw("#{ @gamehandler.getStateDescription }", 10, 10, 12, 1.0, 1.0, -1)
+	@font.draw("#{ @gamehandler.get_state_description }", 10, 10, 12, 1.0, 1.0, -1)
 end
 
 def draw_grid
 	i = 0
-	@gamehandler.board_state.eachBoardPosition do |xi,yi,zi,value|
+	@gamehandler.board_state.each_board_position do |xi,yi,zi,value|
 	 	if zi==0
 			x, y = index_to_screen_coordinates(xi, yi) 
 			color = Gosu::Color.new(255, 255, 0, 255)

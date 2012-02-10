@@ -5,14 +5,14 @@ def initialize(board_state, id)
   super(board_state, id)  
 end
  
-def availableMoves
+def available_moves
   moves = Array.new()
-  moves += availablePlaceMoves unless used?
-  moves += Hive::LadyBug.availableBoardMoves(self) if used? and movable?
+  moves += available_place_moves unless used?
+  moves += Hive::LadyBug.available_board_moves(self) if used? and movable?
  return moves
 end 
 
-def self.availableBoardMoves(ladybug)
+def self.available_board_moves(ladybug)
   moves = Array.new()
   #ladybug.touch do 
   #  moves

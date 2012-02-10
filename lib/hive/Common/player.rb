@@ -8,29 +8,29 @@ class Hive::Player
   include DRbUndumped
 
   attr_accessor :name 
-  attr_accessor :gameHandler
+  attr_accessor :game_handler
   attr_accessor :id 
   attr_reader :color
   attr_reader :logger
-  attr_accessor :submitMoveTo
+  attr_accessor :submit_move_to
   attr_accessor :submitted_moves
    
   def initialize(name, color = Hive::PieceColor::WHITE)
    @name = name
-   setColor(color)
-   @logger = LoggerCreator.createLoggerForClass(Hive::Player)
+   set_color(color)
+   @logger = LoggerCreator.create_logger_for_class(Hive::Player)
    @submitted_moves = Array.new()
   end
 
-  def setID(id)
+  def set_i_d(id)
     @id= id
   end
   
-  def setColor(color)
+  def set_color(color)
     @color = color
   end
     
-  def gameStarts(message)
+  def game_starts(message)
     @logger.info "GAME STARTS!"
     @logger.info "#{message}";  
   end
@@ -39,17 +39,21 @@ class Hive::Player
     @logger.info "#{message}";  
   end    
    
-  def makeMove(board_state)
+  def make_move(board_state)
     @logger.info "player's makemove called"
-    submitMove(Hive::Move.new(0,0,0)) 
+    submit_move(Hive::Move.new(0,0,0)) 
   end  
   
-  def submitMove(move) 
-      submitMoveTo.call(self, move)
+  def set_submit_function proc 
+  	@submit_move_to = proc
+  end 
+  
+  def submit_move(move) 
+      submit_move_to.call(self, move)
   end  
   
   def pieces(board_state)
-     return board_state.getPiecesByColor(@color)
+     return board_state.get_pieces_by_color(@color)
   end
 
   
@@ -61,17 +65,17 @@ class Hive::Player
     return @color 
   end
 
-  def opponentPieces(board_state)
+  def opponent_pieces(board_state)
     pieces = []  
     PieceColor::COLORS.each do |color|
       unless color == @color 
-        pieces = pieces + board_state.getPiecesByColor(color)
+        pieces = pieces + board_state.get_pieces_by_color(color)
       end
     end
     return pieces
   end
   
-  def logMove(move)
+  def log_move(move)
     @submitted_moves << move
   end
 

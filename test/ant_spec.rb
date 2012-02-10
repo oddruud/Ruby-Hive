@@ -26,13 +26,13 @@ describe Hive::Ant do
        #TOP_RIGHT_SIDE = 7
        
       #TODO fix coordinates 
-      @board_state.make_move(@white_player , Hive::Move.fromCords(@white_queen ,5,5,0)) 
-      @board_state.make_move(@black_player, Hive::Move.fromCords(@black_spider ,5,5,0))
-      @board_state.make_move(@white_player , Hive::Move.fromCords( @white_spider ,0,0,0))
-      @board_state.make_move(@black_player, Hive::Move.fromCords( @black_ant ,0,0,0))
+      @board_state.make_move(@white_player , Hive::Move.new_from_cords(@white_queen ,5,5,0)) 
+      @board_state.make_move(@black_player, Hive::Move.new_from_cords(@black_spider ,5,5,0))
+      @board_state.make_move(@white_player , Hive::Move.new_from_cords( @white_spider ,0,0,0))
+      @board_state.make_move(@black_player, Hive::Move.new_from_cords( @black_ant ,0,0,0))
       
-      @possible_ant_moves = [ 	Hive::Move.fromCords(@black_ant,0,0,0), 
-                            	Hive::Move.fromCords(@black_ant,0,0,0)
+      @possible_ant_moves = [ 	Hive::Move.new_from_cords(@black_ant,0,0,0), 
+                            	Hive::Move.new_from_cords(@black_ant,0,0,0)
                           ].to_set 
    end 
 

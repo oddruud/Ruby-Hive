@@ -7,17 +7,17 @@ def initialize(board_state, id)
   raise "id of qieen not correct" unless Hive::Piece.valid_id?(id) 
 end
   
-def availableMoves
+def available_moves
   moves = Array.new()
-  moves += availablePlaceMoves unless used?
-  moves += Hive::QueenBee.availableBoardMoves( self ) if used? and movable?
+  moves += available_place_moves unless used?
+  moves += Hive::QueenBee.available_board_moves( self ) if used? and movable?
  return moves
 end
 
-def self.availableBoardMoves(queenbee)
+def self.available_board_moves(queenbee)
   moves = Array.new()
   queenbee.touch do
-    queenbee.forEachAdjacentSlot do |slot|    
+    queenbee.for_each_adjacent_slot do |slot|    
       moves << Hive::Move.new(queenbee , slot)
     end  
  end

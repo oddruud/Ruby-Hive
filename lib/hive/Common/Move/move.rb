@@ -16,7 +16,7 @@ class Hive::Move
   def initialize(piece, slot)
     @piece = piece
     @dest_slot = slot
-    @logger = LoggerCreator.createLoggerForClass(Hive::Move)
+    @logger = Logger.new_for_object( self )
     raise "piece_id is weird: #{piece.id}" unless Hive::Piece.valid_id?(piece.id)
     @relative_id = -1
     @side = -1 
@@ -31,35 +31,35 @@ class Hive::Move
     return @piece.id
   end
   
-  def self.fromCords(piece, x, y, z)
+  def self.new_with_cords(piece, x, y, z)
     return Hive::Move.new(piece, Hive::Slot.new(nil, x,y,z))
   end
   
-  def self.fromRelativeCords(piece, neighbour, side)
+  def self.new_with_relative_slot_and_side(piece, neighbour, side)
      @relative_id = neighbour.id  
      @side = side
      puts "relative" + @relative_id.to_s
     x,y,z = neighbour.neighbour(side)
-    return Hive::Move.fromCords(piece, x,y,z) do |mv| 
+    return Hive::Move.with_cords(piece, x,y,z) do |mv| 
       mv.relative_id = neighbour.id 
       mv.side = side
     end  
   end 
    
   def color
-    return Hive::Piece.colorById( moving_piece_id ) 
+    return Hive::Piece.color_by_id( moving_piece_id ) 
   end
   
-  def setDestinationCoordinates( x, y, z ) 
+  def set_destination_coordinates( x, y, z ) 
       @dest_slot = Hive::Slot.new(nil, x, y, z)
   end
   
-  def setDestinationSlot(slot) 
+  def set_destination_slot(slot) 
     @dest_slot = slot 
   end
   
   def destination 
-    return @dest_slot.boardPosition
+    return @dest_slot.board_position
   end 
   
   def to_string()

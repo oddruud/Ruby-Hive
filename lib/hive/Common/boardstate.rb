@@ -24,7 +24,7 @@ class Hive::BoardState
 attr_reader :pieces    #1D array [piece_id] -> Piece
 attr_reader :board     #2D array [x][y][z] -> piece_id          
 attr_reader :moves     #1D array [i] -> Move
-attr_reader :currentPiece  
+attr_reader :current_piece  
 attr_reader :logger   
 attr_reader :winning_color   
 
@@ -39,7 +39,8 @@ START_POS_Y = BOARD_SIZE/2
                 ]  
 
 def initialize(name = nil)
-  @logger = LoggerCreator.createLoggerForClassObject(Hive::BoardState,name,nil)
+  @name = name
+  @logger = Logger.new_for_object( self )
   @logger.info "initializing new boardstate: #{name}"
   reset
 end
@@ -90,33 +91,33 @@ end
    return (@moves.length / 2).floor if player_color == Hive::PieceColor::BLACK 
  end   
   
- def setPieces(pieces) 
+ def set_pieces(pieces) 
     @pieces = pieces
  end
 
-  def setBoard(board) 
+  def set_board(board) 
     @board = board 
   end
   
-  def setMoves(moves) 
+  def set_moves(moves) 
     @moves = moves
   end
 
-def nextState(move)
-   nextBoardState = self.clone
-   nextBoardState.makeMove(move) 
-   return nextBoardState
+def next_state(move)
+   next_board_state = self.clone
+   next_board_state.make_move(move) 
+   return next_board_state
 end
 
 def clone
   c = Hive::BoardState.new()
-  c.setPieces( piecesCopy() ) 
-  c.setBoard( boardCopy() )
-  c.setMoves( movesCopy() )    
+  c.set_pieces( pieces_copy() ) 
+  c.set_board( board_copy() )
+  c.set_moves( moves_copy() )    
   return c
 end
 
-def boardCopy()  
+def board_copy()  
   copy = Array.new(BOARD_SIZE).map!{Array.new(BOARD_SIZE)}   #THE BOARD 
   @board.each_index do |xI| 
     @board[xI].each_index do |yI|
@@ -126,39 +127,39 @@ def boardCopy()
   return copy 
 end
 
-def piecesCopy()
+def pieces_copy()
   copy = Array.new()
   @pieces.each_index do |i|
     copy << @pieces[i].dup
   end  
 end
 
-def movesCopy()
+def moves_copy()
   return Array.new(@moves)
 end
 
   def at(x,y,z)
-      return @board[x][y][z] unless outOfBounds(x,y,z) 
+      return @board[x][y][z] unless out_of_bounds(x,y,z) 
       return Hive::Slot::UNCONNECTED
   end
   
-  def hasPieceAt(x,y,z)
-    return at(x, y, z) > Hive::Slot::UNCONNECTED && !outOfBounds(x,y,z) 
+  def has_piece_at(x,y,z)
+    return at(x, y, z) > Hive::Slot::UNCONNECTED && !out_of_bounds(x,y,z) 
   end
   
-  def hasConnectedSlotAt(x,y,z)
-    return !outOfBounds(x,y,z) && at(x,y,z) < Hive::Slot::UNCONNECTED
+  def has_connected_slot_at(x,y,z)
+    return !out_of_bounds(x,y,z) && at(x,y,z) < Hive::Slot::UNCONNECTED
   end
   
-  def outOfBounds(x, y, z)
+  def out_of_bounds(x, y, z)
     return x >= Hive::BoardState::BOARD_SIZE || y >= Hive::BoardState::BOARD_SIZE || z >= @board[x][y].length || x < 0 || y < 0 || z < 0 
   end
   
-  def setId(x,y,z,id)
-    @board[x][y][z] = id unless outOfBounds(x, y, z)
+  def set_id(x,y,z,id)
+    @board[x][y][z] = id unless out_of_bounds(x, y, z)
   end
    
-  def locationString(x,y,z)
+  def location_string(x,y,z)
     return "(x:#{x},y:#{y},z:#{z})"
   end 
     
@@ -174,33 +175,33 @@ end
     return get_piece_by_id(id)
   end
 
-  def pickupPiece(piece)
-    raise "you cannot pick up #{piece} already other piece in hand: #{@currentPiece}" unless @currentPiece.nil? || piece == @currentPiece
-    @currentPiece = piece
+  def pickup_piece(piece)
+    raise "you cannot pick up #{piece} already other piece in hand: #{@current_piece}" unless @current_piece.nil? || piece == @current_piece
+    @current_piece = piece
     
-    removePieceFromBoard(piece) unless @currentPiece == piece
+    remove_piece_from_board(piece) unless @current_piece == piece
     #piece.pickup_count += 1
   end
   
   #FIXMME!
-  def dropPiece(piece)
-    raise "the piece #{piece} can not be dropped sinced it hast been picked up" unless piece == @currentPiece
+  def drop_piece(piece)
+    raise "the piece #{piece} can not be dropped sinced it hast been picked up" unless piece == @current_piece
     #if piece.pickup_count == 0
-      placePieceBack(piece) 
-      @currentPiece = nil 
+      place_piece_back(piece) 
+      @current_piece = nil 
     #end
     #piece.pickup_count -= 1
   end
 
-  def colorOfWinner
+  def color_of_winner
     return winning_color 
   end
   
-  def movesMade?
+  def moves_made?
     @moves.length != 0
   end
   
-  def moveCount
+  def move_count
      @moves.length
   end
   
@@ -208,26 +209,26 @@ end
     return Hive::Slot.new(self, START_POS_X, START_POS_Y, 0)
   end
   
-  def usedPieces
+  def used_pieces
     pieces = Set.new()
     @pieces.each { |p| pieces << p if p.used? }
     return pieces
   end
   
-  def collectConnectedPieces(piece, collection)
-    piece.forEachNeighbouringPiece do |n|
+  def collect_connected_pieces(piece, collection)
+    piece.for_each_neighbouring_piece do |n|
       unless collection.include?(n)
         collection << n 
-        collectConnectedPieces(n, collection)
+        collect_connected_pieces(n, collection)
       end 
     end
   end
   
   def all_pieces_connected?
-      used = usedPieces()
+      used = used_pieces()
       return true if used.size() == 0
       connected_pieces = Set.new() 
-      collectConnectedPieces(used.first, connected_pieces)
+      collect_connected_pieces(used.first, connected_pieces)
       return used.size == connected_pieces.size
   end
   
@@ -235,8 +236,8 @@ end
     return all_pieces_connected?
   end 
   
-  def validMove?(player, move)
-    return true if not movesMade? #todo check if the piece in move is not corrupt  
+  def valid_move?(player, move)
+    return true if not moves_made? #todo check if the piece in move is not corrupt  
     @@validators.each do |validator|                 #common board validation-rules 
       if not validator.validate(self, player, move) 
         @logger.debug  "validator #{validator.name} FAILED"
@@ -246,13 +247,13 @@ end
         @logger.debug  "validator #{validator.name} SUCCESS"
       end
      end  
-     return true #piece.validMove?( move )    #piece specific validation    
+     return true #piece.valid_move?( move )    #piece specific validation    
   end
 
   def make_move(player, move)
     begin 
-      @logger.info  "playing piece at #{move.piece.boardPosition}: #{move}"
-      if validMove?(player, move ) 
+      @logger.info  "playing piece at #{move.piece.board_position}: #{move}"
+      if valid_move?(player, move ) 
         place(move) 
         result = Hive::TurnState::VALID
       else
@@ -268,7 +269,7 @@ end
   end
  
   def to_s
-    output = "move #{self.moveCount}--------------------------------------\n"
+    output = "move #{self.move_count}--------------------------------------\n"
     output += @board.map {|x| x.inspect }.join("\n")
     output += "\n---------------------------------------------------\n"
     return output
@@ -279,7 +280,7 @@ end
     return "BS.#{state}."    
   end 
   
- def getPiecesByColor(color)
+ def get_pieces_by_color(color)
   pieces = []
   if color == Hive::PieceColor::WHITE
     pieces = @pieces[Hive::Piece::WHITE_PIECE_RANGE] 
@@ -289,58 +290,58 @@ end
     return pieces
  end
  
-def eachBoardPosition
-  xI, yI, zI = -1, -1, -1     
+def each_board_position
+  x_i, y_i, z_i = -1, -1, -1     
     @board.each do |x|
-      xI += 1
-      yI = -1
+      x_i += 1
+      y_i = -1
       x.each do |y|
-        yI += 1
-        zI = -1
+        y_i += 1
+        z_i = -1
         y.each do |z|
-          zI += 1
-          yield xI, yI, zI, z
+          z_i += 1
+          yield x_i, y_i, z_i, z
         end  
       end 
     end
 end   
 
-def getSlotsWithTypeCode(slotType)   
+def get_slots_with_type_code(slot_type)   
   slots = Array.new()
-  raise "a slot with an id higher than -1 is not a slot but a piece, use getPieceById(piece_id)" if slotType > Hive::Slot::UNCONNECTED
+  raise "a slot with an id higher than -1 is not a slot but a piece, use get_piece_by_id(piece_id)" if slot_type > Hive::Slot::UNCONNECTED
   
-  self.eachBoardPosition do |x, y, z, value|
-    if value == slotType && value < 0  
-      slots << getSlotAt(x,y,z)
+  self.each_board_position do |x, y, z, value|
+    if value == slot_type && value < 0  
+      slots << get_slot_at(x,y,z)
     end    
   end
   return slots 
 end
 
- def moveMessage(move)
-  originX, originY  = getOriginBoardPos(move)
-  destX, destY  = getDestBoardPos(move)
-   return "MV.#{originX}.#{originY}.#{destX}.#{destY}"
+ def move_message(move)
+  origin_x, origin_y  = get_origin_board_pos(move)
+  dest_x, dest_y  = get_dest_board_pos(move)
+   return "MV.#{origin_x}.#{origin_y}.#{dest_x}.#{dest_y}"
  end
  
- def bottleNeckBetweenSlots(slot1, slot2)
-    side = slot1.getSide(slot2) 
-    return bottleNeckToSide(slot1, side)
+ def bottle_neck_between_slots(slot1, slot2)
+    side = slot1.get_side(slot2) 
+    return bottle_neck_to_side(slot1, side)
  end 
  
- def bottleNeckToSide(slot, side)
+ def bottle_neck_to_side(slot, side)
    counter = 0
-   bottleNeckSides = slot.getDirectNeighbourSides(side) 
-   unless bottleNeckSides.nil?
-    bottleNeckSides.each do |side|
-      x,y,z =  slot.neighbourCoords(side)
+   bottle_neck_sides = slot.get_direct_neighbour_sides(side) 
+   unless bottle_neck_sides.nil?
+    bottle_neck_sides.each do |side|
+      x,y,z =  slot.neighbour_coords(side)
       counter += 1 if at(x, y, z) > Hive::Slot::UNCONNECTED
     end  
    end
    return counter == 2 ? true : false
  end
  
- def getPiecesAt(x,y)
+ def get_pieces_at(x,y)
    piece_ids = @board[x][y]
    pieces = Array.new()
    piece_ids.each do |id|
@@ -351,39 +352,39 @@ end
  
  
  ##TODO: errorprone...
- def getNumPiecesAt(x,y) 
+ def get_num_pieces_at(x,y) 
   count = 0
-  @board[x][y].each{|id| count+=1 if id > Hive::Slot::UNCONNECTED} unless outOfBounds(x,y,0)
+  @board[x][y].each{|id| count+=1 if id > Hive::Slot::UNCONNECTED} unless out_of_bounds(x,y,0)
   return count
  end
  
- def getPieceAt(x,y,z)
-   raise "out of bounds " if outOfBounds(x,y,z)
-   return hasPieceAt(x, y, z) ? @pieces[ at(x,y,z) ] : nil
+ def get_piece_at(x,y,z)
+   raise "out of bounds " if out_of_bounds(x,y,z)
+   return has_piece_at(x, y, z) ? @pieces[ at(x,y,z) ] : nil
  end
  
- def getSlotAt(x,y,z)
+ def get_slot_at(x,y,z)
    id = at(x, y, z)
    return @pieces[id] if id > Hive::Slot::UNCONNECTED
    return Hive::Slot.new(self, x,y,z, id)  
  end
  
- def removePieceFromBoard(piece)
+ def remove_piece_from_board(piece)
   white = :NotANeighbour
   black = :NotANeighbour 
   if piece.used? 
-     piece.forEachNeighbouringSlotOrPiece do |neighbour_slot|
+     piece.for_each_neighbouring_slot_or_piece do |neighbour_slot|
          if neighbour_slot.value > Hive::Slot::UNCONNECTED
              #raise "#{neighbour_slot} is a piece"
              white = :Neighbour if neighbour_slot.color == Hive::PieceColor::WHITE      
              black = :Neighbour if neighbour_slot.color == Hive::PieceColor::BLACK     
           else    
-            setId(neighbour_slot.x,neighbour_slot.y,neighbour_slot.z, slotStateAfterRemoval(piece, neighbour_slot) ) #changes the states of surrounding slots after the removal    
+            set_id(neighbour_slot.x,neighbour_slot.y,neighbour_slot.z, slot_state_after_removal(piece, neighbour_slot) ) #changes the states of surrounding slots after the removal    
         end
      end    
-     rx,ry,rz = piece.boardPosition   
-     @logger.warn "removing #{piece}, replacing with #{Hive::Slot::slotState(white, black)}"                            
-     setId(rx,ry,rz,  Hive::Slot::slotState(white, black) ) #the slot's new state after removal of the piece 
+     rx,ry,rz = piece.board_position   
+     @logger.warn "removing #{piece}, replacing with #{Hive::Slot::slot_state(white, black)}"                            
+     set_id(rx,ry,rz,  Hive::Slot::slot_state(white, black) ) #the slot's new state after removal of the piece 
   end
  end
  
@@ -391,67 +392,67 @@ end
  private
  
  def place(move) 
-   move.setDestinationCoordinates(START_POS_X, START_POS_Y, 0) unless movesMade?    
+   move.set_destination_slot( start_slot ) unless moves_made?    
    x,y,z = move.destination
    piece = get_piece_by_id(move.moving_piece_id);
-   setPieceTo(piece, x, y,z) 
+   set_piece_to(piece, x, y,z) 
    @moves << move
    @logger.debug  "PLACED: #{move}" 
  end
 
- def setPieceTo(piece, x ,y, z)
+ def set_piece_to(piece, x ,y, z)
   @logger.debug "Placing #{piece.name} at #{x},#{y},#{z}" 
-  removePieceFromBoard(piece) 
+  remove_piece_from_board(piece) 
   @board[x][y].delete_if{|id| id <= Hive::Slot::UNCONNECTED }
-  emptySlotCode = piece.color == Hive::PieceColor::WHITE ? Hive::Slot::EMPTY_SLOT_WHITE : Hive::Slot::EMPTY_SLOT_BLACK
-  @board[x][y] += [piece.id, emptySlotCode]  
+  empty_slot_code = piece.color == Hive::PieceColor::WHITE ? Hive::Slot::EMPTY_SLOT_WHITE : Hive::Slot::EMPTY_SLOT_BLACK
+  @board[x][y] += [piece.id, empty_slot_code]  
   board_z = @board[x][y].length - 2
-  piece.setBoardPosition(x, y, board_z)
+  piece.set_board_position(x, y, board_z)
   piece.used = true
-  resolveNeighbourStates(piece) 
+  resolve_neighbour_states(piece) 
  end
  
- def placePieceBack(piece)
+ def place_piece_back(piece)
    @board[piece.x][piece.y][piece.z] = piece.id
-   resolveNeighbourStates(piece) 
+   resolve_neighbour_states(piece) 
  end
    
     
- def resolveNeighbourStates(piece)
+ def resolve_neighbour_states(piece)
   count = 0 
-  piece.forEachNeighbourCoordinate do |x,y,z|
+  piece.for_each_neighbour_coordinate do |x,y,z|
     count += 1
     case at(x,y,z)
       when Hive::Slot::UNCONNECTED then 
         if piece.color == Hive::PieceColor::WHITE 
-          setId(x,y,z, Hive::Slot::EMPTY_SLOT_WHITE) 
+          set_id(x,y,z, Hive::Slot::EMPTY_SLOT_WHITE) 
         elsif piece.color == Hive::PieceColor::BLACK   
-          setId(x,y,z,Hive::Slot::EMPTY_SLOT_BLACK) 
+          set_id(x,y,z,Hive::Slot::EMPTY_SLOT_BLACK) 
         end  
       when Hive::Slot::EMPTY_SLOT_BLACK then
-          setId(x, y, z,Hive::Slot::EMPTY_SLOT_MIXED) if piece.color == Hive::PieceColor::WHITE   
+          set_id(x, y, z,Hive::Slot::EMPTY_SLOT_MIXED) if piece.color == Hive::PieceColor::WHITE   
       when Hive::Slot::EMPTY_SLOT_WHITE then
-          setId(x, y ,z ,Hive::Slot::EMPTY_SLOT_MIXED)  if piece.color == Hive::PieceColor::BLACK   
+          set_id(x, y ,z ,Hive::Slot::EMPTY_SLOT_MIXED)  if piece.color == Hive::PieceColor::BLACK   
     end
   end  
  end 
   
 
    
- def slotStateAfterRemoval(removed_piece, slot)
+ def slot_state_after_removal(removed_piece, slot)
        white= :NotANeighbour
        black= :NotANeighbour 
-       slot.forEachNeighbouringPiece do |piece|
+       slot.for_each_neighbouring_piece do |piece|
          unless piece == removed_piece
             white = :Neighbour if piece.color == Hive::PieceColor::WHITE
             black = :Neighbour if piece.color == Hive::PieceColor::BLACK    
          end
        end   
-     return Hive::Slot::slotState(white, black) 
+     return Hive::Slot::slot_state(white, black) 
  end 
  
- def getOriginBoardPos(move) 
-    return @pieces[move.moving_piece_id].boardPosition;
+ def get_origin_board_pos(move) 
+    return @pieces[move.moving_piece_id].board_position;
  end
 
 end

@@ -8,8 +8,8 @@ require 'optparse'
 require 'LoggerCreator' 
 
 #Bundler.require(:default, :test)
-LoggerCreator.setLevel(Logger::INFO)
-logger = LoggerCreator.createLoggerWithName("server_main")
+LoggerCreator.set_level(Logger::INFO)
+logger = LoggerCreator.create_logger_with_name("server_main")
 
 options = {}
  options[:port] = 3333

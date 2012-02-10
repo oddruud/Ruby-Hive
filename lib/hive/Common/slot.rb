@@ -25,11 +25,11 @@ NAME << "TOP LEFT SIDE"
 NAME << "LEFT SIDE"
 NAME << "TOP RIGHT SIDE"
 
-def self.sideName(side)
+def self.side_name(side)
   NAME[side]
 end
 
-def self.getOpposite(side)
+def self.get_opposite(side)
    case side 
       when HexagonSide::ONTOP_SIDE then 
         return HexagonSide::UNDER_SIDE
@@ -67,7 +67,7 @@ class Hive::Slot
 attr_reader :x
 attr_reader :y
 attr_reader :z
-attr_reader :board
+attr_reader :board_state
 attr_accessor :state
 attr_reader :logger
 
@@ -77,24 +77,20 @@ EMPTY_SLOT_BLACK = -3
 EMPTY_SLOT_MIXED = -4
     
 def initialize(board_state, x=-1, y=-1, z=-1, state = UNCONNECTED)
-  setBoardPosition(x, y, z)
+  set_board_position(x, y, z)
   @state = state   
   
   raise "ivalid board_state param" if board_state.kind_of? Fixnum
   @board_state = board_state
-  @logger = LoggerCreator.createLoggerForClassObject(Hive::Slot, @state) 
+  @logger = Logger.new_for_object( self )
   yield self  if block_given? 
 end
 
-def getBoard
-  return @board_state
-end
-
-def setBoardPosition(x, y, z) 
+def set_board_position(x, y, z) 
   @x,@y,@z = x, y, z
 end
 
-def boardPosition
+def board_position
   return @x, @y, @z
 end
 
@@ -104,22 +100,22 @@ end
 
 def neighbour(side)
   raise "null side" if side.nil?
-  x,y,z = Hive::Slot.neighbourCoordinates(@x, @y, @z, side)
-  return @board_state.getSlotAt(x, y, z)
+  x,y,z = Hive::Slot.neighbour_coordinates(@x, @y, @z, side)
+  return @board_state.get_slot_at(x, y, z)
 end
 
-def neighbourCoords(side)
+def neighbour_coords(side)
   raise "null side" if side.nil?
-  return Hive::Slot.neighbourCoordinates(@x, @y, @z, side)
+  return Hive::Slot.neighbour_coordinates(@x, @y, @z, side)
 end
 
-def neighbourCoordinatesArray(side)
+def neighbour_coordinates_array(side)
   raise "null side" if side.nil?
-  x,y,z = Hive::Slot.neighbourCoordinates(@x, @y, @z, side)
+  x,y,z = Hive::Slot.neighbour_coordinates(@x, @y, @z, side)
   return [x, y, z]
 end
 
-def self.neighbourCoordinates(x, y, z, side)  
+def self.neighbour_coordinates(x, y, z, side)  
  xdif, ydif, zdif = 0,0,0
 
  case side 
@@ -151,11 +147,11 @@ def self.neighbourCoordinates(x, y, z, side)
   end
 end
 
-def forEachNeighbourCoordinate(params = {})  
+def for_each_neighbour_coordinate(params = {})  
     exlusions = params[:exclude] || {}
     (0..Hive::HexagonSide::SIDES-1).each do |i|
       unless exlusions.include?(i)
-        x,y,z = neighbourCoords(i) 
+        x,y,z = neighbour_coords(i) 
          if params[:side]   
             yield x,y,z, i               
           else
@@ -165,70 +161,70 @@ def forEachNeighbourCoordinate(params = {})
     end   
 end
 
-def forEachNeighbouringPiece(params = {})
-  forEachNeighbourCoordinate(params) do |x ,y ,z|
-    if @board_state.hasPieceAt(x, y, z)
-      yield @board_state.getPieceAt( x, y, z ) 
+def for_each_neighbouring_piece(params = {})
+  for_each_neighbour_coordinate(params) do |x ,y ,z|
+    if @board_state.has_piece_at(x, y, z)
+      yield @board_state.get_piece_at( x, y, z ) 
     end 
   end 
 end
 
-def forEachNeighbouringSlot( params = {})
+def for_each_neighbouring_slot( params = {})
   params[:side] = true
-  forEachNeighbourCoordinate(params) do |x,y,z, side| 
-    if @board_state.hasConnectedSlotAt(x, y, z) and not @board_state.bottleNeckToSide(self, side)
-      yield @board_state.getSlotAt(x,y,z)       
+  for_each_neighbour_coordinate(params) do |x,y,z, side| 
+    if @board_state.has_connected_slot_at(x, y, z) and not @board_state.bottle_neck_to_side(self, side)
+      yield @board_state.get_slot_at(x,y,z)       
     end
   end 
 end
 
-def forEachNeighbouringSlotOrPiece( params = {})
-  forEachNeighbourCoordinate(params) do |x,y,z,side|
-    if not @board_state.hasPieceAt(x, y, z) 
-      if not @board_state.bottleNeckToSide(self, side)
-        yield @board_state.getSlotAt(x,y,z)
+def for_each_neighbouring_slot_or_piece( params = {})
+  for_each_neighbour_coordinate(params) do |x,y,z,side|
+    if not @board_state.has_piece_at(x, y, z) 
+      if not @board_state.bottle_neck_to_side(self, side)
+        yield @board_state.get_slot_at(x,y,z)
       end
     else
-      yield @board_state.getPieceAt(x, y, z) 
+      yield @board_state.get_piece_at(x, y, z) 
     end 
   end 
 end
 
-def forEachAdjacentPiece()
+def for_each_adjacent_piece()
   params = {:exclude => [Hive::HexagonSide::ONTOP_SIDE, Hive::HexagonSide::UNDER_SIDE], :side => true}
-  forEachNeighbourCoordinate(params) do |x, y, z|
-     if @board_state.hasPieceAt(x, y, z) 
-       yield @board_state.getPieceAt( x, y, z )
+  for_each_neighbour_coordinate(params) do |x, y, z|
+     if @board_state.has_piece_at(x, y, z) 
+       yield @board_state.get_piece_at( x, y, z )
      end 
    end
 end
 
-def forEachAdjacentSlot( params = {} )
+def for_each_adjacent_slot( params = {} )
   params = {:exclude => [Hive::HexagonSide::ONTOP_SIDE, Hive::HexagonSide::UNDER_SIDE], :side => true}
-  forEachNeighbourCoordinate(params) do |x,y,z, side| 
-      if @board_state.hasConnectedSlotAt(x, y, z) 
-        yield @board_state.getSlotAt(x, y, z)
+  for_each_neighbour_coordinate(params) do |x,y,z, side| 
+      if @board_state.has_connected_slot_at(x, y, z) 
+        yield @board_state.get_slot_at(x, y, z)
       end     
   end
 end
 
-def forEachAdjacentSlotOrPiece()
+def for_each_adjacent_slot_or_piece()
   params = {:exclude => [Hive::HexagonSide::ONTOP_SIDE, Hive::HexagonSide::UNDER_SIDE], :side => true}
-  forEachNeighbourCoordinate(params) do |x,y,z|
-    if not @board_state.hasPieceAt(x, y, z) 
-      yield @board_state.getSlotAt(x,y,z)  
+  for_each_neighbour_coordinate(params) do |x,y,z|
+    if not @board_state.has_piece_at(x, y, z) 
+      yield @board_state.get_slot_at(x,y,z)  
     else
-       if @board_state.hasConnectedSlotAt(x, y, z)
-         yield @board_state.getPieceAt(x, y, z) 
+       if @board_state.has_connected_slot_at(x, y, z)
+         yield @board_state.get_piece_at(x, y, z) 
        end
     end 
   end
 end
 
-def neighbouringPieces( amount = 7)
+def neighbouring_pieces( amount = 7)
     pieces = Array.new()
-    forEachNeighbourCoordinate do |x,y,z|
-      piece =  @board_state.getPieceAt(x,y,z) 
+    for_each_neighbour_coordinate do |x,y,z|
+      piece =  @board_state.get_piece_at(x,y,z) 
       if piece 
         pieces << piece 
         return pieces  if pieces.length == amount
@@ -239,13 +235,13 @@ end
 
 def connections()
   count=0
-  forEachNeighbourCoordinate do |x,y,z|
-    count+=1 if @board_state.getPieceAt(x,y,z) 
+  for_each_neighbour_coordinate do |x,y,z|
+    count+=1 if @board_state.get_piece_at(x,y,z) 
   end
   return count 
 end
  
- def self.slotState(white, black) 
+ def self.slot_state(white, black) 
      if white == :Neighbour && black == :Neighbour 
        state = EMPTY_SLOT_MIXED
      elsif white == :Neighbour && black == :NotANeighbour 
@@ -264,27 +260,27 @@ end
 
 
 #[09:39:55] INFO-Piece[BLACK_GRASSHOPPER3]: grashopper place moves: 0
-#[09:39:55] FATAL-GameHandler: move failed: getSide error: side is NULL (input: x:-1,y:1)
+#[09:39:55] FATAL-GameHandler: move failed: get_side error: side is NULL (input: x:-1,y:1)
 #/Users/ruudopdenkelder/Projects/Hive-Boardgame-Framework/Common/slot.rb:280:in `getSide'
 
-def getSide(otherSlot)
-  xDif, yDif, zDif = otherSlot.x - @x,  otherSlot.y - @y, otherSlot.z  - @z 
+def get_side(other_slot)
+  x_dif, y_dif, z_dif = other_slot.x - @x,  other_slot.y - @y, other_slot.z  - @z 
 
-  raise "Error: xDifference: #{xDif}- this function can only determine the side of immediate neightbours." if xDif < -1 || xDif > 1 
-  raise "Error: yDifference: #{yDif}- this function can only determine the side of immediate neightbours." if yDif < -1 || yDif > 1 
+  raise "Error: x_difference: #{x_dif}- this function can only determine the side of immediate neightbours." if x_dif < -1 || x_dif > 1 
+  raise "Error: y_difference: #{y_dif}- this function can only determine the side of immediate neightbours." if y_dif < -1 || y_dif > 1 
 
-  return Hive::HexagonSide::RIGHT_SIDE if xDif > 0 && yDif == 0 
-  return Hive::HexagonSide::LEFT_SIDE if xDif < 0  && yDif == 0
-  return Hive::HexagonSide::BOTTOM_RIGHT_SIDE if xDif >= (@y & 1) && yDif > 0  
-  return Hive::HexagonSide::BOTTOM_LEFT_SIDE if xDif >= 1 - (@y & 1) && yDif > 0  
-  return Hive::HexagonSide::TOP_LEFT_SIDE if xDif <= -1 + (@y & 1) && yDif < 0  
-  return Hive::HexagonSide::TOP_RIGHT_SIDE if xDif >= (@y & 1) && yDif < 0  
+  return Hive::HexagonSide::RIGHT_SIDE if x_dif > 0 && y_dif == 0 
+  return Hive::HexagonSide::LEFT_SIDE if x_dif < 0  && y_dif == 0
+  return Hive::HexagonSide::BOTTOM_RIGHT_SIDE if x_dif >= (@y & 1) && y_dif > 0  
+  return Hive::HexagonSide::BOTTOM_LEFT_SIDE if x_dif >= 1 - (@y & 1) && y_dif > 0  
+  return Hive::HexagonSide::TOP_LEFT_SIDE if x_dif <= -1 + (@y & 1) && y_dif < 0  
+  return Hive::HexagonSide::TOP_RIGHT_SIDE if x_dif >= (@y & 1) && y_dif < 0  
   return Hive::HexagonSide::NULL_SIDE
 end 
 
 
 #TODO! fix this
-def getDirectNeighbourSides(side)
+def get_direct_neighbour_sides(side)
   case side 
     when Hive::HexagonSide::ONTOP_SIDE then
     when Hive::HexagonSide::UNDER_SIDE then

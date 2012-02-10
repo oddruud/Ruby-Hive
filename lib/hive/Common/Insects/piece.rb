@@ -6,7 +6,7 @@ class Hive::PieceColor
   WHITE= :white 
   COLORS = [WHITE, BLACK]
   
-  def self.opposingColor color
+  def self.opposing_color color
     case color
       when BLACK then
         return WHITE
@@ -107,8 +107,8 @@ attr_reader :free_to_move
 attr_accessor :pickup_count
 
 def initialize(board_state, id)
+  set_id(id)
   super(board_state)
-  setId(id)
   @x, @y, @z = -1, -1, -1
   @used = false 
   @pickup_count = 0 
@@ -120,7 +120,7 @@ def id
   return @insect_id
 end
 
-def setBoardPosition(x, y, z) 
+def set_board_position(x, y, z) 
   @x,@y,@z = x, y, z
   update_movability
 end
@@ -137,31 +137,31 @@ def self.valid_id?(id)
   return Hive::Piece.piece_id_range.include?(id)
 end
 
-def setId(insect_id)
+def set_id(insect_id)
   raise "invalid id: #{id}" unless Hive::Piece.valid_id?(insect_id)
   
   @insect_id = insect_id
   
   if @logger.nil?
-     @logger = LoggerCreator.createLoggerForClassObject(Hive::Piece, NAME[@insect_id] )
+     @logger = LoggerCreator.create_logger_for_class_object(Hive::Piece, NAME[@insect_id] )
   else
-     @logger.setName( Hive::Piece , NAME[@insect_id] ) 
+     @logger.set_name( Hive::Piece , NAME[@insect_id] ) 
   end
 end
 
-def self.nameById(id)
+def self.name_by_id(id)
   return NAME[id]
 end
 
 def name
-  Hive::Piece.nameById(id)
+  Hive::Piece.name_by_id(id)
 end 
 
 def used?
 	@used
 end 
 
-def self.colorById(id) 
+def self.color_by_id(id) 
   if id <  NAME.length/2
     return Hive::PieceColor::WHITE
   else
@@ -171,16 +171,16 @@ def self.colorById(id)
 
 
 def copy
-  newPiece = self.dup 
-  return newPiece
+  new_piece = self.dup 
+  return new_piece
 end
 
 def pickup
-  @board_state.pickupPiece(self)
+  @board_state.pickup_piece(self)
 end
 
 def drop
-  @board_state.dropPiece(self)
+  @board_state.drop_piece(self)
 end
 
 def touch
@@ -190,51 +190,51 @@ def touch
 end 
 
 
-def validMove?(move)
+def valid_move?(move)
   if validator.nil?
     @logger.info "#{self} does not have a validator, FIX THIS!"
     return true
   end
-  return validator.validate(@boardState, move)
+  return validator.validate(@board_state, move)
 end
 
 def color
-  return Hive::Piece.colorById(id)
+  return Hive::Piece.color_by_id(id)
 end
 
-def toString
+def to_string
   return self.name[id]
 end
 
-def secondMoves
- openSlots = Array.new()
- if @board_state.moveCount == 1 #if this is the second move to be made, you can connect to the opposing color 
-    opposingSlotType =  Hive::Piece.colorToSlotType(Hive::PieceColor.opposingColor(color))
-    openSlots = openSlots +  @board_state.getSlotsWithTypeCode(opposingSlotType) 
-     @logger.debug "collecting second moves...#{openSlots.length} slots"
-    openSlots.each do |slot|
+def second_moves
+ open_slots = Array.new()
+ if @board_state.move_count == 1 #if this is the second move to be made, you can connect to the opposing color 
+    opposing_slot_type =  Hive::Piece.color_to_slot_type(Hive::PieceColor.opposing_color(color))
+    open_slots = open_slots +  @board_state.get_slots_with_type_code(opposing_slot_type) 
+     @logger.debug "collecting second moves...#{open_slots.length} slots"
+    open_slots.each do |slot|
         @logger.info slot.to_s
      end
  end
- return openSlots
+ return open_slots
 end
 
 #the moves available if the piece is not yet on the board
-def availablePlaceMoves
+def available_place_moves
  moves = Array.new()
- openSlots = Array.new()
+ open_slots = Array.new()
  #@logger.info "collecting moves..."
- openSlots << @board_state.start_slot if not @board_state.movesMade? #FIRST MOVE
- openSlots += secondMoves                           #2nd MOVE
+ open_slots << @board_state.start_slot if not @board_state.moves_made? #FIRST MOVE
+ open_slots += second_moves                           #2nd MOVE
 
  unless @used                                                   #Nth MOVE
-    emptySlotType =  Hive::Piece.colorToSlotType(color)
-    openSlots = openSlots +  @board_state.getSlotsWithTypeCode(emptySlotType)  
+    empty_slot_type =  Hive::Piece.color_to_slot_type(color)
+    open_slots = open_slots +  @board_state.get_slots_with_type_code(empty_slot_type)  
  end
  
- #@logger.info  "NUM open slots: #{openSlots.length}"
- openSlots.delete_if{|slot| slot.z == 1} #only allow slots on the lower level  
- openSlots.each do |slot|
+ #@logger.info  "NUM open slots: #{open_slots.length}"
+ open_slots.delete_if{|slot| slot.z == 1} #only allow slots on the lower level  
+ open_slots.each do |slot|
    raise "bla bla: #{@insect_id}" unless Hive::Piece.valid_id?(@insect_id)
   move = Hive::Move.new(self, slot)
   moves = moves + [move]
@@ -243,10 +243,10 @@ def availablePlaceMoves
  return moves
 end
 
-def self.colorToSlotType(color)
-    whiteN = color == Hive::PieceColor::WHITE ? :Neighbour : :NotANeighbour
-    blackN = color == Hive::PieceColor::BLACK ? :Neighbour : :NotANeighbour
-    return Hive::Slot.slotState(whiteN, blackN) 
+def self.color_to_slot_type(color)
+    white_n = color == Hive::PieceColor::WHITE ? :Neighbour : :NotANeighbour
+    black_n = color == Hive::PieceColor::BLACK ? :Neighbour : :NotANeighbour
+    return Hive::Slot.slot_state(white_n, black_n) 
 end 
 
 

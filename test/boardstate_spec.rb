@@ -15,8 +15,8 @@ describe Hive::BoardState do
      @white_queen = @board_state.get_piece_by_id(Hive::Piece::WHITE_QUEEN_BEE) 
      @black_queen = @board_state.get_piece_by_id(Hive::Piece::BLACK_QUEEN_BEE) 
      
-     @board_state.make_move(@white_player, Hive::Move.fromCords(@white_queen,5,5,0)) 
-     @board_state.make_move(@black_player, Hive::Move.fromCords(@black_queen,6,5,0))  
+     @board_state.make_move(@white_player, Hive::Move.new_from_cords(@white_queen,5,5,0)) 
+     @board_state.make_move(@black_player, Hive::Move.new_from_cords(@black_queen,6,5,0))  
    end 
    
    it 'should provide a slot when right x,y,z provided' do 
@@ -34,9 +34,9 @@ describe Hive::BoardState do
   end
   
   it 'should only contain unique IDs after moving pieces, thus clean moving' do 
-     @board_state.make_move(@white_player, Hive::Move.fromCords(@white_queen ,1,5,0)) 
-     @board_state.make_move(@black_player, Hive::Move.fromCords(@black_queen,2,5,0))
-     @board_state.make_move(@white_player, Hive::Move.fromCords(@white_queen ,7,5,0))
+     @board_state.make_move(@white_player, Hive::Move.new_from_cords(@white_queen ,1,5,0)) 
+     @board_state.make_move(@black_player, Hive::Move.new_from_cords(@black_queen, 2,5,0))
+     @board_state.make_move(@white_player, Hive::Move.new_from_cords(@white_queen ,7,5,0))
     
      id_bag = Set.new()  
      
@@ -50,15 +50,15 @@ describe Hive::BoardState do
     black_ant = @board_state.get_piece_by_id(Hive::Piece::BLACK_ANT2) 
     white_ant = @board_state.get_piece_by_id(Hive::Piece::WHITE_ANT1) 
      
-   @board_state.make_move(@white_player, Hive::Move.fromCords(white_ant,6,1,0)) 
-   @board_state.make_move(@black_player, Hive::Move.fromCords(black_ant,6,3,0))
+   @board_state.make_move(@white_player, Hive::Move.new_from_cords(white_ant,6,1,0)) 
+   @board_state.make_move(@black_player, Hive::Move.new_from_cords(black_ant,6,3,0))
        
    slot1 =  @board_state.getSlotAt(6,2,0)
    slot2 = @board_state.getSlotAt(7,2,0)
    @board_state.bottleNeckBetweenSlots(slot1, slot2).should == true
    
-   @board_state.make_move(@white_player, Hive::Move.fromCords(white_ant,2,6,0)) 
-   @board_state.make_move(@black_player, Hive::Move.fromCords(black_ant,3,7,0))
+   @board_state.make_move(@white_player, Hive::Move.new_from_cords(white_ant,2,6,0)) 
+   @board_state.make_move(@black_player, Hive::Move.new_from_cords(black_ant,3,7,0))
     
    slot1 = @board_state.getSlotAt(2,7,0)
    slot2 = @board_state.getSlotAt(3,6,0)
@@ -69,7 +69,7 @@ describe Hive::BoardState do
   
   it 'should not positively identify non-bottlenecks' do 
    white_ant = @board_state.get_piece_by_id(Hive::Piece::WHITE_ANT1) 
-   @board_state.make_move(@white_player, Hive::Move.fromCords(white_ant,6,1,0)) 
+   @board_state.make_move(@white_player, Hive::Move.new_from_cords(white_ant,6,1,0)) 
        
    slot1 =  @board_state.getSlotAt(6,2,0)
    slot2 = @board_state.getSlotAt(7,2,0)
@@ -79,7 +79,7 @@ describe Hive::BoardState do
   #TEST FOR: removePieceFromBoard(piece)
   it 'should heal the state of surrounding slots after removing a piece' do
     ant1 = @board_state.get_piece_by_id(Hive::Piece::WHITE_ANT1)
-    @board_state.make_move(@white_player, Hive::Move.fromCords(ant1,5,6,0)) 
+    @board_state.make_move(@white_player, Hive::Move.new_from_cords(ant1,5,6,0)) 
     
     #UNCONNECTED = -1
     #EMPTY_SLOT_WHITE = -2
@@ -113,10 +113,10 @@ describe Hive::BoardState do
     @board_state.valid?.should == true 
     
     @black_ant1 = @board_state.get_piece_by_id(Hive::Piece::BLACK_ANT1) 
-    @board_state.make_move(@black_player, Hive::Move.fromCords(@black_ant1,5,9,0))
+    @board_state.make_move(@black_player, Hive::Move.new_from_cords(@black_ant1,5,9,0))
     @board_state.valid?.should == false 
        
-    @board_state.make_move(@black_player, Hive::Move.fromCords(@black_ant1,6,6,0))
+    @board_state.make_move(@black_player, Hive::Move.new_from_cords(@black_ant1,6,6,0))
     @board_state.valid?.should == true
     
   end

@@ -14,13 +14,13 @@ class Hive::Server
   attr_reader :game_handler
   attr_reader :logger
   
-  def initialize(port, testMode)
-    @logger = LoggerCreator.createLoggerForClass(Hive::Server) 
+  def initialize(port, test_mode)
+    @logger = Logger.new_for_class(Hive::Server) 
     @running = true
     @sockets = Array.new() 
     @game_handler= Hive::GameHandler.new() do |gh| 
-        gh.setUpdateCallback() {|message| updateViewers(message)}
-        gh.createNewGame()
+        gh.set_update_callback() {|message| update_viewers(message)}
+        gh.create_new_game()
     end
     @port = port  
    
@@ -41,17 +41,17 @@ class Hive::Server
     #DRb.thread.join   
   end
     
-def startTest()
-    @game_handler.addPlayer Hive::NaiveBot.new("testbot1")
-    @game_handler.addPlayer Hive::NaiveBot.new("testbot2")
+def start_test()
+    @game_handler.add_player Hive::NaiveBot.new("testbot1")
+    @game_handler.add_player Hive::NaiveBot.new("testbot2")
     @game_handler.start()
 end   
    
    
-def updateViewers(gameMessage)
-  #@logger.info "updating all game viewers with message #{gameMessage}"
+def update_viewers(game_message)
+  #@logger.info "updating all game viewers with message #{game_message}"
   @sockets.each do |socket|
-    socket.puts gameMessage
+    socket.puts game_message
   end
 end
 
@@ -84,7 +84,7 @@ end
 
 
 
-def handleMessage(message)
+def handle_message(message)
   
 end
   

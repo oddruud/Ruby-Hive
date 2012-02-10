@@ -16,5 +16,5 @@ server = Server.new(3333, true)
 window = GameView.new(server.game_handler)
 view_thread = Thread.new {window.show}
 
-server.startTest() 
+server.start_test() 
 view_thread.join 

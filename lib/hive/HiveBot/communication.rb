@@ -11,21 +11,21 @@ def initialize(host, port)
   @host= host
   @port= port
   uri= "druby://#{host}:#{port}"  
-  gameHandler = DRbObject.new nil, uri
-  gameHandler.hello() 
+  game_handler = DRbObject.new nil, uri
+  game_handler.hello() 
   puts ("initing communication object (DRb): #{uri}")
 end
 
 
-def retrieveMessage(message)
+def retrieve_message(message)
   
 end
 
-def sendMessage(message)
+def send_message(message)
   
 end  
 
-def sendMove(move)
+def send_move(move)
   
 end
   

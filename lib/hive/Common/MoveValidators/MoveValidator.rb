@@ -4,7 +4,7 @@ require 'Insects/piece'
 
 class Hive::MoveValidator
 
-#def self.validate(boardState, move)
+#def self.validate(board_state, move)
 #  return true
 #end
 

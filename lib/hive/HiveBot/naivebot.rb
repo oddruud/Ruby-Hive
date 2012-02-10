@@ -20,16 +20,16 @@ class Hive::NaiveBot < Hive::Bot
  
   #TODO place the queenbee somewhere in first 4 moves
  
-  def determineNextMove(board_state)
+  def determine_next_move(board_state)
     @logger.debug "determining move, calculating move for #{@color}.."
     
-    pieces = board_state.getPiecesByColor(@color)
+    pieces = board_state.get_pieces_by_color(@color)
     possible_moves = Array.new()  
 
       pieces.each do |piece|
         if interesting_piece? board_state, piece 
           puts "#{piece.name} moves...."
-          possible_moves += piece.availableMoves
+          possible_moves += piece.available_moves
         end
       end
     @logger.info "NUM possible Moves #{possible_moves.length}"  
@@ -42,8 +42,8 @@ class Hive::NaiveBot < Hive::Bot
     
     #pick a random move: 
     move = possible_moves[ rand(possible_moves.length) ]  
-    logMove( move )
-    submitMove( move ) 
+    log_move( move )
+    submit_move( move ) 
   
   end
   

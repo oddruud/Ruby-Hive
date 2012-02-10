@@ -14,11 +14,11 @@ class Hive::ProxyBot < Hive::Bot
   
   def activate
      @active = true
-     listenThread = Thread.new{listen()}
-     listenThread.join()
+     listen_thread = Thread.new{listen()}
+     listen_thread.join()
   end
  
-  def determineNextMove(boardState)
+  def determine_next_move(board_state)
     @logger.debug "calculating move for #{@color}.."
     @socket.puts "your turn"
   end
@@ -28,13 +28,13 @@ class Hive::ProxyBot < Hive::Bot
   def listen()
     while(@active) do 
       message = @socket.gets 
-      handleMessage(message) 
+      handle_message(message) 
     end   
   end
   
-  def handleMessage(message) 
+  def handle_message(message) 
     @logger.debug "message received: #{message}"
-    submitMove(Move.new(-1,-1,-1))
+    submit_move(Move.new(-1,-1,-1))
   end
   
 end
