@@ -8,10 +8,10 @@ require '../Common/piece.rb'
 describe Hive::Piece do
    
    before :each do 
-      #@queenBee= QueenBee.new()
+      #@queen_bee= QueenBee.new()
       #@beetle= Beetle.new()
       #@spider= Spider.new()
-      #@grasHopper= GrassHopper.new()
+      #@gras_hopper= GrassHopper.new()
       #@ant= Ant.new()
       #@mosquito= Mosquito.new()
    end 

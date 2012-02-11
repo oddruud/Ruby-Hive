@@ -87,6 +87,13 @@ def stack_location(piece)
 	return x , y
 end
 
+def self.open_view(game_handler)
+	window = Hive::GameView.new(game_handler)
+	view_thread = Thread.new {window.show} 
+	view_thread.join
+	return view_thread 
+end
+
 
 
 

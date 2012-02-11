@@ -7,30 +7,26 @@ end
   
 def available_moves
   moves = Array.new()
-  moves += available_place_moves unless used? 
-  if used? and movable?
-  	#boardmoves =  Hive::Ant.available_board_moves( self ) 
-  	#moves += boardmoves
-  	#@logger.info "#{self} board moves: #{boardmoves.length}"
-  end
+  moves += available_place_moves unless used?
+  moves += Hive::Ant.available_board_moves( self )  if used? and movable?
  return moves
 end
      
 def self.available_board_moves( ant ) 
   moves = Array.new()
   ant.touch do
-    marked_slots = Set.new([ant])
-    Ant.slide(ant, ant, marked_slots, moves)
+    slots = Set.new()
+    Hive::Ant.slide(ant, ant, slots)
+    slots.each {|s| moves << Hive::Move.new(ant , s)}
   end
     return moves
 end
    
- #TODO
-def self.slide( ant, current_slot, marked_slots, moves) #TODO only move one way, check prevslot
+def self.slide( ant, current_slot, slots)
    current_slot.for_each_adjacent_slot do |slot|
-   unless marked_slots.include?(slot)
-      moves << Hive::Move.new(ant , slot)
-      slide(ant, slot, marked_slots, moves)
+   unless slots.include?(slot) || ant.board_position == slot.board_position
+   		slots << slot
+     	slide(ant, slot, slots)
     break
    end
   end

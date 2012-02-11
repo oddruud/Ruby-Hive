@@ -78,12 +78,16 @@ def reset
   @pieces[Hive::Piece::BLACK_MOSQUITO]=       Hive::Mosquito.new(self,Hive::Piece::BLACK_MOSQUITO)
   @pieces[Hive::Piece::BLACK_LADYBUG]=        Hive::LadyBug.new(self,Hive::Piece::BLACK_LADYBUG)
   
+  @slots = Hash.new
+  
   @winning_color = Hive::PieceColor::NONE
   @moves = Array.new()  #MOVE HISTORY
   @board = Array.new(BOARD_SIZE).map!{Array.new(BOARD_SIZE).map!{ |x| x = [-1,-1] } }   #THE BOARD 
   @logger.info "#{BOARD_SIZE} * #{BOARD_SIZE} * #{BOARD_HEIGHT} board grid created:"
   #puts to_s                        
 end
+  
+  #TODO keep a repo of requested slots 
   
   #Works under the presumption that White always begins!!
  def get_turns(player_color)
@@ -102,6 +106,10 @@ end
   def set_moves(moves) 
     @moves = moves
   end
+  
+  def set_slots(slots)
+  	@slots = slots
+  end
 
 def next_state(move)
    next_board_state = self.clone
@@ -111,6 +119,7 @@ end
 
 def clone
   c = Hive::BoardState.new()
+  c.set_slots( slots_copy() )
   c.set_pieces( pieces_copy() ) 
   c.set_board( board_copy() )
   c.set_moves( moves_copy() )    
@@ -133,6 +142,13 @@ def pieces_copy()
     copy << @pieces[i].dup
   end  
 end
+
+def slots_copy()
+	copy = Hash.new()
+	@slots.each {|key, slot| copy[key] = slot.clone}
+	return copy	
+end
+
 
 def moves_copy()
   return Array.new(@moves)
@@ -176,21 +192,16 @@ end
   end
 
   def pickup_piece(piece)
-    raise "you cannot pick up #{piece} already other piece in hand: #{@current_piece}" unless @current_piece.nil? || piece == @current_piece
-    @current_piece = piece
-    
+    raise "you cannot pick up #{piece} already other piece in hand: #{@current_piece}" unless @current_piece.nil?
     remove_piece_from_board(piece) unless @current_piece == piece
-    #piece.pickup_count += 1
+    @current_piece = piece
   end
   
   #FIXMME!
   def drop_piece(piece)
     raise "the piece #{piece} can not be dropped sinced it hast been picked up" unless piece == @current_piece
-    #if piece.pickup_count == 0
       place_piece_back(piece) 
       @current_piece = nil 
-    #end
-    #piece.pickup_count -= 1
   end
 
   def color_of_winner
@@ -206,7 +217,7 @@ end
   end
   
   def start_slot
-    return Hive::Slot.new(self, START_POS_X, START_POS_Y, 0)
+    return  get_slot_at(START_POS_X, START_POS_Y, 0)
   end
   
   def used_pieces
@@ -363,10 +374,12 @@ end
    return has_piece_at(x, y, z) ? @pieces[ at(x,y,z) ] : nil
  end
  
+ #TODO keep a repo of requested slots 
  def get_slot_at(x,y,z)
    id = at(x, y, z)
    return @pieces[id] if id > Hive::Slot::UNCONNECTED
-   return Hive::Slot.new(self, x,y,z, id)  
+   @slots[[x,y,z]] = Hive::Slot.new(self, x,y,z, id) if @slots[[x,y,z]].nil? 
+   return @slots[[x,y,z]]  
  end
  
  def remove_piece_from_board(piece)
@@ -374,8 +387,7 @@ end
   black = :NotANeighbour 
   if piece.used? 
      piece.for_each_neighbouring_slot_or_piece do |neighbour_slot|
-         if neighbour_slot.value > Hive::Slot::UNCONNECTED
-             #raise "#{neighbour_slot} is a piece"
+         if neighbour_slot.kind_of? Hive::Piece
              white = :Neighbour if neighbour_slot.color == Hive::PieceColor::WHITE      
              black = :Neighbour if neighbour_slot.color == Hive::PieceColor::BLACK     
           else    
@@ -392,7 +404,8 @@ end
  private
  
  def place(move) 
-   move.set_destination_slot( start_slot ) unless moves_made?    
+   #TODO: decide on this!
+   #move.set_destination_slot( start_slot ) unless moves_made?    
    x,y,z = move.destination
    piece = get_piece_by_id(move.moving_piece_id);
    set_piece_to(piece, x, y,z) 
@@ -454,5 +467,7 @@ end
  def get_origin_board_pos(move) 
     return @pieces[move.moving_piece_id].board_position;
  end
+
+ 
 
 end

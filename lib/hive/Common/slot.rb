@@ -301,6 +301,9 @@ def ==(slot)
   return slot.x == @x && slot.y == @y && slot.z == @z
 end
 
+def clone
+	return Hive::Slot.new(@board_state,@x,@y,@z,@state)
+end
 
   
   

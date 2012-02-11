@@ -26,6 +26,7 @@ class Hive::Move
   def piece 
     return @piece
   end
+ 
   
   def moving_piece_id 
     return @piece.id
