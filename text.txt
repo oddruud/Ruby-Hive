@@ -1,3 +1,0 @@
-TODO: 
-
-- availablemoves logic kunnen opvragen
