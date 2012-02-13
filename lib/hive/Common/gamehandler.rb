@@ -1,8 +1,7 @@
 require "boardstate"
 require "player"
-require 'LoggerCreator'
-require 'Move/move'
-require 'Move/moveexception'
+require 'move/move'
+require 'move/move_exception'
 
 
 class Hive::GameHandler
@@ -16,7 +15,7 @@ class Hive::GameHandler
   attr_reader :logger
   
   def initialize()
-    @logger = LoggerCreator.create_logger_for_class(Hive::GameHandler)
+    @logger = Logger.new_for_class(Hive::GameHandler)
     if block_given?
       yield self
     end

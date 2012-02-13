@@ -10,14 +10,13 @@ require 'pieces/ladybug'
 require 'move_validators/move_validator'
 require 'move_validators/queen_in_four_moves_validator'
 
-
 class Hive::TurnState
   GAME_OVER = :gameover
   INVALID = :invalid_move
   VALID = :valid_move
 end
 
-class Hive::BoardState
+class Hive::BoardStateAlternative
  include DRbUndumped
  
 attr_reader :pieces    #1D array [piece_id] -> Piece
@@ -26,12 +25,6 @@ attr_reader :moves     #1D array [i] -> Move
 attr_reader :current_piece  
 attr_reader :logger   
 attr_reader :winning_color   
-
-BOARD_SIZE = 10
-BOARD_HEIGHT = 2
-PIECES_PER_PLAYER = 12
-START_POS_X = BOARD_SIZE/2 
-START_POS_Y = BOARD_SIZE/2
 
 @@validators = [ Hive::QueenInFourMovesValidator, 
                  #PlacedToSameColorValidator 
@@ -76,14 +69,14 @@ def reset
   @pieces[Hive::Piece::BLACK_ANT3]=           Hive::Ant.new(self,Hive::Piece::BLACK_ANT3) 
   @pieces[Hive::Piece::BLACK_MOSQUITO]=       Hive::Mosquito.new(self,Hive::Piece::BLACK_MOSQUITO)
   @pieces[Hive::Piece::BLACK_LADYBUG]=        Hive::LadyBug.new(self,Hive::Piece::BLACK_LADYBUG)
-  
+
   @slots = Hash.new
-  
+
   @winning_color = Hive::PieceColor::NONE
   @moves = Array.new()  #MOVE HISTORY
-  @board = Array.new(BOARD_SIZE).map!{Array.new(BOARD_SIZE).map!{ |x| x = [-1,-1] } }   #THE BOARD 
-  @logger.info "#{BOARD_SIZE} * #{BOARD_SIZE} * #{BOARD_HEIGHT} board grid created:"
-  #puts to_s                        
+
+
+
 end
   
   #TODO keep a repo of requested slots 
@@ -120,20 +113,10 @@ def clone
   c = Hive::BoardState.new()
   c.set_slots( slots_copy() )
   c.set_pieces( pieces_copy() ) 
-  c.set_board( board_copy() )
   c.set_moves( moves_copy() )    
   return c
 end
 
-def board_copy()  
-  copy = Array.new(BOARD_SIZE).map!{Array.new(BOARD_SIZE)}   #THE BOARD 
-  @board.each_index do |xI| 
-    @board[xI].each_index do |yI|
-      copy[xI][yI] = Array.new(@board[xI][yI]) 
-    end
-  end
-  return copy 
-end
 
 def pieces_copy()
   copy = Array.new()

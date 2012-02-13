@@ -1,4 +1,4 @@
-require 'LoggerCreator'
+require 'logger'
 
 class Hive::HexagonSide
   ONTOP_SIDE = 0

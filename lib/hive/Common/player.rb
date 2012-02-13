@@ -18,7 +18,7 @@ class Hive::Player
   def initialize(name, color = Hive::PieceColor::WHITE)
    @name = name
    set_color(color)
-   @logger = LoggerCreator.create_logger_for_class(Hive::Player)
+   @logger = Logger.new_for_object( self )
    @submitted_moves = Array.new()
   end
 

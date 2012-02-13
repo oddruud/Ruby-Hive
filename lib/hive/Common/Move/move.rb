@@ -1,6 +1,5 @@
-require 'Insects/piece'
-require 'Move/moveexception'
-require 'LoggerCreator'
+require 'piece'
+require 'move/move_exception'
 
 class Hive::Move
   include DRbUndumped
