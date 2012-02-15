@@ -1,13 +1,7 @@
 #!/usr/bin/env ruby
 
-$LOAD_PATH.unshift( File.join( File.dirname(__FILE__), 'Common' ) )
-$LOAD_PATH.unshift( File.join( File.dirname(__FILE__), 'HiveServer' ) ) 
+require "hive" 
 
-require "server" 
-require 'optparse'
-require 'LoggerCreator' 
-
-#Bundler.require(:default, :test)
 LoggerCreator.set_level(Logger::INFO)
 logger = LoggerCreator.create_logger_with_name("server_main")
 
