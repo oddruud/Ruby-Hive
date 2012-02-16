@@ -1,13 +1,7 @@
 #!/usr/bin/env ruby
-
-$LOAD_PATH.unshift( File.join( File.dirname(__FILE__), 'Common' ) )
-$LOAD_PATH.unshift( File.join( File.dirname(__FILE__), 'HiveBot' ) )
-require 'socket'
-require 'timeout'
-require 'drb'
-require 'bot'   
-require 'naivebot'
-require 'smartbot'
+require 'rubygems'
+require 'hive'
+require 'optparse'
 
 if ARGV[0]!=nil
   name = ARGV[0]
@@ -20,8 +14,12 @@ port= "3333"
 uri= "druby://#{url}:#{port}"  
 system("mkfifo  hivepipe"); 
 
+
+puts "bot #{name} waiting for server to come online...(press Q to abort)"
 DRb.start_service 
-bot= NaiveBot.new(name)
+bot = Hive::NaiveBot.new(name)
+
+#TODO the game handler should not be a proprty of a bot
 bot.game_handler = DRbObject.new nil, uri
 bot.game_handler.add_player(bot)
 

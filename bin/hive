@@ -1,11 +1,7 @@
 #!/usr/bin/env ruby
 
-require 'rubygems'
-require "hive"
-require "optparse"
-
-Logger.set_level(Logger::INFO)
-logger = Logger.new("server")
+require 'hive'
+require 'optparse'
 
 options = {}
  options[:port] = 3333
@@ -34,6 +30,11 @@ opt_parser.parse!
 
 case ARGV[0]
 when "start"
-  logger.info "starting hive game server on port #{options[:port]}"
-  server= Hive::Server.new(options[:port], options[:debug])
+  	#logger.info "starting hive game server on port #{options[:port]}"
+  	server= Hive::Server.new(options[:port], options[:debug])
+	window = Hive::GameView.new(server.game_handler)
+	view_thread = Thread.new {window.show}
+	server.start_test() 
+	view_thread.join 
 end
+

@@ -1,14 +1,10 @@
 require "common/bot"
-require "LoggerCreator"
-
 require "filters/queen_bee_priority_filter"
 require "filters/attack_filter"
 require "filters/defense_filter"
 
 class Hive::NaiveBot < Hive::Bot
       include DRbUndumped
-  
-  #attr_reader :logger
   
   def initialize(name)
     super("Naive Bot:#{name}")   

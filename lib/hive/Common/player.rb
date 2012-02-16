@@ -1,6 +1,5 @@
 require 'boardstate'
 require 'Move/move'
-require 'LoggerCreator'
 require 'gamehandler'
 
 

@@ -1,7 +1,7 @@
 require 'filters/Filter'
 
 class Hive::QueenBeePriorityFilter < Hive::Filter
-  LOGGER = LoggerCreator.create_logger_for_class(Hive::QueenBeePriorityFilter)
+  LOGGER = Logger.new_for_class(Hive::QueenBeePriorityFilter)
   
   def self.purify_moves(board_state, player, moves)
     return if moves.length == 0 

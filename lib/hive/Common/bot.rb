@@ -8,7 +8,7 @@ class Hive::Bot < Hive::Player
 
   def initialize(name)
     super(name) 
-    @logger = LoggerCreator.create_logger_for_class_object(Hive::Bot, name)
+    @logger = Logger.new_for_object( self )
   end
     
   def make_move(board_state)

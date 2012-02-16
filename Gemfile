@@ -1,7 +1,6 @@
 source :rubygems
 
 gem "logger"
-gem "optparse"
 gem "gosu"
 
 

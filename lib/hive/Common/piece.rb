@@ -141,11 +141,11 @@ def set_id(insect_id)
   raise "invalid id: #{id}" unless Hive::Piece.valid_id?(insect_id)
   
   @insect_id = insect_id
-  
+  @name = NAME[@insect_id]
   if @logger.nil?
-     @logger = LoggerCreator.create_logger_for_class_object(Hive::Piece, NAME[@insect_id] )
+     @logger = Logger.new_for_object( self )
   else
-     @logger.set_name( Hive::Piece , NAME[@insect_id] ) 
+     @logger.set_name( Hive::Piece , @name ) 
   end
 end
 

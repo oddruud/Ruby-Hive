@@ -2,7 +2,7 @@ $:.push File.expand_path("../lib", __FILE__)
 require "hive/version"
 
 Gem::Specification.new do |s|
-  s.name        = 'hive_boardgame_framework'
+  s.name        = 'hive'
   s.version     = Hive::VERSION
   s.platform    = Gem::Platform::RUBY
   s.date        = '2012-01-31'
@@ -16,11 +16,11 @@ Gem::Specification.new do |s|
  
   	s.files         = `git ls-files`.split("\n")
 	s.test_files    = `git ls-files -- {test,spec,features}/*`.split("\n")	
-	s.executables   = `git ls-files -- bin/*`.split("\n").map{ |f| File.basename(f) }
+	s.executables   = ["hive"]
 	s.require_paths = ["lib"]
   
   
-  s.add_dependency "optparse"
+
   s.add_dependency "logger"
   s.add_dependency "gosu"
 end
