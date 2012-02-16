@@ -1,8 +1,8 @@
 require "socket"  
 require "drb"
-#require "gamehandler"  
 require "move/move"
 require "bot/naive_bot"
+
 
 class Hive::Server
   
@@ -10,16 +10,16 @@ class Hive::Server
   attr_reader :server
   attr_reader :sockets
   attr_reader :running
-  attr_reader :game_handler
+  attr_reader :game
+  attr_reader :players
   attr_reader :logger
   
   def initialize(port, test_mode)
     @logger = Logger.new_for_class(Hive::Server) 
     @running = true
     @sockets = Array.new() 
-    @game_handler= Hive::GameHandler.new() do |gh| 
-        gh.set_update_callback() {|message| update_viewers(message)}
-        gh.create_new_game()
+    @game = Hive::Game.new() do |g| 
+        g.set_update_callback() {|message| update_viewers(message)} 
     end
     @port = port  
    
@@ -39,11 +39,25 @@ class Hive::Server
     #@logger.info "Distrbuted Ruby Server running at #{DRb.uri}"  
     #DRb.thread.join   
   end
-    
+   
+
+
+def create_proxy_bot( name, socket )
+  bot = Hive::ProxyBot.new(name, socket)
+end
+
+def add_player( player )
+  game.add_player player unless game.full?
+end
+
+def start_game 
+  game.start
+end
+
 def start_test()
-    @game_handler.add_player Hive::NaiveBot.new("testbot1")
-    @game_handler.add_player Hive::NaiveBot.new("testbot2")
-    @game_handler.start()
+    @game.add_player Hive::NaiveBot.new("testbot1")
+    @game.add_player Hive::NaiveBot.new("testbot2")
+    @game.start()
 end   
    
    
