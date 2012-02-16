@@ -1,8 +1,9 @@
-$LOAD_PATH.unshift( File.join( File.dirname(__FILE__), '../lib/' ) )
-
-require 'hive.rb'
+require 'rubygems'
+require 'hive'
 require 'set'
 
+
+#FIXME: work in progress
 describe Hive::Slot do
    
    before :each do 

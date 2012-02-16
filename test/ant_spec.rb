@@ -3,6 +3,8 @@ require 'rubygems'
 require 'hive'
 require 'set'
 
+
+#FIXME: work in progress
 describe Hive::Ant do
    
    before :each do 

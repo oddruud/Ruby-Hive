@@ -2,6 +2,8 @@ require 'rubygems'
 require 'hive'
 require 'set'
 
+
+#FIXME: work in progress
 describe Hive::BoardState do
    
    before :each do 
