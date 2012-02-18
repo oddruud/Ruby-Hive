@@ -12,9 +12,9 @@ Gem::Specification.new do |s|
   s.email       = 'oddruud@gmail.com'
   s.homepage    = 'https://github.com/oddruud/Hive-Boardgame-Framework'
   
-  s.rubyforge_project = "hive_boardgame_framework"
+  s.rubyforge_project = "hive"
  
-  	s.files         = `git ls-files`.split("\n")
+  s.files         = `git ls-files`.split("\n")
 	s.test_files    = `git ls-files -- {test,spec,features}/*`.split("\n")	
 	s.executables   = ["hive"]
 	s.require_paths = ["lib"]
