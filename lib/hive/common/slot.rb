@@ -1,4 +1,5 @@
 require 'logger'
+require 'hive_id'
 
 class Hive::HexagonSide
   ONTOP_SIDE = 0
@@ -55,13 +56,6 @@ end
 end
 
 
-###
-# PROBLEEM: als een stuk 1 plaats beweegt, mag het niet naar een locatie bewegen waardoor het stuk de samenhang zou verbreken DUS bij 1 plaats 
-# bewegen moet er meer dan 1 verbinding zijn met het slot waarnaar word bewogen. Met meerdere stappen werkt deze approach niet goed.
-# TODO! FIXME!
-###
-
-
 class Hive::Slot
 
 attr_reader :x
@@ -80,7 +74,7 @@ def initialize(board_state, x=-1, y=-1, z=-1, state = UNCONNECTED)
   set_board_position(x, y, z)
   @state = state   
   
-  raise "ivalid board_state param" if board_state.kind_of? Fixnum
+  raise "invalid board_state param" if board_state.kind_of? Fixnum
   @board_state = board_state
   @logger = Logger.new_for_object( self )
   yield self  if block_given? 
@@ -148,7 +142,7 @@ def self.neighbour_coordinates(x, y, z, side)
 end
 
 def for_each_neighbour_coordinate(params = {})  
-    exlusions = params[:exclude] || {}
+    exlusions = params[:exclude] ||  [Hive::HexagonSide::UNDER_SIDE] 
     (0..Hive::HexagonSide::SIDES-1).each do |i|
       unless exlusions.include?(i)
         x,y,z = neighbour_coords(i) 
@@ -177,6 +171,13 @@ def for_each_neighbouring_slot( params = {})
     end
   end 
 end
+
+def for_each_multi_z_level_slot #overwrite to return slots of any z-index
+  for_each_neighbour_coordinate( {:exclude => [Hive::HexagonSide::ONTOP_SIDE, Hive::HexagonSide::UNDER_SIDE]} ) do |x , y|
+    z_level = @board_state.get_num_pieces_at(x,y)
+    yield @board_state.get_slot_at( x, y, z_level ) 
+  end
+end 
 
 def for_each_neighbouring_slot_or_piece( params = {})
   for_each_neighbour_coordinate(params) do |x,y,z,side|
@@ -258,6 +259,9 @@ def value
   return @state
 end 
 
+def empty?
+  return value <= UNCONNECTED
+end
 
 #[09:39:55] INFO-Piece[BLACK_GRASSHOPPER3]: grashopper place moves: 0
 #[09:39:55] FATAL-GameHandler: move failed: get_side error: side is NULL (input: x:-1,y:1)

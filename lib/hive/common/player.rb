@@ -1,6 +1,6 @@
 require 'boardstate'
 require 'Move/move'
-require 'gamehandler'
+
 
 
 class Hive::Player

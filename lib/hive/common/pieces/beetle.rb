@@ -12,14 +12,11 @@ def available_moves
  return moves
 end 
  
-#TODO fix! what if beetle is ontop? handle beetle stacking
 def self.available_board_moves( beetle )
   moves = Array.new()
   beetle.touch do
-    board_state = beetle.get_board
-    beetle.for_each_neighbouring_slot_or_piece do |slot|
-      num_pieces = board_state.get_num_pieces_at(slot.x, slot.y)          
-      moves << Hive::Move.from_cords(beetle , slot.x, slot.y, num_pieces )
+      beetle.for_each_multi_z_level_slot do |slot|          
+      moves << Hive::Move.new( beetle , slot )
    end  
  end
  beetle.logger.info "board moves: #{moves.length}"

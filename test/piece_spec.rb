@@ -1,6 +1,6 @@
 
 require 'rubygems'
-require 'hive'
+require '../lib/hive' #replace with hive on publish
 require 'set'
 
 

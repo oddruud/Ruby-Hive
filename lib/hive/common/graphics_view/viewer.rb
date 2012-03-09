@@ -3,7 +3,7 @@ require 'gosu'
 require 'chingu'
 require 'graphics_view/hexagon_piece'
 require 'graphics_view/view_constants'
-require 'gamehandler'
+require 'game'
 require 'boardstate'
 
 #TODO's
@@ -14,14 +14,14 @@ require 'boardstate'
 
 class Hive::GameView < Chingu::Window
 
-  def initialize(gamehandler)
+  def initialize(game)
     super(Hive::ViewConstants::WINDOW_WIDTH, Hive::ViewConstants::WINDOW_HEIGHT, false)
     self.caption = 'Hive Boardgame view'
     #TODO retrieve absolute gem path 
     @background = Gosu::Image.new(self, "../lib/hive/common/graphics_view/data/images/wood.jpg",true)
     @font = Gosu::Font.new(self, Gosu::default_font_name, 20)
     @view_turn = 0
-    @gamehandler = gamehandler
+    @game = game
     @pieces = Array.new()
     (0..23).each {|i| @pieces << Hive::HexagonPiece.new(self, i) }
 end
@@ -88,8 +88,8 @@ def stack_location(piece)
 	return x , y
 end
 
-def self.open_view(game_handler)
-	window = Hive::GameView.new(game_handler)
+def self.open_view(game)
+	window = Hive::GameView.new(game)
 	view_thread = Thread.new {window.show} 
 	view_thread.join
 	return view_thread 

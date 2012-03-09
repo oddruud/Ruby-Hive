@@ -1,5 +1,3 @@
-#!/usr/bin/env ruby
-
 $LOAD_PATH.unshift( File.join( File.dirname(__FILE__), 'hive' ) ) 
 $LOAD_PATH.unshift( File.join( File.dirname(__FILE__), 'hive/common' ) )
 $LOAD_PATH.unshift( File.join( File.dirname(__FILE__), 'hive/server' ) ) 
@@ -67,7 +65,7 @@ end
 require 'server'
 require 'rubygems' # only necessary in Ruby 1.8
 require 'gosu'
-require 'gamehandler'
+require 'game'
 require 'graphics_view/viewer.rb'
 require 'boardstate.rb'
 require 'player.rb'

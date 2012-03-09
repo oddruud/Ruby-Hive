@@ -1,6 +1,5 @@
-
 require 'rubygems'
-require 'hive'
+require '../lib/hive' #replace with hive on publish
 require 'set'
 
 #FIXME: work in progress
@@ -10,12 +9,12 @@ describe Hive::Spider do
       Logger.set_level(Logger::INFO)
       
       @board_state = 	Hive::BoardState.new("test_board")
-      @black_player = 	Hive::Player.new('unittest player BLACK', Hive::PieceColor::BLACK)
-      @white_player = 	Hive::Player.new('unittest player WHITE', Hive::PieceColor::WHITE)
+      @black_player = Hive::Player.new('unittest player BLACK', Hive::PieceColor::BLACK)
+      @white_player = Hive::Player.new('unittest player WHITE', Hive::PieceColor::WHITE)
       
       @white_queen = 	@board_state.get_piece_by_id(Hive::Piece::WHITE_QUEEN_BEE) 
-      @black_spider = 	@board_state.get_piece_by_id(Hive::Piece::BLACK_SPIDER1) 
-      @white_spider = 	@board_state.get_piece_by_id(Hive::Piece::WHITE_SPIDER1) 
+      @black_spider = @board_state.get_piece_by_id(Hive::Piece::BLACK_SPIDER1) 
+      @white_spider = @board_state.get_piece_by_id(Hive::Piece::WHITE_SPIDER1) 
       @black_ant = 		@board_state.get_piece_by_id(Hive::Piece::BLACK_ANT1) 
      
       @board_state.make_move( @white_player , Hive::Move.new_with_cords( @white_queen ,5,4,0)) 

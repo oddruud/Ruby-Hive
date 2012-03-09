@@ -1,8 +1,6 @@
-
 require 'rubygems'
-require 'hive'
+require '../lib/hive' #replace with hive on publish
 require 'set'
-
 
 #FIXME: work in progress
 describe Hive::Ant do

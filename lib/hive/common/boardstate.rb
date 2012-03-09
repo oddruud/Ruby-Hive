@@ -27,14 +27,13 @@ attr_reader :current_piece
 attr_reader :logger   
 attr_reader :winning_color   
 
-BOARD_SIZE = 10
-BOARD_HEIGHT = 2
+BOARD_SIZE = 50
 PIECES_PER_PLAYER = 12
 START_POS_X = BOARD_SIZE/2 
 START_POS_Y = BOARD_SIZE/2
 
 @@validators = [ Hive::QueenInFourMovesValidator, 
-                 #PlacedToSameColorValidator 
+                 #Hive::PlacedToSameColorValidator 
                 ]  
 
 def initialize(name = nil)
@@ -81,8 +80,7 @@ def reset
   
   @winning_color = Hive::PieceColor::NONE
   @moves = Array.new()  #MOVE HISTORY
-  @board = Array.new(BOARD_SIZE).map!{Array.new(BOARD_SIZE).map!{ |x| x = [-1,-1] } }   #THE BOARD 
-  @logger.info "#{BOARD_SIZE} * #{BOARD_SIZE} * #{BOARD_HEIGHT} board grid created:"
+  @board = Array.new(BOARD_SIZE).map!{Array.new(BOARD_SIZE).map!{ |x| x = [-1] } }   #THE BOARD 
   #puts to_s                        
 end
   
@@ -153,25 +151,21 @@ def moves_copy()
   return Array.new(@moves)
 end
 
-  def at(x,y,z)
-      return @board[x][y][z] unless out_of_bounds(x,y,z) 
-      return Hive::Slot::UNCONNECTED
-  end
+def at(x,y,z)
+    return @board[x][y][z] || Hive::Slot::UNCONNECTED  unless out_of_bounds(x,y,z) 
+    return Hive::Slot::UNCONNECTED
+end
   
   def has_piece_at(x,y,z)
-    return at(x, y, z) > Hive::Slot::UNCONNECTED && !out_of_bounds(x,y,z) 
+    return at(x, y, z).is_hive_piece_id? && !out_of_bounds(x,y,z) 
   end
   
   def has_connected_slot_at(x,y,z)
-    return !out_of_bounds(x,y,z) && at(x,y,z) < Hive::Slot::UNCONNECTED
+    return !out_of_bounds(x,y,z) && at(x,y,z).is_hive_slot_id? 
   end
   
   def out_of_bounds(x, y, z)
-    return x >= Hive::BoardState::BOARD_SIZE || y >= Hive::BoardState::BOARD_SIZE || z >= @board[x][y].length || x < 0 || y < 0 || z < 0 
-  end
-  
-  def set_id(x,y,z,id)
-    @board[x][y][z] = id unless out_of_bounds(x, y, z)
+    return x >= Hive::BoardState::BOARD_SIZE || y >= Hive::BoardState::BOARD_SIZE || z > @board[x][y].length || x < 0 || y < 0 || z < 0   
   end
    
   def location_string(x,y,z)
@@ -179,7 +173,7 @@ end
   end 
     
   def get_piece_by_id(id)
-    raise "#{id} does not match with any piece in #{self}" unless Hive::Piece.valid_id?(id)
+    raise "#{id} does not match with any piece in #{self}" unless id.is_hive_piece_id?
     @logger.debug "getPieceById:#{id}"
     return @pieces[id]
   end
@@ -192,7 +186,7 @@ end
 
   def pickup_piece(piece)
     raise "you cannot pick up #{piece} already other piece in hand: #{@current_piece}" unless @current_piece.nil?
-    remove_piece_from_board(piece) unless @current_piece == piece
+    remove_piece_from_board( piece ) unless @current_piece == piece
     @current_piece = piece
   end
   
@@ -270,7 +264,6 @@ end
         @logger.info  "INVALID MOVE: #{move}"  
         result = Hive::TurnState::INVALID
       end
-      #end
     rescue Hive::MoveException => message
       @logger.info "Move exception:#{message}"
       result = Hive::TurnState::INVALID
@@ -364,7 +357,7 @@ end
  ##TODO: errorprone...
  def get_num_pieces_at(x,y) 
   count = 0
-  @board[x][y].each{|id| count+=1 if id > Hive::Slot::UNCONNECTED} unless out_of_bounds(x,y,0)
+  @board[x][y].each{|id| count+=1 if id.is_hive_piece_id? } unless out_of_bounds(x,y,0)
   return count
  end
  
@@ -402,9 +395,7 @@ end
  
  private
  
- def place(move) 
-   #TODO: decide on this!
-   #move.set_destination_slot( start_slot ) unless moves_made?    
+ def place(move)   
    x,y,z = move.destination
    piece = get_piece_by_id(move.moving_piece_id);
    set_piece_to(piece, x, y,z) 
@@ -412,20 +403,26 @@ end
    @logger.debug  "PLACED: #{move}" 
  end
 
- def set_piece_to(piece, x ,y, z)
+ def set_piece_to( piece, x , y, z )
   @logger.debug "Placing #{piece.name} at #{x},#{y},#{z}" 
   remove_piece_from_board(piece) 
-  @board[x][y].delete_if{|id| id <= Hive::Slot::UNCONNECTED }
-  empty_slot_code = piece.color == Hive::PieceColor::WHITE ? Hive::Slot::EMPTY_SLOT_WHITE : Hive::Slot::EMPTY_SLOT_BLACK
-  @board[x][y] += [piece.id, empty_slot_code]  
-  board_z = @board[x][y].length - 2
-  piece.set_board_position(x, y, board_z)
+  set_id( x, y, z, piece.id )
+  piece.set_board_position(x, y, z)  
   piece.used = true
-  resolve_neighbour_states(piece) 
+  resolve_neighbour_states( piece ) 
+ end
+ 
+ def set_id( x, y, z, id )
+     raise "Invalid board change: x: #{x}, y:#{y}, z:#{z} -ID: #{id}" if out_of_bounds(x, y, z)   #TODO make out_of bounds smarter
+     @board[x][y][z] = id
+ end
+ 
+ def set_piece( piece )
+   set_id( piece.x, piece.y, piece.z, piece.id ) 
  end
  
  def place_piece_back(piece)
-   @board[piece.x][piece.y][piece.z] = piece.id
+   set_piece(piece) #places a piece back on the board (writes its id in the @board array) 
    resolve_neighbour_states(piece) 
  end
    
@@ -448,9 +445,7 @@ end
     end
   end  
  end 
-  
-
-   
+ 
  def slot_state_after_removal(removed_piece, slot)
        white= :NotANeighbour
        black= :NotANeighbour 
