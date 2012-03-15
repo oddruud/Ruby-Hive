@@ -45,6 +45,7 @@ end
 
 def reset
   @logger.info  "Creating pieces for Board State"
+  @board = Array.new(BOARD_SIZE).map!{Array.new(BOARD_SIZE).map!{ |x| x = [-1] } }   #THE BOARD 
   @pieces =  Array.new()                                       #THE PIECES
   #WHITE PIECES
   @pieces[Hive::Piece::WHITE_QUEEN_BEE]=      Hive::QueenBee.new(self, Hive::Piece::WHITE_QUEEN_BEE)
@@ -80,7 +81,7 @@ def reset
   
   @winning_color = Hive::PieceColor::NONE
   @moves = Array.new()  #MOVE HISTORY
-  @board = Array.new(BOARD_SIZE).map!{Array.new(BOARD_SIZE).map!{ |x| x = [-1] } }   #THE BOARD 
+ 
   #puts to_s                        
 end
   
@@ -194,6 +195,7 @@ end
   def drop_piece(piece)
     raise "the piece #{piece} can not be dropped sinced it hast been picked up" unless piece == @current_piece
       place_piece_back(piece) 
+      #@pieces.each {|p| p.marked = false}
       @current_piece = nil 
   end
 
@@ -311,10 +313,10 @@ end
 
 def get_slots_with_type_code(slot_type)   
   slots = Array.new()
-  raise "a slot with an id higher than -1 is not a slot but a piece, use get_piece_by_id(piece_id)" if slot_type > Hive::Slot::UNCONNECTED
+  raise "a slot with an id higher than -1 is not a slot but a piece, use get_piece_by_id(piece_id)" if slot_type.is_hive_piece_id?
   
   self.each_board_position do |x, y, z, value|
-    if value == slot_type && value < 0  
+    if value == slot_type && value.is_hive_slot_id?  
       slots << get_slot_at(x,y,z)
     end    
   end
@@ -338,7 +340,7 @@ end
    unless bottle_neck_sides.nil?
     bottle_neck_sides.each do |side|
       x,y,z =  slot.neighbour_coords(side)
-      counter += 1 if at(x, y, z) > Hive::Slot::UNCONNECTED
+      counter += 1 if at(x, y, z).is_hive_piece_id?
     end  
    end
    return counter == 2 ? true : false
@@ -352,7 +354,6 @@ end
    end
    return pieces
  end
- 
  
  ##TODO: errorprone...
  def get_num_pieces_at(x,y) 
@@ -369,7 +370,7 @@ end
  #TODO keep a repo of requested slots 
  def get_slot_at(x,y,z)
    id = at(x, y, z)
-   return @pieces[id] if id > Hive::Slot::UNCONNECTED
+   return @pieces[id] if id.is_hive_piece_id?
    @slots[[x,y,z]] = Hive::Slot.new(self, x,y,z, id) if @slots[[x,y,z]].nil? 
    return @slots[[x,y,z]]  
  end
@@ -384,6 +385,7 @@ end
              black = :Neighbour if neighbour_slot.color == Hive::PieceColor::BLACK     
           else    
             set_id(neighbour_slot.x,neighbour_slot.y,neighbour_slot.z, slot_state_after_removal(piece, neighbour_slot) ) #changes the states of surrounding slots after the removal    
+            neighbour_slot.update_reachability() #WORK IN PROGRESS
         end
      end    
      rx,ry,rz = piece.board_position   

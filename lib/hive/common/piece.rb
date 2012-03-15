@@ -105,6 +105,7 @@ attr_reader :insect_id
 attr_reader :free_to_move
 
 attr_accessor :pickup_count
+attr_accessor :marked
 
 def initialize(board_state, id)
   set_id(id)
@@ -113,6 +114,7 @@ def initialize(board_state, id)
   @used = false 
   @pickup_count = 0 
   @free_to_move = true
+  @reachable_neighbours = Array.new( 8, true)
   yield self if block_given?
 end
 
@@ -122,7 +124,12 @@ end
 
 def set_board_position(x, y, z) 
   @x,@y,@z = x, y, z
-  update_movability
+  
+  unless @x == -1 #means initialization
+    update_movability
+    update_reachability #WORK IN PROGRESS
+    for_each_adjacent_slot_or_piece {|s| s.update_reachability()}
+  end
 end
 
 def self.num_play_pieces

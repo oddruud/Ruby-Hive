@@ -15,26 +15,30 @@ def available_moves
  return moves
 end
 
+#ARG!!!!
 def self.available_board_moves( spider )
   moves = []
   spider.touch do
-    self.traverse_board(spider, spider,nil,0, moves)
-  end 
+    slots = Set.new()  
+    self.step(spider, spider, Set.new(), slots)
+    puts "#{slots.length} slots found"
+    slots.each {|s| moves << Hive::Move.new(spider , s)}
+  end
   spider.logger.info "board moves: #{moves.length}"
   return moves
 end
 
- #TODO
-def self.traverse_board( spider, current_slot, prev_slot, step_count, result_moves ) #TODO only move one way, check prevslot
-   current_slot.for_each_adjacent_slot do |neighbour_slot|
-     unless prev_slot == neighbour_slot     
-        if step_count == 0
-          puts "neighbour slot: #{neighbour_slot}" 
-          result_moves << Hive::Move.new(spider , neighbour_slot)  
-        else
-          step_count += 1
-          traverse_board(spider, neighbour_slot, current_slot, step_count, result_moves)
-        end
+ #TODO GAP BETWEEN MUST BE IMPLEMENTED FOR ALL SLOTS: the neighbour iteration should not return slots with a gap, since they are not neighbours
+def self.step( spider, current_slot, slot_history, result_slots) #TODO only move one way, check prevslot
+   current_slot.for_each_adjacent_slot do |next_slot|  
+     history_branch = slot_history.clone
+     unless history_branch.include?( next_slot ) || spider.board_position == next_slot.board_position #|| current_slot.gap_between?( next_slot ) #TODO: gap between is temporary 
+      history_branch << next_slot
+      if history_branch.size < 3
+        step(spider, next_slot, history_branch, result_slots)
+      elsif history_branch.size == 3 
+        result_slots << next_slot
+      end    
     end
   end
 end  

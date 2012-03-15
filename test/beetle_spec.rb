@@ -47,7 +47,4 @@ describe Hive::Beetle do
       end
     end
   
-   #should 'raise an exception when a piece id does not match a piece' do 
-   #   assert_raise(RuntimeError){@board_state.get_piece_by_id(100)}
-   #end  
 end

@@ -63,22 +63,37 @@ attr_reader :y
 attr_reader :z
 attr_reader :board_state
 attr_accessor :state
+attr_accessor :reachable_neighbours # array, holds for all sides whether these sides are reachable from this slot 
 attr_reader :logger
 
 UNCONNECTED = -1
 EMPTY_SLOT_WHITE = -2
 EMPTY_SLOT_BLACK = -3
 EMPTY_SLOT_MIXED = -4
+
+STATE_NAMES = ["UNCONNECTED", "EMPTY WHITE", "EMPTY BLACK", "EMPTY MIXED"] 
     
 def initialize(board_state, x=-1, y=-1, z=-1, state = UNCONNECTED)
+  @reachable_neighbours = Array.new( 8, true)
+  @board_state = board_state
   set_board_position(x, y, z)
   @state = state   
-  
-  raise "invalid board_state param" if board_state.kind_of? Fixnum
-  @board_state = board_state
   @logger = Logger.new_for_object( self )
   yield self  if block_given? 
 end
+
+def reset_reachability
+  @reachable_neighbours = Array.new( 8, true)
+end
+
+def set_reachability(side, reachable)
+  @reachable_neighbours[ side ] = reachable
+end
+
+def reachable?( side_index ) 
+  return @reachable_neighbours[ side_index ]
+end
+
 
 def set_board_position(x, y, z) 
   @x,@y,@z = x, y, z
@@ -89,7 +104,7 @@ def board_position
 end
 
 def to_s
-  return "x: #{@x},y: #{@y},z: #{@z},state: #{@state}"
+  return "x: #{@x},y: #{@y},z: #{@z},state: #{STATE_NAMES[@state.abs-1]}"
 end
 
 def neighbour(side)
@@ -141,13 +156,15 @@ def self.neighbour_coordinates(x, y, z, side)
   end
 end
 
+
+
 def for_each_neighbour_coordinate(params = {})  
     exlusions = params[:exclude] ||  [Hive::HexagonSide::UNDER_SIDE] 
-    (0..Hive::HexagonSide::SIDES-1).each do |i|
-      unless exlusions.include?(i)
-        x,y,z = neighbour_coords(i) 
+    (0..Hive::HexagonSide::SIDES-1).each do |side_index|
+      unless exlusions.include?( side_index ) #|| !reachable?( side_index ) 
+        x,y,z = neighbour_coords( side_index ) 
          if params[:side]   
-            yield x,y,z, i               
+            yield x,y,z, side_index               
           else
             yield x,y,z
           end
@@ -193,9 +210,9 @@ end
 
 def for_each_adjacent_piece()
   params = {:exclude => [Hive::HexagonSide::ONTOP_SIDE, Hive::HexagonSide::UNDER_SIDE], :side => true}
-  for_each_neighbour_coordinate(params) do |x, y, z|
+  for_each_neighbour_coordinate(params) do |x, y, z, side|
      if @board_state.has_piece_at(x, y, z) 
-       yield @board_state.get_piece_at( x, y, z )
+       yield @board_state.get_piece_at( x, y, z ), side
      end 
    end
 end
@@ -204,19 +221,19 @@ def for_each_adjacent_slot( params = {} )
   params = {:exclude => [Hive::HexagonSide::ONTOP_SIDE, Hive::HexagonSide::UNDER_SIDE], :side => true}
   for_each_neighbour_coordinate(params) do |x,y,z, side| 
       if @board_state.has_connected_slot_at(x, y, z) 
-        yield @board_state.get_slot_at(x, y, z)
+        yield @board_state.get_slot_at(x, y, z), side
       end     
   end
 end
 
 def for_each_adjacent_slot_or_piece()
   params = {:exclude => [Hive::HexagonSide::ONTOP_SIDE, Hive::HexagonSide::UNDER_SIDE], :side => true}
-  for_each_neighbour_coordinate(params) do |x,y,z|
+  for_each_neighbour_coordinate(params) do |x,y,z, side|
     if not @board_state.has_piece_at(x, y, z) 
-      yield @board_state.get_slot_at(x,y,z)  
+      yield @board_state.get_slot_at(x,y,z), side  
     else
        if @board_state.has_connected_slot_at(x, y, z)
-         yield @board_state.get_piece_at(x, y, z) 
+         yield @board_state.get_piece_at(x, y, z), side 
        end
     end 
   end
@@ -263,9 +280,23 @@ def empty?
   return value <= UNCONNECTED
 end
 
-#[09:39:55] INFO-Piece[BLACK_GRASSHOPPER3]: grashopper place moves: 0
-#[09:39:55] FATAL-GameHandler: move failed: get_side error: side is NULL (input: x:-1,y:1)
-#/Users/ruudopdenkelder/Projects/Hive-Boardgame-Framework/Common/slot.rb:280:in `getSide'
+def gap_between?( slot )
+  for_each_adjacent_piece do |p|
+    p.for_each_adjacent_slot do |s|
+      if s == slot
+        return false
+      end
+    end 
+  end
+  return true 
+end
+
+def update_reachability()
+  for_each_adjacent_slot do |slot, side|
+    set_reachability(side, gap_between?( slot ) )
+    #raise "GAP FOUND BETWEEN #{self} and #{slot}" if gap_between?( slot ) 
+  end    
+end
 
 def get_side(other_slot)
   x_dif, y_dif, z_dif = other_slot.x - @x,  other_slot.y - @y, other_slot.z  - @z 
