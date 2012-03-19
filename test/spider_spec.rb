@@ -24,33 +24,42 @@ describe Hive::Spider do
       @board_state.make_move( @black_player,  Hive::Move.new_with_cords( @black_spider ,6,4,0))
       @board_state.make_move( @white_player , Hive::Move.new_with_cords( @white_spider2 ,6,5,0))
       @board_state.make_move( @black_player,  Hive::Move.new_with_cords( @black_ant ,4,5,0))
-      @board_state.make_move( @white_player,  Hive::Move.new_with_cords( @white_spider ,5,5,0))
-      
+
       @possible_moves = [ 	Hive::Move.new_with_cords( @white_spider,3,5,0), 
                             Hive::Move.new_with_cords( @white_spider,7,5,0)
                           ].to_set 
    end 
 
     it 'should have the right available_board_moves' do
+      @board_state.make_move( @white_player,  Hive::Move.new_with_cords( @white_spider ,5,5,0))
+      
       moves = Hive::Spider.available_board_moves( @white_spider )
       moves = moves.to_set 
 
-      puts "#{moves.length} moves found----"
-      moves.each {|m| puts m}
-      puts "#{@possible_moves.length} expected moves----"
-      @possible_moves.each {|m| puts m}
-      puts "----"
+      #puts "#{moves.length} moves found----"
+      #moves.each {|m| puts m}
+      #puts "#{@possible_moves.length} expected moves----"
+      #@possible_moves.each {|m| puts m}
+      #puts "----"
       
-      # @possible_moves.length.should == moves.length
-      #       @possible_moves.each do |possible|
-      #         match = [possible,false]      
-      #         moves.each { |available| match = [possible, true] if available.dest_slot == possible.dest_slot }
-      #         match.should == [possible, true]
-      #       end
+       @possible_moves.length.should == moves.length
+       @possible_moves.each do |possible|
+         match = [possible,false]      
+         moves.each { |available| match = [possible, true] if available.dest_slot == possible.dest_slot }
+         match.should == [possible, true]
+       end
     end
     
     it 'should see the gap' do
-      @board_state.get_slot_at(5,6,0).gap_between?( @board_state.get_slot_at(6,6,0) ).should == true 
+      @board_state.get_slot_at(5,6,0).gap_between?( @board_state.get_slot_at( 6, 6 , 0 ) ).should == true 
+    end
+    
+    it 'should find the false neighbours' do #test for the pre-calculation of gaps_between?'s
+      @board_state.make_move( @white_player,  Hive::Move.new_with_cords( @white_spider ,5,5,0))
+      @white_spider.pickup
+      @board_state.get_slot_at(5,6,0).false_neighbours[ 2 ].should == true
+      @white_spider.drop
+      @board_state.get_slot_at(5,6,0).false_neighbours[ 2 ].should == false
     end
 
 end

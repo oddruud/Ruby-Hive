@@ -63,7 +63,7 @@ attr_reader :y
 attr_reader :z
 attr_reader :board_state
 attr_accessor :state
-attr_accessor :reachable_neighbours # array, holds for all sides whether these sides are reachable from this slot 
+attr_accessor :false_neighbours # array, holds for all sides whether these sides are reachable from this slot 
 attr_reader :logger
 
 UNCONNECTED = -1
@@ -74,24 +74,45 @@ EMPTY_SLOT_MIXED = -4
 STATE_NAMES = ["UNCONNECTED", "EMPTY WHITE", "EMPTY BLACK", "EMPTY MIXED"] 
     
 def initialize(board_state, x=-1, y=-1, z=-1, state = UNCONNECTED)
-  @reachable_neighbours = Array.new( 8, true)
+  @false_neighbours = Array.new( 8, false )
   @board_state = board_state
   set_board_position(x, y, z)
   @state = state   
   @logger = Logger.new_for_object( self )
-  yield self  if block_given? 
 end
 
-def reset_reachability
-  @reachable_neighbours = Array.new( 8, true)
+def reset_false_neighbours
+  @false_neighbours = Array.new( 8, false )
 end
 
-def set_reachability(side, reachable)
-  @reachable_neighbours[ side ] = reachable
+def set_false_neighbour(side, false_neighbour)
+  @false_neighbours[ side ] = false_neighbour
 end
 
-def reachable?( side_index ) 
-  return @reachable_neighbours[ side_index ]
+def false_neighbour?( side_index ) 
+  return @false_neighbours[ side_index ]
+end
+
+def update_false_neighbours
+  for_each_adjacent_slot do |slot, side|
+    set_false_neighbour(side, self.gap_between?( slot ) )
+  end    
+end
+
+#TODO do reset and update in one go
+def update_false_neighbours_area
+  reset_false_neighbours_area
+  update_false_neighbours #WORK IN PROGRESS
+  for_each_adjacent_slot_or_piece do |s|
+    s.update_false_neighbours 
+  end
+end
+
+def reset_false_neighbours_area
+  reset_false_neighbours
+  for_each_adjacent_slot_or_piece do |s|
+    s.reset_false_neighbours 
+  end
 end
 
 
@@ -156,12 +177,10 @@ def self.neighbour_coordinates(x, y, z, side)
   end
 end
 
-
-
 def for_each_neighbour_coordinate(params = {})  
     exlusions = params[:exclude] ||  [Hive::HexagonSide::UNDER_SIDE] 
     (0..Hive::HexagonSide::SIDES-1).each do |side_index|
-      unless exlusions.include?( side_index ) #|| !reachable?( side_index ) 
+      unless exlusions.include?( side_index ) || false_neighbour?( side_index ) 
         x,y,z = neighbour_coords( side_index ) 
          if params[:side]   
             yield x,y,z, side_index               
@@ -289,13 +308,6 @@ def gap_between?( slot )
     end 
   end
   return true 
-end
-
-def update_reachability()
-  for_each_adjacent_slot do |slot, side|
-    set_reachability(side, gap_between?( slot ) )
-    #raise "GAP FOUND BETWEEN #{self} and #{slot}" if gap_between?( slot ) 
-  end    
 end
 
 def get_side(other_slot)

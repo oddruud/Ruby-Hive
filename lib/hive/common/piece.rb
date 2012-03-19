@@ -114,7 +114,6 @@ def initialize(board_state, id)
   @used = false 
   @pickup_count = 0 
   @free_to_move = true
-  @reachable_neighbours = Array.new( 8, true)
   yield self if block_given?
 end
 
@@ -124,11 +123,9 @@ end
 
 def set_board_position(x, y, z) 
   @x,@y,@z = x, y, z
-  
   unless @x == -1 #means initialization
     update_movability
-    update_reachability #WORK IN PROGRESS
-    for_each_adjacent_slot_or_piece {|s| s.update_reachability()}
+    update_false_neighbours_area
   end
 end
 
@@ -146,7 +143,6 @@ end
 
 def set_id(insect_id)
   raise "invalid id: #{id}" unless Hive::Piece.valid_id?(insect_id)
-  
   @insect_id = insect_id
   @name = NAME[@insect_id]
   if @logger.nil?
@@ -183,16 +179,16 @@ def copy
 end
 
 def pickup
-  @board_state.pickup_piece(self)
+  @board_state.pickup_piece( self )
 end
 
 def drop
-  @board_state.drop_piece(self)
+  @board_state.drop_piece( self )
 end
 
 def touch
   pickup
-  yield
+    yield
   drop
 end 
 

@@ -195,7 +195,6 @@ end
   def drop_piece(piece)
     raise "the piece #{piece} can not be dropped sinced it hast been picked up" unless piece == @current_piece
       place_piece_back(piece) 
-      #@pieces.each {|p| p.marked = false}
       @current_piece = nil 
   end
 
@@ -378,6 +377,7 @@ end
  def remove_piece_from_board(piece)
   white = :NotANeighbour
   black = :NotANeighbour 
+   #piece.update_false_neighbours_area
   if piece.used? 
      piece.for_each_neighbouring_slot_or_piece do |neighbour_slot|
          if neighbour_slot.kind_of? Hive::Piece
@@ -385,13 +385,12 @@ end
              black = :Neighbour if neighbour_slot.color == Hive::PieceColor::BLACK     
           else    
             set_id(neighbour_slot.x,neighbour_slot.y,neighbour_slot.z, slot_state_after_removal(piece, neighbour_slot) ) #changes the states of surrounding slots after the removal    
-            neighbour_slot.update_reachability() #WORK IN PROGRESS
         end
      end    
-     rx,ry,rz = piece.board_position   
-     @logger.warn "removing #{piece}, replacing with #{Hive::Slot::slot_state(white, black)}"                            
+     rx,ry,rz = piece.board_position                              
      set_id(rx,ry,rz,  Hive::Slot::slot_state(white, black) ) #the slot's new state after removal of the piece 
   end
+  piece.update_false_neighbours_area
  end
  
  
@@ -409,9 +408,9 @@ end
   @logger.debug "Placing #{piece.name} at #{x},#{y},#{z}" 
   remove_piece_from_board(piece) 
   set_id( x, y, z, piece.id )
-  piece.set_board_position(x, y, z)  
+  piece.set_board_position( x, y, z )  
   piece.used = true
-  resolve_neighbour_states( piece ) 
+  resolve_neighbour_states( piece )
  end
  
  def set_id( x, y, z, id )
@@ -425,6 +424,7 @@ end
  
  def place_piece_back(piece)
    set_piece(piece) #places a piece back on the board (writes its id in the @board array) 
+   piece.update_false_neighbours_area
    resolve_neighbour_states(piece) 
  end
    
