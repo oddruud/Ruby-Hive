@@ -21,7 +21,6 @@ def self.available_board_moves(queenbee)
       moves << Hive::Move.new(queenbee , slot)
     end  
  end
- queenbee.logger.info "board moves: #{moves.length}"
  return moves
 end
 

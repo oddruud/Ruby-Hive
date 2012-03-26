@@ -100,6 +100,7 @@ NAME << "BLACK_LADYBUG"
 #attr_accessor :sides
 attr_accessor :validator
 attr_accessor :used
+attr_reader :touched
 attr_reader :logger
 attr_reader :insect_id
 attr_reader :free_to_move
@@ -112,6 +113,7 @@ def initialize(board_state, id)
   super(board_state)
   @x, @y, @z = -1, -1, -1
   @used = false 
+  @touched = false 
   @pickup_count = 0 
   @free_to_move = true
   yield self if block_given?
@@ -165,7 +167,7 @@ def used?
 end 
 
 def self.color_by_id(id) 
-  if id <  NAME.length/2
+  if Hive::Piece::WHITE_PIECE_RANGE.include?(id)
     return Hive::PieceColor::WHITE
   else
     return Hive::PieceColor::BLACK
@@ -179,10 +181,12 @@ def copy
 end
 
 def pickup
+  @touched = true
   @board_state.pickup_piece( self )
 end
 
 def drop
+  @touched = false
   @board_state.drop_piece( self )
 end
 
@@ -192,6 +196,9 @@ def touch
   drop
 end 
 
+def touched?
+  return @touched
+end
 
 def valid_move?(move)
   if validator.nil?
@@ -235,7 +242,6 @@ def available_place_moves
     open_slots = open_slots +  @board_state.get_slots_with_type_code(empty_slot_type)  
  end
  
- #@logger.info  "NUM open slots: #{open_slots.length}"
  open_slots.delete_if{|slot| slot.z == 1} #only allow slots on the lower level  
  open_slots.each do |slot|
    raise "bla bla: #{@insect_id}" unless Hive::Piece.valid_id?(@insect_id)
@@ -265,7 +271,8 @@ end
 
 
 def update_movability
-	@free_to_move = trapped? #check whether the piece is directly trapped by neighbouring pieces 
+  puts "UPDATING MOVABILITY"
+	@free_to_move = !trapped? #check whether the piece is directly trapped by neighbouring pieces 
 	if @free_to_move
 		touch{@free_to_move = @board_state.valid?} #check whether removing the piece would result in an inconsistent state
 	end

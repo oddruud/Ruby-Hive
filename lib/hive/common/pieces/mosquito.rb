@@ -17,6 +17,7 @@ def self.available_board_moves(mosquito)
     mosquito.for_each_adjacent_piece do |neighbour|
         moves += neighbour.class.available_board_moves( mosquito ) unless neighbour.kind_of? Hive::Mosquito         
     end
+    moves.remove_duplicates
  return moves
 end
    

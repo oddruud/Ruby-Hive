@@ -27,7 +27,7 @@ attr_reader :current_piece
 attr_reader :logger   
 attr_reader :winning_color   
 
-BOARD_SIZE = 50
+BOARD_SIZE = 10
 PIECES_PER_PLAYER = 12
 START_POS_X = BOARD_SIZE/2 
 START_POS_Y = BOARD_SIZE/2
@@ -216,12 +216,14 @@ end
   
   def used_pieces
     pieces = Set.new()
-    @pieces.each { |p| pieces << p if p.used? }
+    @pieces.each { |p| pieces << p if p.used? && !p.touched? }
+    #puts "used pieces: #{pieces.length}"
     return pieces
   end
   
   def collect_connected_pieces(piece, collection)
     piece.for_each_neighbouring_piece do |n|
+      #puts "collection checking out #{n}..."
       unless collection.include?(n)
         collection << n 
         collect_connected_pieces(n, collection)
@@ -231,9 +233,16 @@ end
   
   def all_pieces_connected?
       used = used_pieces()
-      return true if used.size() == 0
+      if used.size <= 1  
+        return true
+      end 
       connected_pieces = Set.new() 
       collect_connected_pieces(used.first, connected_pieces)
+      puts "All pieces connected?--------------------------"
+      puts "#{used.size} used: "
+      used.each{|p| puts "#{p}" }
+      puts "#{connected_pieces.size} collected: "
+      connected_pieces.each{|c| puts "#{c}" } 
       return used.size == connected_pieces.size
   end
   
@@ -274,7 +283,8 @@ end
  
   def to_s
     output = "move #{self.move_count}--------------------------------------\n"
-    output += @board.map {|x| x.inspect }.join("\n")
+    #output += @board.map {|x| x.each {|i| "#{i}"} }.join("\n")
+    each_board_position {|x,y,z,value|  output += "(#{x}.#{y}.#{z}): #{value.name}\n"}
     output += "\n---------------------------------------------------\n"
     return output
   end
@@ -370,14 +380,14 @@ end
  def get_slot_at(x,y,z)
    id = at(x, y, z)
    return @pieces[id] if id.is_hive_piece_id?
-   @slots[[x,y,z]] = Hive::Slot.new(self, x,y,z, id) if @slots[[x,y,z]].nil? 
+   @slots[[x,y,z]] = Hive::Slot.new(self, x, y, z) if @slots[[x,y,z]].nil? 
    return @slots[[x,y,z]]  
  end
  
  def remove_piece_from_board(piece)
   white = :NotANeighbour
   black = :NotANeighbour 
-   #piece.update_false_neighbours_area
+
   if piece.used? 
      piece.for_each_neighbouring_slot_or_piece do |neighbour_slot|
          if neighbour_slot.kind_of? Hive::Piece
@@ -398,8 +408,7 @@ end
  
  def place(move)   
    x,y,z = move.destination
-   piece = get_piece_by_id(move.moving_piece_id);
-   set_piece_to(piece, x, y,z) 
+   set_piece_to(move.piece, x, y, z) 
    @moves << move
    @logger.debug  "PLACED: #{move}" 
  end

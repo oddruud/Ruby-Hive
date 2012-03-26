@@ -73,11 +73,11 @@ EMPTY_SLOT_MIXED = -4
 
 STATE_NAMES = ["UNCONNECTED", "EMPTY WHITE", "EMPTY BLACK", "EMPTY MIXED"] 
     
-def initialize(board_state, x=-1, y=-1, z=-1, state = UNCONNECTED)
+def initialize(board_state, x=-1, y=-1, z=-1)
+  raise "nil board_state" if board_state.nil?
   @false_neighbours = Array.new( 8, false )
   @board_state = board_state
-  set_board_position(x, y, z)
-  @state = state   
+  set_board_position(x, y, z)  
   @logger = Logger.new_for_object( self )
 end
 
@@ -115,7 +115,6 @@ def reset_false_neighbours_area
   end
 end
 
-
 def set_board_position(x, y, z) 
   @x,@y,@z = x, y, z
 end
@@ -124,8 +123,12 @@ def board_position
   return @x, @y, @z
 end
 
+def self.state_name(state)
+  return STATE_NAMES[state.abs-1]
+end
+
 def to_s
-  return "x: #{@x},y: #{@y},z: #{@z},state: #{STATE_NAMES[@state.abs-1]}"
+  return "x: #{@x},y: #{@y},z: #{@z},state: #{Hive::Slot.state_name( value )}"
 end
 
 def neighbour(side)
@@ -180,7 +183,7 @@ end
 def for_each_neighbour_coordinate(params = {})  
     exlusions = params[:exclude] ||  [Hive::HexagonSide::UNDER_SIDE] 
     (0..Hive::HexagonSide::SIDES-1).each do |side_index|
-      unless exlusions.include?( side_index ) || false_neighbour?( side_index ) 
+      unless exlusions.include?( side_index ) #|| false_neighbour?( side_index ) 
         x,y,z = neighbour_coords( side_index ) 
          if params[:side]   
             yield x,y,z, side_index               
@@ -292,7 +295,7 @@ end
 end  
 
 def value 
-  return @state
+  return @board_state.at(@x, @y, @z)
 end 
 
 def empty?
@@ -349,7 +352,7 @@ def ==(slot)
 end
 
 def clone
-	return Hive::Slot.new(@board_state,@x,@y,@z,@state)
+	return Hive::Slot.new(@board_state,@x,@y,@z)
 end
 
   

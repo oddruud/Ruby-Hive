@@ -5,6 +5,15 @@ $LOAD_PATH.unshift( File.join( File.dirname(__FILE__), 'hive/bot' ) )
 
 require 'logger'
 
+
+class Array
+  def remove_duplicates
+      each do |m|
+        delete_if { |m_| m == m_ && m.object_id != m_.object_id}
+      end  
+  end
+end
+
 class Object
 
 def name

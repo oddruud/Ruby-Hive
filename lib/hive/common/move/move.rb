@@ -31,8 +31,9 @@ class Hive::Move
     return @piece.id
   end
   
+  #Hive::Slot.new(piece., x,y,z)
   def self.new_with_cords(piece, x, y, z)
-    return Hive::Move.new(piece, Hive::Slot.new(nil, x,y,z))
+    return Hive::Move.new(piece, piece.board_state.get_slot_at(x , y, z) )
   end
   
   def self.new_with_relative_slot_and_side(piece, neighbour, side)
