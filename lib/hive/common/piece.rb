@@ -126,8 +126,10 @@ end
 def set_board_position(x, y, z) 
   @x,@y,@z = x, y, z
   unless @x == -1 #means initialization
-    update_movability
+    #update_movability #MAYBE REDUNDANT you just moved the piece, after moving a piece is always still movable right?
+    @used = true
     update_false_neighbours_area
+    for_each_adjacent_piece{ |neighbour| neighbour.update_movability}
   end
 end
 
@@ -261,7 +263,7 @@ end
 
 #movable: is the piece movable?
 def movable?
-	return @free_to_move 
+	return @free_to_move
 end
 
 #direct opposite of movable
@@ -271,11 +273,10 @@ end
 
 
 def update_movability
-  puts "UPDATING MOVABILITY"
-	@free_to_move = !trapped? #check whether the piece is directly trapped by neighbouring pieces 
-	if @free_to_move
+	#@free_to_move = !trapped? #check whether the piece is directly trapped by neighbouring pieces 
+	#if @free_to_move
 		touch{@free_to_move = @board_state.valid?} #check whether removing the piece would result in an inconsistent state
-	end
+	#end
 end
 
 def value 

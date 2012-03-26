@@ -27,7 +27,7 @@ attr_reader :current_piece
 attr_reader :logger   
 attr_reader :winning_color   
 
-BOARD_SIZE = 10
+BOARD_SIZE = 50
 PIECES_PER_PLAYER = 12
 START_POS_X = BOARD_SIZE/2 
 START_POS_Y = BOARD_SIZE/2
@@ -79,6 +79,8 @@ def reset
   
   @slots = Hash.new
   
+  @white_queen = @pieces[Hive::Piece::WHITE_QUEEN_BEE]
+  @black_queen = @pieces[Hive::Piece::BLACK_QUEEN_BEE]
   @winning_color = Hive::PieceColor::NONE
   @moves = Array.new()  #MOVE HISTORY
  
@@ -175,7 +177,7 @@ end
     
   def get_piece_by_id(id)
     raise "#{id} does not match with any piece in #{self}" unless id.is_hive_piece_id?
-    @logger.debug "getPieceById:#{id}"
+    #@logger.debug "getPieceById:#{id}"
     return @pieces[id]
   end
   
@@ -238,11 +240,12 @@ end
       end 
       connected_pieces = Set.new() 
       collect_connected_pieces(used.first, connected_pieces)
-      puts "All pieces connected?--------------------------"
-      puts "#{used.size} used: "
-      used.each{|p| puts "#{p}" }
-      puts "#{connected_pieces.size} collected: "
-      connected_pieces.each{|c| puts "#{c}" } 
+      #DEBUG INFO: 
+      #puts "All pieces connected?--------------------------"
+      #puts "#{used.size} used: "
+      #used.each{|p| puts "#{p}" }
+      #puts "#{connected_pieces.size} collected: "
+      #connected_pieces.each{|c| puts "#{c}" } 
       return used.size == connected_pieces.size
   end
   
@@ -266,10 +269,14 @@ end
 
   def make_move(player, move)
     begin 
-      @logger.info  "playing piece at #{move.piece.board_position}: #{move}"
+      #@logger.info  "playing piece at #{move.piece.board_position}: #{move}"
       if valid_move?(player, move ) 
         place(move) 
-        result = Hive::TurnState::VALID
+        if end_condition?
+          result = Hive::TurnState::GAME_OVER
+        else 
+          result = Hive::TurnState::VALID
+        end
       else
         @logger.info  "INVALID MOVE: #{move}"  
         result = Hive::TurnState::INVALID
@@ -279,6 +286,10 @@ end
       result = Hive::TurnState::INVALID
     end
     return result 
+  end
+ 
+  def end_condition?
+    return @white_queen.enclosed? || @black_queen.enclosed? 
   end
  
   def to_s
@@ -410,15 +421,14 @@ end
    x,y,z = move.destination
    set_piece_to(move.piece, x, y, z) 
    @moves << move
-   @logger.debug  "PLACED: #{move}" 
+   @logger.info  "MOVE #{@moves.length}: #{move}" 
  end
 
  def set_piece_to( piece, x , y, z )
-  @logger.debug "Placing #{piece.name} at #{x},#{y},#{z}" 
+  #@logger.debug "Placing #{piece.name} at #{x},#{y},#{z}" 
   remove_piece_from_board(piece) 
   set_id( x, y, z, piece.id )
   piece.set_board_position( x, y, z )  
-  piece.used = true
   resolve_neighbour_states( piece )
  end
  

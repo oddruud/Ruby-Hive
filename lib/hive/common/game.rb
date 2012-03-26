@@ -83,8 +83,8 @@ class Hive::Game
   def next_turn()
    send_message(@board_state.to_message)
     @turn = @turn == 1 ? 0: 1 
-    puts "sleeping..."
-    sleep(interval_time)
+    #puts "sleeping..."
+    #sleep(interval_time)
     player = @players[@turn]
     puts "TURN TO: player #{player.name} (#{player.color})"
     player.make_move(board_state); 

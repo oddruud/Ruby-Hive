@@ -273,6 +273,12 @@ def neighbouring_pieces( amount = 7)
     return pieces
 end
 
+def enclosed?
+  count = 0 
+  for_each_adjacent_piece{|p| count += 1} 
+  return count == 6
+end
+
 def connections()
   count=0
   for_each_neighbour_coordinate do |x,y,z|

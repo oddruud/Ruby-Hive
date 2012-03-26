@@ -7,12 +7,12 @@ def initialize(board_state, id)
 end
 
 def available_moves
-  @logger.debug "#{name} collecting moves"
+  #@logger.debug "#{name} collecting moves"
   moves = Array.new()
   moves += available_place_moves unless used?
-  @logger.info "grashopper place moves: #{moves.length}"
+  #@logger.info "grashopper place moves: #{moves.length}"
   moves += Hive::GrassHopper.available_board_moves(self) if used? and movable?
-  @logger.info "grashopper board moves: #{moves.length}"
+  #@logger.info "grashopper board moves: #{moves.length}"
  return moves
 end
 
@@ -25,7 +25,7 @@ def self.available_board_moves(grasshopper)
       moves << Hive::Move.new(grasshopper , slot)
     end
   end
-  grasshopper.logger.info "board moves: #{moves.length}"
+  #grasshopper.logger.info "board moves: #{moves.length}"
   return moves
 end
 

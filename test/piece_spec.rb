@@ -23,22 +23,20 @@ describe Hive::Piece do
         @board_state.make_move( @white_player , Hive::Move.new_with_cords( @white_spider ,6,5,0))
         @board_state.make_move( @black_player , Hive::Move.new_with_cords( @black_ant ,4,5,0))
         
-        
-        
-        queen_move_valid = true
-        puts "move attempt for #{@white_queen}"
-        @white_queen.touch { queen_move_valid = @board_state.valid? }
-        queen_move_valid.should == false
-      
-        ant_move_valid = false
-        puts "move attempt for #{@black_ant}"
-        @black_ant.touch { ant_move_valid = @board_state.valid? }
-        ant_move_valid.should == true
-        
-        #@white_queen.movable?.should == false
-        #@black_spider.movable? == false
-        #@white_spider.movable?.should == true 
-        #@black_ant.movable?.should == true
+        #queen_move_valid = true
+        #puts "move attempt for #{@white_queen}"
+        #@white_queen.touch { queen_move_valid = @board_state.valid? }
+        #queen_move_valid.should == false
+        #       
+        #         ant_move_valid = false
+        #         puts "move attempt for #{@black_ant}"
+        #         @black_ant.touch { ant_move_valid = @board_state.valid? }
+        #         ant_move_valid.should == true
+        #         
+        @white_queen.movable?.should == false
+        @black_spider.movable? == false
+        @white_spider.movable?.should == true 
+        @black_ant.movable?.should == true
     end
   
 end
