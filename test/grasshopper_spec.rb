@@ -1,6 +1,6 @@
 
 require 'rubygems'
-require '../lib/hive' #replace with hive on publish
+require '../test/test_utils'
 require 'set'
 
 describe Hive::GrassHopper do
@@ -17,35 +17,23 @@ describe Hive::GrassHopper do
       @white_spider = @board_state.get_piece_by_id(Hive::Piece::WHITE_BEETLE1) 
       @black_ant = 		@board_state.get_piece_by_id(Hive::Piece::BLACK_ANT1) 
       @white_grasshopper = @board_state.get_piece_by_id(Hive::Piece::WHITE_GRASSHOPPER1) 
-     
-      @board_state.make_move( @white_player , Hive::Move.new_with_cords( @white_queen ,5,4,0)) 
-      @board_state.make_move( @black_player,  Hive::Move.new_with_cords( @black_spider ,6,4,0))
-      @board_state.make_move( @white_player , Hive::Move.new_with_cords( @white_spider ,6,5,0))
-      @board_state.make_move( @black_player,  Hive::Move.new_with_cords( @black_ant ,4,5,0))
-      @board_state.make_move( @white_player,  Hive::Move.new_with_cords( @white_grasshopper ,5,5,0))
-      
-      @possible_moves = [ 	Hive::Move.new_with_cords( @white_grasshopper, 3, 5, 0), 
-                            Hive::Move.new_with_cords( @white_grasshopper, 4, 3, 0),
-                            Hive::Move.new_with_cords( @white_grasshopper, 6, 3, 0),
-                            Hive::Move.new_with_cords( @white_grasshopper, 7, 5, 0)
-                          ].to_set 
    end 
 
-    it 'should have the right available_board_moves' do
-      moves = Hive::GrassHopper.available_board_moves( @white_grasshopper )
-      moves = moves.to_set 
+    it 'should have the right available_board_moves TEST1' do
+        @board_state.make_move( @white_player , Hive::Move.new_with_cords( @white_queen ,5,4,0)) 
+        @board_state.make_move( @black_player,  Hive::Move.new_with_cords( @black_spider ,6,4,0))
+        @board_state.make_move( @white_player , Hive::Move.new_with_cords( @white_spider ,6,5,0))
+        @board_state.make_move( @black_player,  Hive::Move.new_with_cords( @black_ant ,4,5,0))
+        @board_state.make_move( @white_player,  Hive::Move.new_with_cords( @white_grasshopper ,5,5,0))
 
-      # moves.each {|m| puts m}
-      # puts "----"
-      # @possible_moves.each {|m| puts m}
-      # puts "----"
-
-      @possible_moves.length.should == moves.length
-      @possible_moves.each do |possible|
- 	  	  match = [possible,false]	    
-        moves.each { |available| match = [possible, true] if available.dest_slot == possible.dest_slot }
-        match.should == [possible, true]
-      end
+        @possible_moves = [ 	Hive::Move.new_with_cords( @white_grasshopper, 3, 5, 0), 
+                              Hive::Move.new_with_cords( @white_grasshopper, 4, 3, 0),
+                              Hive::Move.new_with_cords( @white_grasshopper, 6, 3, 0),
+                              Hive::Move.new_with_cords( @white_grasshopper, 7, 5, 0)
+                          ].to_set
+      
+      moves = Hive::GrassHopper.available_board_moves( @white_grasshopper ).to_set
+      TestUtils.match_move_sets( moves,  @possible_moves )
     end
   
 end

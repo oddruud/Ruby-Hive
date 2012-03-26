@@ -1,5 +1,5 @@
 require 'rubygems'
-require '../lib/hive' #replace with hive on publish
+require '../test/test_utils'
 require 'set'
 
 
@@ -16,12 +16,12 @@ describe Hive::BoardState do
      @white_queen = @board_state.get_piece_by_id(Hive::Piece::WHITE_QUEEN_BEE) 
      @black_queen = @board_state.get_piece_by_id(Hive::Piece::BLACK_QUEEN_BEE) 
      
-     @board_state.make_move(@white_player, Hive::Move.new_with_cords(@white_queen,5,5,0)) 
-     @board_state.make_move(@black_player, Hive::Move.new_with_cords(@black_queen,6,5,0))  
+     @board_state.make_move(@black_player, Hive::Move.new_with_cords(@black_queen,6,5,0)) 
+     @board_state.make_move(@white_player, Hive::Move.new_with_cords(@white_queen,5,5,0))  
    end 
    
    it 'should provide a slot when right x,y,z provided' do 
-      @board_state.get_slot_at(5,6,0).should == Hive::Slot.new(@board_state,5,6,0,-1)
+      @board_state.get_slot_at(5,6,0).should == Hive::Slot.new(@board_state,5,6,0)
    end
     
   it 'should provide a piece when right x,y,z provided' do 
@@ -64,8 +64,6 @@ describe Hive::BoardState do
    slot1 = @board_state.get_slot_at(2,7,0)
    slot2 = @board_state.get_slot_at(3,6,0)
    @board_state.bottle_neck_between_slots(slot1, slot2).should == true
-   
-   
   end
   
   it 'should not positively identify non-bottlenecks' do 
@@ -81,12 +79,7 @@ describe Hive::BoardState do
   it 'should heal the state of surrounding slots after removing a piece' do
     ant1 = @board_state.get_piece_by_id(Hive::Piece::WHITE_ANT1)
     @board_state.make_move(@white_player, Hive::Move.new_with_cords(ant1, 5,6,0)) 
-    
-    #UNCONNECTED = -1
-    #EMPTY_SLOT_WHITE = -2
-    #EMPTY_SLOT_BLACK = -3
-    #EMPTY_SLOT_MIXED = -4
-    
+
     #before removal:
     ant1.neighbour(Hive::HexagonSide::RIGHT_SIDE).value().should == Hive::Slot::EMPTY_SLOT_MIXED 
     ant1.neighbour(Hive::HexagonSide::LEFT_SIDE).value().should == Hive::Slot::EMPTY_SLOT_WHITE
@@ -101,25 +94,49 @@ describe Hive::BoardState do
     slot =  @board_state.get_slot_at(ant1.x,ant1.y,ant1.z) 
 
     slot.neighbour(Hive::HexagonSide::RIGHT_SIDE).value().should == Hive::Slot::EMPTY_SLOT_MIXED 
-    #slot.neighbour(Hive::HexagonSide::LEFT_SIDE).value().should == Hive::Slot::UNCONNECTED
+    slot.neighbour(Hive::HexagonSide::LEFT_SIDE).value().should == Hive::Slot::UNCONNECTED
     slot.neighbour(Hive::HexagonSide::TOP_LEFT_SIDE).value().should == Hive::Slot::EMPTY_SLOT_WHITE
     slot.neighbour(Hive::HexagonSide::TOP_RIGHT_SIDE).value().should == Hive::Piece::WHITE_QUEEN_BEE
-    #slot.neighbour(Hive::HexagonSide::BOTTOM_RIGHT_SIDE).value().should == Hive::Slot::UNCONNECTED
-    #slot.neighbour(Hive::HexagonSide::BOTTOM_LEFT_SIDE).value().should == Hive::Slot::UNCONNECTED
+    slot.neighbour(Hive::HexagonSide::BOTTOM_RIGHT_SIDE).value().should == Hive::Slot::UNCONNECTED
+    slot.neighbour(Hive::HexagonSide::BOTTOM_LEFT_SIDE).value().should == Hive::Slot::UNCONNECTED
     slot.value().should == Hive::Slot::EMPTY_SLOT_WHITE
   end
   
+  # #TODO
+  # it 'should identify false neighbours correctly' do
+  #     @board_state.reset
+  #     @board_state.make_move(@white_player, Hive::Move.new_with_cords(@white_queen,5,5,0)) 
+  #     
+  #     puts "BOARDSTATE"
+  #     puts @board_state.to_s
+  #     
+  #     puts "SLOTS------------------"
+  #     @white_queen.for_each_adjacent_slot{|slot| puts "adjacent slot: #{slot}"}
+  #     
+  #     puts "WHITE QUEEN FALSE NEIGHBOURS-------"
+  #     (2..7).each { |side| puts "#{Hive::HexagonSide.side_name(side)}: #{@white_queen.false_neighbour?( side )}"    } 
+  #     puts "adding black queen"
+  #     @board_state.make_move(@black_player, Hive::Move.new_with_cords(@black_queen,6,5,0))  
+  #     
+  #     puts "BOARDSTATE"
+  #     puts @board_state.to_s
+  #     
+  #     puts "WHITE QUEEN FALSE NEIGHBOURS-------"
+  #     (2..7).each { |side| puts puts "#{Hive::HexagonSide.side_name(side)}: #{@white_queen.false_neighbour?( side )}"    } 
+  #     puts "BLACK QUEEN FALSE NEIGHBOURS-------"
+  #     (2..7).each { |side| puts puts "#{Hive::HexagonSide.side_name(side)}: #{@black_queen.false_neighbour?( side )}"    }
+  # end
+  
+  
   it 'should be able to tell whether a piece configuration is valid or invalid' do
+    @board_state.reset
+    @board_state.make_move(@white_player, Hive::Move.new_with_cords(@white_queen,5,5,0)) 
+    @board_state.make_move(@black_player, Hive::Move.new_with_cords(@black_queen,6,5,0))
+    @board_state.all_pieces_connected?.should == true 
     
-    @board_state.valid?.should == true 
-    
-    @black_ant1 = @board_state.get_piece_by_id(Hive::Piece::BLACK_ANT1) 
-    @board_state.make_move(@black_player, Hive::Move.new_with_cords(@black_ant1,5,9,0))
-    @board_state.valid?.should == false 
-       
-    @board_state.make_move(@black_player, Hive::Move.new_with_cords(@black_ant1,6,6,0))
-    @board_state.valid?.should == true
-    
+    #@black_ant1 = @board_state.get_piece_by_id(Hive::Piece::BLACK_ANT1) 
+    #@board_state.make_move(@black_player, Hive::Move.new_with_cords(@black_ant1,5,9,0))
+    #@board_state.valid?.should == false 
   end
   
   it 'should change the states of surrounding pieces for a touched piece, and change them back after the touch' do

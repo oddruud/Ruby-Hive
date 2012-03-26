@@ -1,6 +1,5 @@
-
 require 'rubygems'
-require '../lib/hive' #replace with hive on publish
+require '../test/test_utils'
 require 'set'
 
 
@@ -32,20 +31,8 @@ describe Hive::QueenBee do
    end 
 
     it 'should have the right available_board_moves' do
-      moves = Hive::QueenBee.available_board_moves( @white_queen )
-      moves = moves.to_set 
-
-      moves.each {|m| puts m}
-      puts "----"
-      @possible_moves.each {|m| puts m}
-      puts "----"
-      
-      @possible_moves.length.should == moves.length
-      @possible_moves.each do |possible|
- 	  	  match = [possible,false]	    
-        moves.each { |available| match = [possible, true] if available.dest_slot == possible.dest_slot }
-        match.should == [possible, true]
-      end
+      moves = Hive::QueenBee.available_board_moves( @white_queen ).to_set 
+      TestUtils.match_move_sets( moves,  @possible_moves )
     end
   
 end

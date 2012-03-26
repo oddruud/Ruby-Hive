@@ -1,5 +1,5 @@
 require 'rubygems'
-require 'hive'
+require '../test/test_utils'
 require 'set'
 
 
