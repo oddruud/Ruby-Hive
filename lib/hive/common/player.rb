@@ -10,6 +10,7 @@ class Hive::Player
   attr_accessor :game_handler
   attr_accessor :id 
   attr_reader :color
+  attr_reader :type
   attr_reader :logger
   attr_accessor :submit_move_to
   attr_accessor :submitted_moves
@@ -21,7 +22,7 @@ class Hive::Player
    @submitted_moves = Array.new()
   end
 
-  def set_i_d(id)
+  def set_id(id)
     @id= id
   end
   

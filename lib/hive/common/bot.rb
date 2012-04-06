@@ -12,7 +12,7 @@ class Hive::Bot < Hive::Player
   end
     
   def make_move(board_state)
-    @logger.info "#{name} makemove called"
+    #@logger.info "#{name} makemove called"
     #thread = Thread.new{ determine_next_move(board_state) }     #TODO switch back
     #thread.join 
     determine_next_move(board_state)

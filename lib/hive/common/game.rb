@@ -1,3 +1,4 @@
+require "save_game"
 require "boardstate"
 require "player"
 require 'move/move'
@@ -47,7 +48,7 @@ class Hive::Game
       @players << player
       @logger.info "PLAYER #{@players.length}: #{player.name} added..." 
       set_state_description("PLAYER #{@players.length}: #{player.name} connected..." )
-      player.set_i_d(@players.length.to_s) 
+      player.set_id(@players.length.to_s) 
       player.set_color(Hive::PieceColor::COLORS[@players.length-1])
       player.set_submit_function( Proc.new{|player, move| move_made(player, move)} ) 
       player.welcome("the server welcomes you..wait for start signal..."); 
@@ -139,6 +140,11 @@ class Hive::Game
   def stop(message)
        @logger.info "game stopped: #{message}"
        send_message("GS.#{message}.")
+  end
+  
+  def save
+    save_game = 
+    
   end
 
   

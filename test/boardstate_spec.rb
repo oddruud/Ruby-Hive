@@ -102,41 +102,19 @@ describe Hive::BoardState do
     slot.value().should == Hive::Slot::EMPTY_SLOT_WHITE
   end
   
-  # #TODO
-  # it 'should identify false neighbours correctly' do
-  #     @board_state.reset
-  #     @board_state.make_move(@white_player, Hive::Move.new_with_cords(@white_queen,5,5,0)) 
-  #     
-  #     puts "BOARDSTATE"
-  #     puts @board_state.to_s
-  #     
-  #     puts "SLOTS------------------"
-  #     @white_queen.for_each_adjacent_slot{|slot| puts "adjacent slot: #{slot}"}
-  #     
-  #     puts "WHITE QUEEN FALSE NEIGHBOURS-------"
-  #     (2..7).each { |side| puts "#{Hive::HexagonSide.side_name(side)}: #{@white_queen.false_neighbour?( side )}"    } 
-  #     puts "adding black queen"
-  #     @board_state.make_move(@black_player, Hive::Move.new_with_cords(@black_queen,6,5,0))  
-  #     
-  #     puts "BOARDSTATE"
-  #     puts @board_state.to_s
-  #     
-  #     puts "WHITE QUEEN FALSE NEIGHBOURS-------"
-  #     (2..7).each { |side| puts puts "#{Hive::HexagonSide.side_name(side)}: #{@white_queen.false_neighbour?( side )}"    } 
-  #     puts "BLACK QUEEN FALSE NEIGHBOURS-------"
-  #     (2..7).each { |side| puts puts "#{Hive::HexagonSide.side_name(side)}: #{@black_queen.false_neighbour?( side )}"    }
-  # end
-  
-  
   it 'should be able to tell whether a piece configuration is valid or invalid' do
     @board_state.reset
+    
+    @white_queen = @board_state.get_piece_by_id(Hive::Piece::WHITE_QUEEN_BEE) 
+    @black_queen = @board_state.get_piece_by_id(Hive::Piece::BLACK_QUEEN_BEE)
+    
     @board_state.make_move(@white_player, Hive::Move.new_with_cords(@white_queen,5,5,0)) 
     @board_state.make_move(@black_player, Hive::Move.new_with_cords(@black_queen,6,5,0))
     @board_state.all_pieces_connected?.should == true 
     
-    #@black_ant1 = @board_state.get_piece_by_id(Hive::Piece::BLACK_ANT1) 
-    #@board_state.make_move(@black_player, Hive::Move.new_with_cords(@black_ant1,5,9,0))
-    #@board_state.valid?.should == false 
+    @black_ant1 = @board_state.get_piece_by_id(Hive::Piece::BLACK_ANT1) 
+    @board_state.make_move(@black_player, Hive::Move.new_with_cords(@black_ant1,5,9,0))
+    @board_state.valid?.should == false 
   end
   
   it 'should change the states of surrounding pieces for a touched piece, and change them back after the touch' do

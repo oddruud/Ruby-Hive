@@ -72,9 +72,10 @@ EMPTY_SLOT_BLACK = -3
 EMPTY_SLOT_MIXED = -4
 
 STATE_NAMES = ["UNCONNECTED", "EMPTY WHITE", "EMPTY BLACK", "EMPTY MIXED"] 
+
     
 def initialize(board_state, x=-1, y=-1, z=-1)
-  raise "nil board_state" if board_state.nil?
+  raise "invalid board_state" if board_state.nil? || board_state.class != Hive::BoardState
   @false_neighbours = Array.new( 8, false )
   @board_state = board_state
   set_board_position(x, y, z)  
@@ -169,6 +170,7 @@ def self.neighbour_coordinates(x, y, z, side)
       when Hive::HexagonSide::TOP_RIGHT_SIDE then 
         xdif, ydif = (y & 1), -1 
       when Hive::HexagonSide::NULL_SIDE then 
+        raise "NULL SIDE REQUESTED"
         return -1, -1, 0 # return null slot position  
       else
         raise "non existing hexagon side: #{side} (#{side.class})"
@@ -183,7 +185,7 @@ end
 def for_each_neighbour_coordinate(params = {})  
     exlusions = params[:exclude] ||  [Hive::HexagonSide::UNDER_SIDE] 
     (0..Hive::HexagonSide::SIDES-1).each do |side_index|
-      unless exlusions.include?( side_index ) #|| false_neighbour?( side_index ) 
+      unless exlusions.include?( side_index ) || false_neighbour?( side_index )  #FIXME false_neighbour under inspection
         x,y,z = neighbour_coords( side_index ) 
          if params[:side]   
             yield x,y,z, side_index               
@@ -320,6 +322,21 @@ def gap_between?( slot )
 end
 
 def get_side(other_slot)
+  
+  #FIX-ME
+  #move failed: side between <BLACK_MOSQUITO ON BOARD: (x: 25,y: 24, z: 0)}> and <WHITE_GRASSHOPPER2 ON BOARD: (x: 24,y: 25, z: 0)}> not found
+  #x_dif = 24-25 = -1
+  #y_dif = 25-24 = 1
+  #@y = 24  
+  #(@y&1)= 0  
+  #BOTTOM_LEFT_SIDE SHOULD BE TRIGGERED but wont with current code!!!
+  
+        # code from neighbour coordinates:  
+        # when Hive::HexagonSide::BOTTOM_RIGHT_SIDE then 
+        #   xdif, ydif = (y & 1), 1  
+        # when Hive::HexagonSide::BOTTOM_LEFT_SIDE then 
+        #   xdif, ydif = (-1 + (y & 1)), 1
+  
   x_dif, y_dif, z_dif = other_slot.x - @x,  other_slot.y - @y, other_slot.z  - @z 
 
   raise "Error: x_difference: #{x_dif}- this function can only determine the side of immediate neightbours." if x_dif < -1 || x_dif > 1 
@@ -328,10 +345,11 @@ def get_side(other_slot)
   return Hive::HexagonSide::RIGHT_SIDE if x_dif > 0 && y_dif == 0 
   return Hive::HexagonSide::LEFT_SIDE if x_dif < 0  && y_dif == 0
   return Hive::HexagonSide::BOTTOM_RIGHT_SIDE if x_dif >= (@y & 1) && y_dif > 0  
-  return Hive::HexagonSide::BOTTOM_LEFT_SIDE if x_dif >= 1 - (@y & 1) && y_dif > 0  
+  return Hive::HexagonSide::BOTTOM_LEFT_SIDE if x_dif >= -1 + (@y & 1) && y_dif > 0  
   return Hive::HexagonSide::TOP_LEFT_SIDE if x_dif <= -1 + (@y & 1) && y_dif < 0  
   return Hive::HexagonSide::TOP_RIGHT_SIDE if x_dif >= (@y & 1) && y_dif < 0  
-  return Hive::HexagonSide::NULL_SIDE
+  raise "side between #{self} and #{other_slot} not found"
+
 end 
 
 

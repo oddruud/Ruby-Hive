@@ -10,7 +10,6 @@ require 'pieces/ladybug'
 require 'move_validators/move_validator'
 require 'move_validators/queen_in_four_moves_validator'
 
-
 class Hive::TurnState
   GAME_OVER = :gameover
   INVALID = :invalid_move
@@ -45,7 +44,7 @@ end
 
 def reset
   @logger.info  "Creating pieces for Board State"
-  @board = Array.new(BOARD_SIZE).map!{Array.new(BOARD_SIZE).map!{ |x| x = [-1] } }   #THE BOARD 
+  @board = Array.new(BOARD_SIZE).map!{Array.new(BOARD_SIZE).map!{ |x| x = [Hive::Slot::UNCONNECTED] } }   #THE BOARD 
   @pieces =  Array.new()                                       #THE PIECES
   #WHITE PIECES
   @pieces[Hive::Piece::WHITE_QUEEN_BEE]=      Hive::QueenBee.new(self, Hive::Piece::WHITE_QUEEN_BEE)
@@ -83,8 +82,7 @@ def reset
   @black_queen = @pieces[Hive::Piece::BLACK_QUEEN_BEE]
   @winning_color = Hive::PieceColor::NONE
   @moves = Array.new()  #MOVE HISTORY
- 
-  #puts to_s                        
+                 
 end
   
   #TODO keep a repo of requested slots 
@@ -155,6 +153,7 @@ def moves_copy()
 end
 
 def at(x,y,z)
+  raise "null slot x=-1,y=-1,z=-1" if x==-1 && y==-1
     return @board[x][y][z] || Hive::Slot::UNCONNECTED  unless out_of_bounds(x,y,z) 
     return Hive::Slot::UNCONNECTED
 end
@@ -409,7 +408,7 @@ end
         end
      end    
      rx,ry,rz = piece.board_position                              
-     set_id(rx,ry,rz,  Hive::Slot::slot_state(white, black) ) #the slot's new state after removal of the piece 
+     set_id(rx,ry,rz,  Hive::Slot::slot_state(white, black) ) #the  slot's new state after removal of the piece 
   end
   piece.update_false_neighbours_area
  end
@@ -420,7 +419,7 @@ end
  def place(move)   
    x,y,z = move.destination
    set_piece_to(move.piece, x, y, z) 
-   @moves << move
+   @moves << move.to_array
    @logger.info  "MOVE #{@moves.length}: #{move}" 
  end
 

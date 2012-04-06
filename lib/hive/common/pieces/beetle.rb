@@ -19,7 +19,7 @@ def self.available_board_moves( beetle )
       moves << Hive::Move.new( beetle , slot )
    end  
  end
- beetle.logger.info "board moves: #{moves.length}"
+ #beetle.logger.info "board moves: #{moves.length}"
  return moves
 end
 

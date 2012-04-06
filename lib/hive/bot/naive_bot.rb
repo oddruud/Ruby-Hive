@@ -17,14 +17,14 @@ class Hive::NaiveBot < Hive::Bot
   #TODO place the queenbee somewhere in first 4 moves
  
   def determine_next_move(board_state)
-    @logger.debug "determining move, calculating move for #{@color}.."
+    #@logger.debug "determining move, calculating move for #{@color}.."
     
     pieces = board_state.get_pieces_by_color(@color)
     possible_moves = Array.new()  
 
       pieces.each do |piece|
         if interesting_piece? board_state, piece 
-          puts "#{piece.name} moves...."
+          #puts "#{piece.name} moves...."
           possible_moves += piece.available_moves
         end
       end

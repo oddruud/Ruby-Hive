@@ -42,7 +42,7 @@ S = ENCLOSING_RADIUS * 2 - H * 2
 def initialize(window, id)
  @id  = id
  image_name = @@piece_image_names[id]
- @image = Gosu::Image.new(window, "../lib/hive/common/graphics_view/data/images/#{image_name}",true) 
+ #@image = Gosu::Image.new(window, "../lib/hive/common/graphics_view/data/images/#{image_name}",true) 
  @x,@y,@z = 0.0, 0.0, 0
  @used = false
  @window = window
@@ -71,7 +71,7 @@ def draw
 	end
 	draw_lock_state unless @movable
 	
-	Hive::HexagonPiece.draw_hexagon(@window, @x, @y, ENCLOSING_RADIUS - (@z * 10), color)
+	Hive::HexagonPiece.draw_hexagon(@window, @x, @y, (ENCLOSING_RADIUS - (@z * 10)) * @window.zoom_factor , color)
 	
 	@font.draw("#{@name}", @x-40, @y+20 - (@z * 10), 5, 1.0, 1.0, -1)
 end

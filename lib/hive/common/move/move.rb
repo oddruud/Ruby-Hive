@@ -63,6 +63,10 @@ class Hive::Move
     return @dest_slot.board_position
   end 
   
+  def to_array
+    return [@piece.id, @dest_slot.x,@dest_slot.y,@dest_slot.z] 
+  end 
+  
   def to_string()
     return "#{piece.name} (id: #{piece.id}) to #{@dest_slot.to_s}"
   end
