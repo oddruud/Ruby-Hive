@@ -142,11 +142,21 @@ class Hive::Game
        send_message("GS.#{message}.")
   end
   
-  def save
-    save_game = 
+  def save(directory, prefix )
+    save_game = Hive::SaveGame.new(game , directory , prefix)
+  end
+  
+  def self.load( save_game ) 
+    #create_ghost_player 1
+    
+    #create_ghost_player 2
     
   end
 
+  def self.load_from_file( file_path ) 
+    save_game = Hive::SaveGame.load_from_file( file_path )
+    load( save_game )
+  end
   
   
 end
