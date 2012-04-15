@@ -96,6 +96,35 @@ NAME << "BLACK_ANT3"
 NAME << "BLACK_MOSQUITO"
 NAME << "BLACK_LADYBUG"
 
+SHORT_NAME = []
+SHORT_NAME << "W_QB"
+SHORT_NAME << "W_B1"
+SHORT_NAME << "W_B2"
+SHORT_NAME << "W_S1" 
+SHORT_NAME << "W_S2"
+SHORT_NAME << "W_GH1" 
+SHORT_NAME << "W_GH2" 
+SHORT_NAME << "W_GH3" 
+SHORT_NAME << "W_A1"  
+SHORT_NAME << "W_A2"  
+SHORT_NAME << "W_A3" 
+SHORT_NAME << "W_MSQ" 
+SHORT_NAME << "W_LB" 
+SHORT_NAME << "B_QB"
+SHORT_NAME << "B_B1" 
+SHORT_NAME << "B_B2"
+SHORT_NAME << "B_S1"
+SHORT_NAME << "B_S2"
+SHORT_NAME << "B_GH1" 
+SHORT_NAME << "B_GH2"
+SHORT_NAME << "B_GH3"
+SHORT_NAME << "B_A1"
+SHORT_NAME << "B_A2"
+SHORT_NAME << "B_A3"
+SHORT_NAME << "B_MSQ"
+SHORT_NAME << "B_LB"
+
+
 #properties
 #attr_accessor :sides
 attr_accessor :validator
@@ -160,9 +189,17 @@ def self.name_by_id(id)
   return NAME[id]
 end
 
+def self.short_name_by_id(id)
+  return SHORT_NAME[id]
+end
+
 def name
   Hive::Piece.name_by_id(id)
 end 
+
+def short_name
+  Hive::Piece.short_name_by_id(id)
+end
 
 def used?
 	@used

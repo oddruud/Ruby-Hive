@@ -48,7 +48,7 @@ def initialize(window, id)
  @window = window
  @movable = true
  @name = "-"
- @font = Gosu::Font.new(window, Gosu::default_font_name, 12)
+ @font = Gosu::Font.new(window, Gosu::default_font_name, 16)
  @color = Hive::PieceColor::WHITE
 end
 
@@ -59,7 +59,7 @@ def update(x,y, piece)
 	@z ||= 0
 	@used = piece.used
 	@movable = piece.movable?
-	@name = piece.name
+	@name = piece.short_name
 	@color = piece.color
 end
 

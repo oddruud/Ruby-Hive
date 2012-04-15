@@ -75,7 +75,7 @@ require 'server'
 require 'rubygems' # only necessary in Ruby 1.8
 require 'gosu'
 require 'game'
-require 'graphics_view/viewer.rb'
+require 'graphics_view/game_view.rb'
 require 'boardstate.rb'
 require 'player.rb'
 

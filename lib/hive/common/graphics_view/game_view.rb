@@ -25,13 +25,10 @@ attr_reader :piece_spacing
     @font = Gosu::Font.new(self, Gosu::default_font_name, 20)
     @view_turn = 0
     @game = game
-    @zoom_factor = 0.7
+    @zoom_factor = 1.2
     @piece_spacing = 3.0
-    @pieces = hexagon_pieces
-end
-
-def hexagon_pieces
-  Hive::Piece::PIECE_RANGE.each {|i| @pieces << Hive::HexagonPiece.new(self, i) }
+    @pieces = []
+    Hive::Piece::PIECE_RANGE.each {|i| @pieces << Hive::HexagonPiece.new(self, i) }
 end
 
 def update
@@ -87,7 +84,8 @@ def index_to_screen_coordinates(xi, yi)
     x_pixel += -(Hive::BoardState::BOARD_SIZE/2) * (Hive::HexagonPiece::ENCLOSING_RADIUS * zoom_factor) 
 	  y_pixel += -(Hive::BoardState::BOARD_SIZE/2) * (Hive::HexagonPiece::ENCLOSING_RADIUS * zoom_factor)
 	  
-	  y_pixel -= 100
+	  y_pixel -= 200
+	   x_pixel -= 100
     
     return x_pixel, y_pixel     			   
 end

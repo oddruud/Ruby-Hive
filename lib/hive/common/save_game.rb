@@ -1,5 +1,3 @@
-require 'ftools'
-
 class Hive::SaveGame 
   
 attr_accessor :player1 
@@ -49,7 +47,7 @@ def file_path
   return "#{@file_name_prefix}_#{ @player1[0] }_VS_#{ @player2[0] }_#{@date}"
 end
 
-private:
+private
 
 def to_file   
   f = File.open(file_path, 'w')
