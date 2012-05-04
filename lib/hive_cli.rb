@@ -30,7 +30,7 @@ case ARGV[0]
 when "server"
   	#logger.info "starting hive game server on port #{options[:port]}"
   server= Hive::Server.new(options[:port], options[:debug])
-	window = Hive::GameView.new(server.game)
+	window = Hive::GameViewSimple.new(server.game)
 	view_thread = Thread.new {window.show}
 	server.start_test() 
 	view_thread.join 
@@ -41,7 +41,7 @@ when "test"
 	#window = Hive::GameView.new( game )
   #view_thread = Thread.new { window.show } 
 	game.start()
-	Hive::GameView.open_view( game )
+	Hive::GameViewSimple.open_view( game )
 	#view_thread.join
 	
 end
