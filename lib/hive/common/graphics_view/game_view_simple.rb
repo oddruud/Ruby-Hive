@@ -19,7 +19,6 @@ def initialize(game)
     super()
     self.caption = 'Hive Boardgame view'
     #TODO retrieve absolute gem path 
-    #@background = Gosu::Image.new(self, "../lib/hive/common/graphics_view/data/images/wood.jpg",true)
     @font = Gosu::Font.new(self, Gosu::default_font_name, 20)
     @view_turn = 0
     @game = game
@@ -29,7 +28,7 @@ def initialize(game)
     Hive::Piece::PIECE_RANGE.each {|i| @pieces << Hive::HexagonPiece.new(self, i) }
 end
 
-def update
+def update    
 	@pieces.each_index do |i| 
 		piece = @game.get_piece( i )
 		if piece.used?

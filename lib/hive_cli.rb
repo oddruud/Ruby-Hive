@@ -40,8 +40,9 @@ when "test"
   game.add_player Hive::NaiveBot.new( "testbot2" )
 	#window = Hive::GameView.new( game )
   #view_thread = Thread.new { window.show } 
-	game.start()
 	Hive::GameViewSimple.open_view( game )
+	#game.start()
+	
 	#view_thread.join
 	
 end
