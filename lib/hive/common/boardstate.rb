@@ -223,7 +223,7 @@ end
   end
   
   def collect_connected_pieces(piece, collection)
-    piece.for_each_neighbouring_piece do |n|
+    piece.for_each_neighbouring_piece do |n, side|
       #puts "collection checking out #{n}..."
       unless collection.include?(n)
         collection << n 
@@ -386,7 +386,6 @@ end
    return has_piece_at(x, y, z) ? @pieces[ at(x,y,z) ] : nil
  end
  
- #TODO keep a repo of requested slots 
  def get_slot_at(x,y,z)
    id = at(x, y, z)
    return @pieces[id] if id.is_hive_piece_id?
@@ -399,7 +398,7 @@ end
   black = :NotANeighbour 
 
   if piece.used? 
-     piece.for_each_neighbouring_slot_or_piece do |neighbour_slot|
+     piece.for_each_neighbouring_slot_or_piece do |neighbour_slot, side|
          if neighbour_slot.kind_of? Hive::Piece
              white = :Neighbour if neighbour_slot.color == Hive::PieceColor::WHITE      
              black = :Neighbour if neighbour_slot.color == Hive::PieceColor::BLACK     
@@ -469,7 +468,7 @@ end
  def slot_state_after_removal(removed_piece, slot)
        white= :NotANeighbour
        black= :NotANeighbour 
-       slot.for_each_neighbouring_piece do |piece|
+       slot.for_each_neighbouring_piece do |piece, side|
          unless piece == removed_piece
             white = :Neighbour if piece.color == Hive::PieceColor::WHITE
             black = :Neighbour if piece.color == Hive::PieceColor::BLACK    

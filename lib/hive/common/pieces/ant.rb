@@ -23,7 +23,7 @@ def self.available_board_moves( ant )
 end
    
 def self.slide( ant, current_slot, slots)
-   current_slot.for_each_adjacent_slot do |slot|
+   current_slot.for_each_adjacent_slot do |slot, side|
    unless slots.include?(slot) || ant.board_position == slot.board_position
    		slots << slot
      	slide(ant, slot, slots)

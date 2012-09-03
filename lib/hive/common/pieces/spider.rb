@@ -27,7 +27,7 @@ def self.available_board_moves( spider )
 end
 
 def self.step( spider, current_slot, slot_history, result_slots)
-   current_slot.for_each_adjacent_slot do |next_slot|  
+   current_slot.for_each_adjacent_slot do |next_slot, side|  
      history_branch = slot_history.clone
      unless history_branch.include?( next_slot ) || spider.board_position == next_slot.board_position #|| current_slot.gap_between?( next_slot ) #TODO: gap between is temporary 
       history_branch << next_slot

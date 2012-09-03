@@ -29,7 +29,7 @@ end
 def self.available_board_moves(grasshopper)
   moves = Array.new() 
   grasshopper.touch do
-    grasshopper.for_each_adjacent_piece do |neighbour| 
+    grasshopper.for_each_adjacent_piece do |neighbour, side| 
       side = grasshopper.get_side( neighbour )
       unless side == Hive::HexagonSide::NULL_SIDE 
         slot = Hive::GrassHopper.jump_over(grasshopper.neighbour(side), side)     #add the position

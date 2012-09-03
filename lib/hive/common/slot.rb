@@ -104,15 +104,18 @@ end
 def update_false_neighbours_area
   reset_false_neighbours_area
   update_false_neighbours #WORK IN PROGRESS
-  for_each_adjacent_slot_or_piece do |s|
-    s.update_false_neighbours 
+  for_each_adjacent_slot_or_piece do |slot, side|
+    slot.update_false_neighbours 
   end
 end
 
 def reset_false_neighbours_area
   reset_false_neighbours
-  for_each_adjacent_slot_or_piece do |s|
-    s.reset_false_neighbours 
+  for_each_adjacent_slot_or_piece do |slot, side| #ERROR: s is an array...
+    if slot.kind_of? Array
+      @logger.info "reset_false_neighbours_area block parameter s is array: " + slot[0].to_s   
+    end  
+    slot.reset_false_neighbours #HACK, the block parameter s returns the s
   end
 end
 
@@ -185,7 +188,7 @@ end
 def for_each_neighbour_coordinate(params = {})  
     exlusions = params[:exclude] ||  [Hive::HexagonSide::UNDER_SIDE] 
     (0..Hive::HexagonSide::SIDES-1).each do |side_index|
-      unless exlusions.include?( side_index ) || false_neighbour?( side_index )  #FIXME false_neighbour under inspection
+      unless exlusions.include?( side_index ) #|| false_neighbour?( side_index )  #FIXME false_neighbour under inspection
         x,y,z = neighbour_coords( side_index ) 
          if params[:side]   
             yield x,y,z, side_index               
@@ -208,7 +211,7 @@ def for_each_neighbouring_slot( params = {})
   params[:side] = true
   for_each_neighbour_coordinate(params) do |x,y,z, side| 
     if @board_state.has_connected_slot_at(x, y, z) and not @board_state.bottle_neck_to_side(self, side)
-      yield @board_state.get_slot_at(x,y,z)       
+      yield @board_state.get_slot_at(x,y,z), side       
     end
   end 
 end
@@ -224,10 +227,10 @@ def for_each_neighbouring_slot_or_piece( params = {})
   for_each_neighbour_coordinate(params) do |x,y,z,side|
     if not @board_state.has_piece_at(x, y, z) 
       if not @board_state.bottle_neck_to_side(self, side)
-        yield @board_state.get_slot_at(x,y,z)
+        yield @board_state.get_slot_at(x,y,z), side
       end
     else
-      yield @board_state.get_piece_at(x, y, z) 
+      yield @board_state.get_piece_at(x, y, z), side 
     end 
   end 
 end
@@ -277,7 +280,7 @@ end
 
 def enclosed?
   count = 0 
-  for_each_adjacent_piece{|p| count += 1} 
+  for_each_adjacent_piece{|p, side| count += 1} 
   return count == 6
 end
 
@@ -311,8 +314,8 @@ def empty?
 end
 
 def gap_between?( slot )
-  for_each_adjacent_piece do |p|
-    p.for_each_adjacent_slot do |s|
+  for_each_adjacent_piece do |p, p_side|
+    p.for_each_adjacent_slot do |s, s_side|
       if s == slot
         return false
       end

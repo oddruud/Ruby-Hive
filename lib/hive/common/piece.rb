@@ -158,7 +158,7 @@ def set_board_position(x, y, z)
     #update_movability #MAYBE REDUNDANT you just moved the piece, after moving a piece is always still movable right?
     @used = true
     update_false_neighbours_area
-    for_each_adjacent_piece{ |neighbour| neighbour.update_movability}
+    for_each_adjacent_piece{ |neighbour, side| neighbour.update_movability}
   end
 end
 

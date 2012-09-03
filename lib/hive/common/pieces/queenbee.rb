@@ -17,7 +17,7 @@ end
 def self.available_board_moves(queenbee)
   moves = Array.new()
   queenbee.touch do
-    queenbee.for_each_adjacent_slot do |slot|    
+    queenbee.for_each_adjacent_slot do |slot, side|    
       moves << Hive::Move.new(queenbee , slot)
     end  
  end
